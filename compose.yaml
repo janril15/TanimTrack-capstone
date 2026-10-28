@@ -1,0 +1,103 @@
+name: tanodbukid
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    environment:
+      TANODBUKID_BACKEND_URL: http://backend:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:5173').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      TANODBUKID_DB_HOST: database
+      TANODBUKID_DB_NAME: tanodbukid_db
+      TANODBUKID_DB_USER: tanodbukid
+      TANODBUKID_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your private .env file}
+      TANODBUKID_AI_URL: http://ai:8080/predict
+      TANODBUKID_DEV_OTP: ${TANODBUKID_DEV_OTP:-0}
+    ports:
+      - "127.0.0.1:8001:8000"
+    volumes:
+      - uploads:/var/www/html/uploads
+    depends_on:
+      database:
+        condition: service_healthy
+      ai:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - "exit(@file_get_contents('http://127.0.0.1:8000/api/session.php') !== false ? 0 : 1);"
+      interval: 20s
+      timeout: 8s
+      retries: 5
+      start_period: 20s
+
+  database:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: tanodbukid_db
+      MYSQL_USER: tanodbukid
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your private .env file}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in your private .env file}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping --host=127.0.0.1 --user=root --password="$$MYSQL_ROOT_PASSWORD" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  ai:
+    build:
+      context: ./ai
+      dockerfile: Dockerfile
+    environment:
+      MODEL_ID: neghani/plantvillage-mobilenetv2
+      MODEL_MIN_CONFIDENCE: "0.55"
+      HF_HOME: /models
+    expose:
+      - "8080"
+    volumes:
+      - ai-model-cache:/models
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mysql-data:
+    name: tanodbukid_mysql_data
+  uploads:
+    name: tanodbukid_uploads
+  ai-model-cache:

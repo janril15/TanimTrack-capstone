@@ -8,7 +8,7 @@
     event.preventDefault()
     event.stopImmediatePropagation()
 
-    if (!window.confirm('Sign out of Tanod Bukid?')) return
+    if (!window.confirm('Sign out of TanimTrack?')) return
 
     try {
       const response = await fetch(new URL('../api/logout.php', window.location.href), {

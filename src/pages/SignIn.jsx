@@ -10,7 +10,7 @@ export default function SignIn() {
   const [password, setPassword] = React.useState('')
   const nav = useNavigate()
   return (
-    <AuthLayout title="WELCOME" subtitle="Sign in to your TanodBukid account">
+    <AuthLayout title="WELCOME" subtitle="Sign in to your TanimTrack account">
       <InputField label="Mobile Number" value={mobile} onChange={e => setMobile(e.target.value)} placeholder="09XX XXX XXXX" />
       <PasswordInput label="Password" value={password} setValue={setPassword} />
       <div style={{ textAlign: 'right', marginBottom: 12 }}><Link to="/reset" className="link">Forgot password?</Link></div>

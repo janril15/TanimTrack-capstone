@@ -18,7 +18,7 @@ setcookie(session_name(), '', [
 ]);
 
 if (!session_destroy()) {
-    error_log('TanodBukid session destruction failed.');
+    error_log('TanimTrack session destruction failed.');
     json_response(['success' => false, 'message' => 'Unable to end the session. Please try again.'], 500);
 }
 

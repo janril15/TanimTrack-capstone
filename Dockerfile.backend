@@ -1,0 +1,16 @@
+FROM php:8.3-cli
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libcurl4-openssl-dev libonig-dev \
+    && docker-php-ext-install curl fileinfo mbstring pdo_mysql \
+    && printf 'upload_max_filesize=6M\npost_max_size=8M\n' > /usr/local/etc/php/conf.d/tanodbukid.ini \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/html
+COPY --chown=www-data:www-data . .
+RUN mkdir -p uploads/profile uploads/reports \
+    && chown -R www-data:www-data uploads
+
+USER www-data
+EXPOSE 8000
+CMD ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/html", "/var/www/html/router.php"]

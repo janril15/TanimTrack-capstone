@@ -106,6 +106,7 @@ select {
 .profile-avatar-button {
   width: 110px;
   height: 110px;
+  aspect-ratio: 1;
   border-radius: 50%;
   border: 2px solid rgba(65, 85, 70, .5);
   background: rgba(77, 101, 78, .14);
@@ -129,10 +130,11 @@ select {
 }
 
 .profile-avatar-image {
+  display: block;
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
-  display: block;
 }
 
 .profile-upload-text {
@@ -510,7 +512,7 @@ select {
   position: absolute;
   z-index: -1;
   inset: 0;
-  background: linear-gradient(180deg, rgba(247, 250, 246, .96) 0%, rgba(247, 250, 246, .93) 62%, rgba(230, 239, 226, .65) 100%), url('TANOD BUKID/images/landingpagebg.jpg') center bottom / cover no-repeat;
+  background: linear-gradient(180deg, rgba(247, 250, 246, .96) 0%, rgba(247, 250, 246, .93) 62%, rgba(230, 239, 226, .65) 100%), url('TANIMTRACK/images/landingpagebg.jpg') center bottom / cover no-repeat;
   content: '';
 }
 

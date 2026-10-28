@@ -55,12 +55,9 @@
     const imageUrl = new URL(path, projectBaseUrl)
     imageUrl.searchParams.set('v', Date.now().toString())
     const image = document.createElement('img')
+    image.className = 'profile-avatar-image'
     image.alt = 'Profile picture'
     image.src = imageUrl.href
-    image.style.width = '100%'
-    image.style.height = '100%'
-    image.style.objectFit = 'cover'
-    image.style.borderRadius = 'inherit'
     image.addEventListener('error', () => {
       if (image.isConnected && element.contains(image)) element.textContent = initials
     }, { once: true })

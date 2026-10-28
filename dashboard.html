@@ -4,8 +4,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard - Tanod Bukid</title>
-  <link rel="icon" href="bukid.jpg">
+  <title>Dashboard - TanimTrack</title>
+  <meta name="application-name" content="TanimTrack">
+  <link rel="icon" href="TANIMTRACK/images/LOGO.png">
   <link rel="stylesheet" href="css/responsive-tokens.css">
   <link rel="stylesheet" href="src/styles.css">
   <link rel="stylesheet" href="css/chat-widget.css">
@@ -15,8 +16,7 @@
   <main class="dashboard-page app-shell">
     <section class="monitor-shell" aria-label="Plant and crop scanner">
       <header class="monitor-header">
-        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Live
-              analysis and monitoring powered by AI</small></span></div><button class="history-button" type="button"
+        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · experimental crop classifier</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
       </header>
       <div class="monitor-tabs" role="tablist" aria-label="Scan views"><button class="active" id="live-camera-tab"
@@ -29,7 +29,7 @@
           <div class="camera-shade"></div>
           <div class="live-pill"><span></span><span id="live-state">Starting...</span></div>
           <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div>
-          <div class="detection-pill">Plant detected <strong><span id="confidence">92</span>% confidence</strong></div>
+          <div class="detection-pill">Camera preview only</div>
           <p id="camera-error" class="camera-error" hidden></p>
         </section>
         <div class="camera-capture-controls">
@@ -57,40 +57,35 @@
               class="monitoring-tag">Starting...</span>
           </div>
           <div class="metric-list">
-            <div><span class="metric-icon">✦</span><span>Plant Health</span><strong
-                class="healthy-text">Healthy</strong><b>›</b></div>
-            <div><span class="metric-icon">◈</span><span>Leaf Condition</span><strong>Normal</strong><b>›</b></div>
-            <div><span class="metric-icon">▰</span><span>Growth Stage</span><strong>Vegetative</strong><b>›</b></div>
-            <div><span class="metric-icon">◒</span><span>Disease Risk</span><strong>Low</strong><b>›</b></div>
-            <div><span class="metric-icon">◌</span><span>Discoloration</span><strong>None detected</strong><b>›</b>
+            <div><span class="metric-icon">✦</span><span>Plant Health</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">◈</span><span>Leaf Condition</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">▰</span><span>Growth Stage</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">◒</span><span>Disease Risk</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">◌</span><span>Discoloration</span><strong>Not analyzed</strong><b>›</b>
             </div>
-          </div><button id="monitor-toggle" class="pause-button" type="button"><span>Ⅱ</span>Pause Monitoring</button>
+          </div><button id="monitor-toggle" class="pause-button" type="button"><span>Ⅱ</span>Pause Camera</button>
         </section>
         <section class="dashboard-section">
           <div class="section-heading">
             <h2>⟳ &nbsp;Recent Changes</h2><button type="button">View all</button>
           </div>
-          <article class="change-row"><span class="row-icon leaf-bg">◒</span><span><strong>Leaf discoloration
-                increased</strong><small>Compared to last scan (2 days ago)</small></span><em>+8%</em></article>
+          <p>No scan comparisons are available yet.</p>
         </section>
         <section class="dashboard-section farm-log">
           <div class="section-heading">
             <h2>▣ &nbsp;Farm Log</h2><button type="button">View all</button>
           </div>
-          <p><strong>Jul 17, 2025 · 10:24 AM</strong><br>Plant health: Healthy · Growth: +4.2%<br><span>Notes:
-              Insufficient sunlight.</span></p>
+          <p>Submitted scans will appear in your scan history.</p>
         </section>
         <section class="dashboard-section alert-section">
           <div class="section-heading">
             <h2>△ &nbsp;Alerts</h2><button type="button">View all</button>
           </div>
-          <article class="alert-row"><span class="row-icon alert-bg">△</span><span><strong>Possible Rice
-                Blast</strong><small>Detected: Jul 16, 2025 · 2:14 PM<br>Recommended action: Inspect affected
-                leaves</small></span><em>Moderate Risk</em></article>
+          <p>No AI-generated crop alerts are available.</p>
         </section>
         <section class="recommendation"><span>♧</span>
-          <div><strong>AI Recommendation</strong>
-            <p>Keep monitoring for further changes.<br>Ensure proper irrigation and field drainage.</p>
+          <div><strong>About model results</strong>
+            <p>Predictions are experimental and limited to the model's trained classes. Confirm crop concerns with a local agricultural expert.</p>
           </div>
         </section>
         <section class="quick-actions">
@@ -114,7 +109,7 @@
         </section>
         <div class="result-overview">
           <section class="scan-photo-card">
-            <img id="analysis-photo" src="Tanod Bukid Dash Board (1)/plants (1).jpg" alt="Scanned crop leaf">
+            <img id="analysis-photo" src="TanimTrack Dashboard/plants (1).jpg" alt="Scanned crop leaf">
             <span class="analysis-complete"><span>✓</span> Analysis Complete</span>
           </section>
           <section class="result-health-card">
@@ -156,7 +151,7 @@
           <div class="result-section-heading"><span class="result-section-icon">▤</span>
             <h2>Farm Log</h2><button type="button">View All</button>
           </div>
-          <div class="farm-log-entry"><img id="analysis-thumbnail" src="Tanod Bukid Dash Board (1)/plants (1).jpg"
+          <div class="farm-log-entry"><img id="analysis-thumbnail" src="TanimTrack Dashboard/plants (1).jpg"
               alt="Rice scan thumbnail">
             <div class="farm-log-content">
               <p class="farm-log-time">Jul 17, 2025 <span>·</span> 10:24 AM</p>
@@ -200,7 +195,6 @@
       const capturedLivePhoto = document.querySelector('#captured-live-photo')
       const retakeLivePhotoButton = document.querySelector('#retake-live-photo')
       const useLivePhotoButton = document.querySelector('#use-live-photo')
-      const confidence = document.querySelector('#confidence')
       const toggle = document.querySelector('#monitor-toggle')
       const tag = document.querySelector('#monitoring-tag')
       const state = document.querySelector('#live-state')
@@ -231,6 +225,10 @@
       let selectedScanId = null
       let selectedScanSaved = false
       let scanSavePromise = null
+      let scanRequestPromise = null
+      let currentAnalysis = null
+      let analysisAttempted = false
+      let analysisError = ''
 
       const escapeScanHistoryHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
       const scanHistoryDate = (value) => {
@@ -244,23 +242,37 @@
         analysisSaveStatus.hidden = !message
       }
 
-      async function persistSelectedScan() {
+      async function persistSelectedScan(result = null, unavailableReason = '') {
         if (!selectedScanPhoto || selectedScanSaved) return
         if (scanSavePromise) return scanSavePromise
         selectedScanId ||= makeScanId()
+        const prediction = result?.prediction
+        const accepted = Boolean(prediction?.accepted)
+        const confidencePercent = Number.isFinite(Number(prediction?.confidence))
+          ? Number((Number(prediction.confidence) * 100).toFixed(1))
+          : null
+        const condition = String(prediction?.condition || '')
+        const isHealthy = /healthy/i.test(condition)
         setScanHistoryStatus('Saving scan to history...')
         scanSavePromise = saveScanRecord({
           id: selectedScanId,
           userId: null,
           scannedAt: new Date().toISOString(),
-          cropName: null,
+          cropName: accepted ? prediction.crop : null,
           fieldName: null,
-          analysisStatus: 'unavailable',
-          analysisResult: null,
-          resultUnavailableReason: 'AI analysis is not connected to this scanner yet.'
+          analysisStatus: accepted ? 'complete' : 'unavailable',
+          analysisResult: accepted ? {
+            summary: `${prediction.crop}: ${condition}`,
+            healthStatus: condition,
+            detectedIssue: isHealthy ? null : condition,
+            confidence: confidencePercent,
+            confidenceUnit: '%',
+            recommendations: 'Treat this experimental model result as a preliminary clue. Confirm it with a local agricultural expert.'
+          } : null,
+          resultUnavailableReason: accepted ? null : unavailableReason
         }, selectedScanPhoto).then(() => {
           selectedScanSaved = true
-          setScanHistoryStatus('Scan saved to history. Result unavailable because AI analysis is not connected.')
+          setScanHistoryStatus('Scan and model result saved to history.')
         }).catch((storageError) => {
           console.error('[scanner history] Unable to save scan', storageError)
           setScanHistoryStatus('Unable to save scan history. Please try again.')
@@ -510,6 +522,72 @@
         window.location.href = route === 'home' ? homePath : `${homePath}#${route}`
       }))
 
+      async function analyzeSelectedScan() {
+        if (!selectedScanPhoto || scanRequestPromise || analysisAttempted) return scanRequestPromise
+        analysisAttempted = true
+        const scanId = selectedScanId
+        const image = selectedScanPhoto
+        const formData = new FormData()
+        formData.append('scan_image', image, image.name || 'crop-image.jpg')
+        analysisUnavailable.hidden = false
+        analysisUnavailableTitle.textContent = 'Analyzing image...'
+        analysisUnavailableCopy.textContent = 'The experimental crop classifier may take a little longer on its first request while model weights download.'
+        analysisUnavailablePhoto.hidden = !capturedPhotoUrl
+        analysisUnavailablePlaceholder.hidden = Boolean(capturedPhotoUrl)
+        if (capturedPhotoUrl) analysisUnavailablePhoto.src = capturedPhotoUrl
+        setScanHistoryStatus('Submitting image for analysis...')
+        scanRequestPromise = (async () => {
+          let result
+          let unavailableReason = ''
+          try {
+            const response = await fetch('/api/scan.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: { Accept: 'application/json' },
+              body: formData
+            })
+            try {
+              result = await response.json()
+            } catch {
+              throw new Error('The scanner returned an invalid response.')
+            }
+            if (!response.ok || !result.success || !result.prediction) {
+              throw new Error(result.message || 'The scanner could not analyze this image.')
+            }
+            if (scanId !== selectedScanId) return
+            const prediction = result.prediction
+            const confidence = Number(prediction.confidence)
+            if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+              throw new Error('The scanner returned an invalid confidence score.')
+            }
+            currentAnalysis = result
+            if (prediction.accepted) {
+              analysisUnavailableTitle.textContent = `${prediction.crop}: ${prediction.condition}`
+              analysisUnavailableCopy.textContent = `${(confidence * 100).toFixed(1)}% model confidence. ${result.disclaimer || 'Experimental classifier output; confirm the result with a local agricultural expert.'}`
+            } else {
+              analysisUnavailableTitle.textContent = 'No reliable result'
+              analysisUnavailableCopy.textContent = `The top model class was ${prediction.label} at ${(confidence * 100).toFixed(1)}% confidence, below the acceptance threshold. Try a clearer close-up image; this result is not a diagnosis.`
+            }
+            unavailableReason = prediction.accepted ? '' : 'The model confidence was too low to accept this classification.'
+          } catch (scanError) {
+            if (scanId !== selectedScanId) return
+            unavailableReason = scanError instanceof Error ? scanError.message : 'The scanner is unavailable.'
+            currentAnalysis = null
+            result = null
+            analysisError = unavailableReason
+            analysisUnavailableTitle.textContent = 'Result unavailable'
+            analysisUnavailableCopy.textContent = unavailableReason
+          }
+          if (scanId === selectedScanId) await persistSelectedScan(result || null, unavailableReason)
+        })().finally(() => {
+          scanRequestPromise = null
+          if (!scanAnalysisView.hidden && selectedScanPhoto && !analysisAttempted) {
+            void analyzeSelectedScan()
+          }
+        })
+        return scanRequestPromise
+      }
+
       function setScanTab(showAnalysis) {
         liveScanView.hidden = showAnalysis
         scanAnalysisView.hidden = !showAnalysis
@@ -528,15 +606,29 @@
             analysisThumbnail.src = capturedPhotoUrl
           }
           analysisUnavailable.hidden = false
-          analysisUnavailableTitle.textContent = hasSubmittedPhoto ? 'Result unavailable' : 'No scan result yet'
+          analysisUnavailableTitle.textContent = hasSubmittedPhoto ? 'Analyzing image...' : 'No scan result yet'
           analysisUnavailableCopy.textContent = hasSubmittedPhoto
-            ? 'The scan image was saved, but this app did not return an AI analysis result.'
-            : 'Capture and submit a plant photo to save it. AI analysis is not connected to this scanner.'
+            ? 'Submitting the selected image to the experimental crop classifier.'
+            : 'Capture or upload a crop photo, then choose Use Photo to request an analysis.'
           const hasPreview = Boolean(hasSubmittedPhoto && capturedPhotoUrl)
           analysisUnavailablePhoto.hidden = !hasPreview
           analysisUnavailablePlaceholder.hidden = hasPreview
           if (hasPreview) analysisUnavailablePhoto.src = capturedPhotoUrl
-          if (hasSubmittedPhoto) void persistSelectedScan()
+          if (hasSubmittedPhoto && currentAnalysis) {
+            const prediction = currentAnalysis.prediction
+            const confidence = Number(prediction.confidence)
+            analysisUnavailableTitle.textContent = prediction.accepted
+              ? `${prediction.crop}: ${prediction.condition}`
+              : 'No reliable result'
+            analysisUnavailableCopy.textContent = prediction.accepted
+              ? `${(confidence * 100).toFixed(1)}% model confidence. ${currentAnalysis.disclaimer || 'Experimental classifier output; confirm the result with a local agricultural expert.'}`
+              : `The top model class was ${prediction.label} at ${(confidence * 100).toFixed(1)}% confidence, below the acceptance threshold. This is not a diagnosis.`
+          } else if (hasSubmittedPhoto && analysisError) {
+            analysisUnavailableTitle.textContent = 'Result unavailable'
+            analysisUnavailableCopy.textContent = analysisError
+          } else if (hasSubmittedPhoto) {
+            void analyzeSelectedScan()
+          }
           state.textContent = 'Paused'
           tag.textContent = 'Paused'
           tag.className = 'paused-tag'
@@ -581,7 +673,7 @@
       function setCameraStarting() {
         error.hidden = true
         state.textContent = 'Starting...'
-        tag.textContent = 'Starting...'
+        tag.textContent = 'Camera starting...'
         tag.className = 'monitoring-tag'
       }
 
@@ -605,7 +697,7 @@
         tag.textContent = 'Paused'
         tag.className = 'paused-tag'
         monitoring = false
-        toggle.innerHTML = '<span>▶</span>Resume Monitoring'
+        toggle.innerHTML = '<span>▶</span>Resume Camera'
         console.error('[scanner camera] Initialization failed', {
           stage,
           name,
@@ -719,7 +811,7 @@
             await playCameraVideo()
             await waitForVideoReady()
             state.textContent = 'Live'
-            tag.textContent = monitoring ? 'Monitoring...' : 'Paused'
+            tag.textContent = monitoring ? 'Camera active' : 'Paused'
             tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'
             error.hidden = true
             setCaptureStatus('')
@@ -777,6 +869,9 @@
           selectedScanPhoto = null
           selectedScanId = makeScanId()
           selectedScanSaved = false
+          currentAnalysis = null
+          analysisAttempted = false
+          analysisError = ''
           capturedPhotoUrl = URL.createObjectURL(photo)
           capturedLivePhoto.src = capturedPhotoUrl
           capturedPhotoPreview.hidden = false
@@ -802,6 +897,9 @@
         selectedScanPhoto = null
         selectedScanId = makeScanId()
         selectedScanSaved = false
+        currentAnalysis = null
+        analysisAttempted = false
+        analysisError = ''
         capturedPhotoUrl = URL.createObjectURL(photo)
         capturedLivePhoto.src = capturedPhotoUrl
         capturedPhotoPreview.hidden = false
@@ -813,6 +911,9 @@
         selectedScanPhoto = null
         selectedScanId = null
         selectedScanSaved = false
+        currentAnalysis = null
+        analysisAttempted = false
+        analysisError = ''
         capturedLivePhoto.removeAttribute('src')
         capturedPhotoPreview.hidden = true
         if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl)
@@ -826,14 +927,12 @@
         if (!capturedPhotoBlob) return
         selectedScanPhoto = capturedPhotoBlob
         selectedScanId ||= makeScanId()
-        void persistSelectedScan()
+        void setScanTab(true)
       })
 
-      const interval = window.setInterval(() => { if (monitoring) confidence.textContent = Number(confidence.textContent) >= 97 ? 91 : Number(confidence.textContent) + 1 }, 2200)
-      toggle.addEventListener('click', () => { monitoring = !monitoring; tag.textContent = monitoring ? 'Monitoring...' : 'Paused'; tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'; state.textContent = hasActiveCameraTrack(stream || video.srcObject) ? 'Live' : monitoring ? 'Starting...' : 'Paused'; toggle.innerHTML = monitoring ? '<span>Ⅱ</span>Pause Monitoring' : '<span>▶</span>Resume Monitoring'; if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) void initializeCamera() })
+      toggle.addEventListener('click', () => { monitoring = !monitoring; tag.textContent = monitoring ? 'Camera active' : 'Paused'; tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'; state.textContent = hasActiveCameraTrack(stream || video.srcObject) ? 'Live' : monitoring ? 'Starting...' : 'Paused'; toggle.innerHTML = monitoring ? '<span>Ⅱ</span>Pause Camera' : '<span>▶</span>Resume Camera'; if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) void initializeCamera() })
       window.addEventListener('pagehide', () => {
         pageLeaving = true
-        window.clearInterval(interval)
         stopCameraStream(stream)
         if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl)
       }, { once: true })

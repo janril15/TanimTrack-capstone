@@ -125,7 +125,7 @@ function climate_fetch_open_meteo(float $latitude, float $longitude): array
         CURLOPT_CONNECTTIMEOUT => 5,
         CURLOPT_TIMEOUT => 12,
         CURLOPT_HTTPHEADER => ['Accept: application/json'],
-        CURLOPT_USERAGENT => 'TanodBukid/1.0 weather dashboard',
+        CURLOPT_USERAGENT => 'TanimTrack/1.0 weather dashboard',
     ]);
     $responseBody = curl_exec($curl);
     $httpStatus = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
@@ -133,14 +133,14 @@ function climate_fetch_open_meteo(float $latitude, float $longitude): array
     curl_close($curl);
 
     if (!is_string($responseBody) || $httpStatus < 200 || $httpStatus >= 300) {
-        error_log('TanodBukid Open-Meteo request failed: HTTP ' . $httpStatus . ($curlError !== '' ? ' ' . $curlError : ''));
+        error_log('TanimTrack Open-Meteo request failed: HTTP ' . $httpStatus . ($curlError !== '' ? ' ' . $curlError : ''));
         throw new RuntimeException('Weather provider is temporarily unavailable.');
     }
 
     try {
         $payload = json_decode($responseBody, true, 64, JSON_THROW_ON_ERROR);
     } catch (JsonException $error) {
-        error_log('TanodBukid Open-Meteo response was invalid JSON: ' . $error->getMessage());
+        error_log('TanimTrack Open-Meteo response was invalid JSON: ' . $error->getMessage());
         throw new RuntimeException('Weather provider returned an invalid response.', 0, $error);
     }
     if (!is_array($payload)
@@ -446,7 +446,7 @@ try {
             climate_upsert($pdo, $payload, (float) $latitude, (float) $longitude);
             $refreshed = true;
         } catch (Throwable $error) {
-            error_log('TanodBukid climate refresh failed: ' . $error->getMessage());
+            error_log('TanimTrack climate refresh failed: ' . $error->getMessage());
             $refreshError = 'Live weather refresh failed. Showing the latest saved snapshot, if available.';
         }
     }
@@ -478,9 +478,9 @@ try {
         ],
     ]);
 } catch (PDOException $error) {
-    error_log('TanodBukid climate database request failed: ' . $error->getMessage());
+    error_log('TanimTrack climate database request failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'Unable to read or save climate data. Confirm that the climate database migration has been imported.'], 503);
 } catch (Throwable $error) {
-    error_log('TanodBukid climate request failed: ' . $error->getMessage());
+    error_log('TanimTrack climate request failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'Unable to load climate data right now. Please try again.'], 503);
 }

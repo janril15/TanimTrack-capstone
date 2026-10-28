@@ -27,7 +27,7 @@ export default function Register(){
   }
 
   return (
-    <AuthLayout title="CREATE YOUR ACCOUNT" subtitle="Join TanodBukid for free">
+    <AuthLayout title="CREATE YOUR ACCOUNT" subtitle="Join TanimTrack for free">
       <div style={{display:'flex',gap:10}}>
         <div style={{flex:1}}><InputField label="First Name" value={first} onChange={e=>setFirst(e.target.value)} /></div>
         <div style={{flex:1}}><InputField label="Last Name" value={last} onChange={e=>setLast(e.target.value)} /></div>

@@ -59,7 +59,7 @@ if ($existing !== false) {
 
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 if ($passwordHash === false) {
-    error_log('TanodBukid password hashing failed.');
+    error_log('TanimTrack password hashing failed.');
     json_response(['success' => false, 'message' => 'Unable to create the account right now. Please try again.'], 500);
 }
 
@@ -80,7 +80,7 @@ try {
             'message' => 'An account with this email address or mobile number already exists.',
         ], 409);
     }
-    error_log('TanodBukid registration failed: ' . $error->getMessage());
+    error_log('TanimTrack registration failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'Unable to create the account right now. Please try again.'], 500);
 }
 

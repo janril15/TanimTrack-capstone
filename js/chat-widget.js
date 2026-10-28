@@ -197,25 +197,25 @@
       return state.panel
     }
 
-    const assistantAvatar = new URL('../TANOD BUKID/images/ai profile pic.png', import.meta.url).href
+    const assistantAvatar = new URL('../TANIMTRACK/images/ai profile pic.png', import.meta.url).href
     const panel = document.createElement('section')
     panel.id = 'ai-chat'
     panel.className = 'ai-chat'
     panel.hidden = true
-    panel.setAttribute('aria-label', 'Tanod Bukid AI chat')
+    panel.setAttribute('aria-label', 'TanimTrack AI chat')
     panel.setAttribute('role', 'dialog')
     panel.innerHTML = `
       <header class="chat-header">
         <button id="close-chat-back" type="button" aria-label="Back to scanner">‹</button>
-        <img class="chat-avatar" src="${assistantAvatar}" alt="Tanod Bukid AI">
-        <span><strong>Tanod Bukid AI</strong><small>Your farming assistant</small></span>
+        <img class="chat-avatar" src="${assistantAvatar}" alt="TanimTrack AI">
+        <span><strong>TanimTrack AI</strong><small>Your farming assistant</small></span>
         <button id="close-chat" type="button" aria-label="Close chat">×</button>
       </header>
       <div id="chat-content" class="chat-content">
         <div class="chat-welcome">
-          <img class="welcome-avatar" src="${assistantAvatar}" alt="Tanod Bukid AI">
+          <img class="welcome-avatar" src="${assistantAvatar}" alt="TanimTrack AI">
           <div>
-            <strong>Hi! I’m Tanod Bukid AI <span>🌱</span></strong>
+            <strong>Hi! I’m TanimTrack AI <span>🌱</span></strong>
             <p>I can help you with plant health, soil conditions, crop recommendations, and more. Ask me anything about your farm!</p>
           </div>
         </div>
@@ -287,7 +287,7 @@
         const avatar = document.createElement('img')
         avatar.className = 'message-avatar'
         avatar.src = assistantAvatar
-        avatar.alt = 'Tanod Bukid AI'
+        avatar.alt = 'TanimTrack AI'
         message.append(avatar)
       }
       const paragraph = document.createElement('p')

@@ -155,7 +155,7 @@ if ($requestMethod === 'GET') {
         );
         $activities = array_map('farm_activity_response_row', $statement->fetchAll());
     } catch (PDOException $error) {
-        error_log('TanodBukid farm activities lookup failed: ' . $error->getMessage());
+        error_log('TanimTrack farm activities lookup failed: ' . $error->getMessage());
         json_response(['success' => false, 'message' => 'Unable to load farm activities. Check that the farm_activities database migration has been applied.'], 503);
     }
 
@@ -206,7 +206,7 @@ if (($data['action'] ?? '') === 'import-legacy') {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
-        error_log('TanodBukid legacy farm activity import failed: ' . $error->getMessage());
+        error_log('TanimTrack legacy farm activity import failed: ' . $error->getMessage());
         json_response(['success' => false, 'message' => 'Unable to preserve older farm activities. Please try again.'], 503);
     }
 
@@ -241,10 +241,10 @@ try {
         throw new RuntimeException('The saved farm activity could not be read back.');
     }
 } catch (PDOException $error) {
-    error_log('TanodBukid farm activity save failed: ' . $error->getMessage());
+    error_log('TanimTrack farm activity save failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'Unable to save this farm activity. Please try again.'], 503);
 } catch (RuntimeException $error) {
-    error_log('TanodBukid farm activity lookup after save failed: ' . $error->getMessage());
+    error_log('TanimTrack farm activity lookup after save failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'The activity was saved, but its details could not be loaded. Refresh Farm Logs to check it.'], 503);
 }
 

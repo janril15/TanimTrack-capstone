@@ -51,10 +51,14 @@ function start_app_session(): void
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');
     session_name('tanodbukid_session');
+    $forwardedProtocol = strtolower(trim(explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')[0]));
+    $cloudflareVisitor = json_decode($_SERVER['HTTP_CF_VISITOR'] ?? '', true);
+    $secureForwardedRequest = $forwardedProtocol === 'https'
+        || (is_array($cloudflareVisitor) && ($cloudflareVisitor['scheme'] ?? null) === 'https');
     session_set_cookie_params([
         'lifetime' => 0,
         'path' => $cookiePath,
-        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'secure' => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $secureForwardedRequest,
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
@@ -85,7 +89,7 @@ function pdo_connection(): PDO
             ]
         );
     } catch (PDOException $error) {
-        error_log('TanodBukid database connection failed: ' . $error->getMessage());
+        error_log('TanimTrack database connection failed: ' . $error->getMessage());
         json_response([
             'success' => false,
             'message' => 'Unable to connect to the database. Check that MySQL is running and the PHP database settings are correct.',
@@ -121,23 +125,23 @@ function save_profile_picture(array $upload): string
 
     $directory = __DIR__ . '/../uploads/profile';
     if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-        error_log('TanodBukid profile upload directory could not be created.');
+        error_log('TanimTrack profile upload directory could not be created.');
         json_response(['success' => false, 'message' => 'Unable to save the profile picture right now.'], 500);
     }
     if (!is_writable($directory)) {
-        error_log('TanodBukid profile upload directory is not writable.');
+        error_log('TanimTrack profile upload directory is not writable.');
         json_response(['success' => false, 'message' => 'Unable to save the profile picture right now.'], 500);
     }
 
     try {
         $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mimeType];
     } catch (Throwable $error) {
-        error_log('TanodBukid profile picture filename generation failed: ' . $error->getMessage());
+        error_log('TanimTrack profile picture filename generation failed: ' . $error->getMessage());
         json_response(['success' => false, 'message' => 'Unable to save the profile picture right now.'], 500);
     }
 
     if (!move_uploaded_file($upload['tmp_name'], $directory . '/' . $filename)) {
-        error_log('TanodBukid profile picture could not be moved into the upload directory.');
+        error_log('TanimTrack profile picture could not be moved into the upload directory.');
         json_response(['success' => false, 'message' => 'Unable to save the profile picture right now.'], 500);
     }
 
@@ -152,7 +156,7 @@ function delete_profile_picture(?string $relativePath): void
 
     $path = __DIR__ . '/../' . $relativePath;
     if (is_file($path) && !unlink($path)) {
-        error_log('TanodBukid replaced profile picture could not be removed.');
+        error_log('TanimTrack replaced profile picture could not be removed.');
     }
 }
 

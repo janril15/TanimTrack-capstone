@@ -4,13 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard - Tanod Bukid</title>
-  <link rel="icon" href="/assets/bukid-DsyEwStS.jpg">
-  <script type="module" crossorigin src="/assets/dashboard-Dvs2nANF.js"></script>
+  <title>Dashboard - TanimTrack</title>
+  <meta name="application-name" content="TanimTrack">
+  <link rel="icon" href="/assets/LOGO-AmrPmLxz.png">
+  <script type="module" crossorigin src="/assets/dashboard-Cv0yY2va.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/responsive-tokens-D3s_mGTX.js">
-  <link rel="modulepreload" crossorigin href="/assets/chat-widget-DkfvU3JZ.js">
+  <link rel="modulepreload" crossorigin href="/assets/chat-widget-Cwg8wncc.js">
   <link rel="stylesheet" crossorigin href="/assets/responsive-tokens-DvAcVn5e.css">
-  <link rel="stylesheet" crossorigin href="/assets/styles-DBAEWoPk.css">
+  <link rel="stylesheet" crossorigin href="/assets/styles-BZMvQuQT.css">
   <link rel="stylesheet" crossorigin href="/assets/chat-widget-C_JfJj6j.css">
 </head>
 
@@ -18,8 +19,7 @@
   <main class="dashboard-page app-shell">
     <section class="monitor-shell" aria-label="Plant and crop scanner">
       <header class="monitor-header">
-        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Live
-              analysis and monitoring powered by AI</small></span></div><button class="history-button" type="button"
+        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · experimental crop classifier</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
       </header>
       <div class="monitor-tabs" role="tablist" aria-label="Scan views"><button class="active" id="live-camera-tab"
@@ -32,7 +32,7 @@
           <div class="camera-shade"></div>
           <div class="live-pill"><span></span><span id="live-state">Starting...</span></div>
           <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div>
-          <div class="detection-pill">Plant detected <strong><span id="confidence">92</span>% confidence</strong></div>
+          <div class="detection-pill">Camera preview only</div>
           <p id="camera-error" class="camera-error" hidden></p>
         </section>
         <div class="camera-capture-controls">
@@ -60,40 +60,35 @@
               class="monitoring-tag">Starting...</span>
           </div>
           <div class="metric-list">
-            <div><span class="metric-icon">✦</span><span>Plant Health</span><strong
-                class="healthy-text">Healthy</strong><b>›</b></div>
-            <div><span class="metric-icon">◈</span><span>Leaf Condition</span><strong>Normal</strong><b>›</b></div>
-            <div><span class="metric-icon">▰</span><span>Growth Stage</span><strong>Vegetative</strong><b>›</b></div>
-            <div><span class="metric-icon">◒</span><span>Disease Risk</span><strong>Low</strong><b>›</b></div>
-            <div><span class="metric-icon">◌</span><span>Discoloration</span><strong>None detected</strong><b>›</b>
+            <div><span class="metric-icon">✦</span><span>Plant Health</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">◈</span><span>Leaf Condition</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">▰</span><span>Growth Stage</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">◒</span><span>Disease Risk</span><strong>Not analyzed</strong><b>›</b></div>
+            <div><span class="metric-icon">◌</span><span>Discoloration</span><strong>Not analyzed</strong><b>›</b>
             </div>
-          </div><button id="monitor-toggle" class="pause-button" type="button"><span>Ⅱ</span>Pause Monitoring</button>
+          </div><button id="monitor-toggle" class="pause-button" type="button"><span>Ⅱ</span>Pause Camera</button>
         </section>
         <section class="dashboard-section">
           <div class="section-heading">
             <h2>⟳ &nbsp;Recent Changes</h2><button type="button">View all</button>
           </div>
-          <article class="change-row"><span class="row-icon leaf-bg">◒</span><span><strong>Leaf discoloration
-                increased</strong><small>Compared to last scan (2 days ago)</small></span><em>+8%</em></article>
+          <p>No scan comparisons are available yet.</p>
         </section>
         <section class="dashboard-section farm-log">
           <div class="section-heading">
             <h2>▣ &nbsp;Farm Log</h2><button type="button">View all</button>
           </div>
-          <p><strong>Jul 17, 2025 · 10:24 AM</strong><br>Plant health: Healthy · Growth: +4.2%<br><span>Notes:
-              Insufficient sunlight.</span></p>
+          <p>Submitted scans will appear in your scan history.</p>
         </section>
         <section class="dashboard-section alert-section">
           <div class="section-heading">
             <h2>△ &nbsp;Alerts</h2><button type="button">View all</button>
           </div>
-          <article class="alert-row"><span class="row-icon alert-bg">△</span><span><strong>Possible Rice
-                Blast</strong><small>Detected: Jul 16, 2025 · 2:14 PM<br>Recommended action: Inspect affected
-                leaves</small></span><em>Moderate Risk</em></article>
+          <p>No AI-generated crop alerts are available.</p>
         </section>
         <section class="recommendation"><span>♧</span>
-          <div><strong>AI Recommendation</strong>
-            <p>Keep monitoring for further changes.<br>Ensure proper irrigation and field drainage.</p>
+          <div><strong>About model results</strong>
+            <p>Predictions are experimental and limited to the model's trained classes. Confirm crop concerns with a local agricultural expert.</p>
           </div>
         </section>
         <section class="quick-actions">

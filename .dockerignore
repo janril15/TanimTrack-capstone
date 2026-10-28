@@ -1,0 +1,12 @@
+.git
+.qodo
+.env
+.env.*
+!.env.example
+node_modules
+dist
+uploads/profile/*
+uploads/reports/*
+__pycache__
+.pytest_cache
+.venv

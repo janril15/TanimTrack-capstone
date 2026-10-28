@@ -92,7 +92,7 @@ if ($requestMethod === 'GET') {
         }
         $reports = array_map('report_response_row', $statement->fetchAll());
     } catch (PDOException $error) {
-        error_log('TanodBukid reports lookup failed: ' . $error->getMessage());
+        error_log('TanimTrack reports lookup failed: ' . $error->getMessage());
         json_response(['success' => false, 'message' => 'Unable to load community reports right now.'], 503);
     }
 
@@ -146,22 +146,22 @@ if (is_array($upload) && ($upload['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR
 
     $directory = __DIR__ . '/../uploads/reports';
     if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
-        error_log('TanodBukid report upload directory could not be created.');
+        error_log('TanimTrack report upload directory could not be created.');
         json_response(['success' => false, 'message' => 'Unable to save the report image right now.'], 500);
     }
     if (!is_writable($directory)) {
-        error_log('TanodBukid report upload directory is not writable.');
+        error_log('TanimTrack report upload directory is not writable.');
         json_response(['success' => false, 'message' => 'Unable to save the report image right now.'], 500);
     }
 
     try {
         $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mimeType];
     } catch (Throwable $error) {
-        error_log('TanodBukid report filename generation failed: ' . $error->getMessage());
+        error_log('TanimTrack report filename generation failed: ' . $error->getMessage());
         json_response(['success' => false, 'message' => 'Unable to save the report image right now.'], 500);
     }
     if (!move_uploaded_file($upload['tmp_name'], $directory . '/' . $filename)) {
-        error_log('TanodBukid report image could not be moved into the upload directory.');
+        error_log('TanimTrack report image could not be moved into the upload directory.');
         json_response(['success' => false, 'message' => 'Unable to save the report image right now.'], 500);
     }
     $imagePath = 'uploads/reports/' . $filename;
@@ -209,9 +209,9 @@ try {
     $report = $reportQuery->fetch();
 } catch (Throwable $error) {
     if ($imagePath !== null && is_file(__DIR__ . '/../' . $imagePath) && !unlink(__DIR__ . '/../' . $imagePath)) {
-        error_log('TanodBukid abandoned report image could not be removed.');
+        error_log('TanimTrack abandoned report image could not be removed.');
     }
-    error_log('TanodBukid report creation failed: ' . $error->getMessage());
+    error_log('TanimTrack report creation failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'Unable to publish the report right now. Please try again.'], 503);
 }
 

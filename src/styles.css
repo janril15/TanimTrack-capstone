@@ -38,6 +38,14 @@ body {
   -webkit-font-smoothing: antialiased
 }
 
+body.scanner-page {
+  height: auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 #landing-app.app-shell,
 .dashboard-page.app-shell {
   position: relative;

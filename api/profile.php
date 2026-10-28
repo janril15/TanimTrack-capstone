@@ -34,7 +34,7 @@ if ($requestMethod === 'POST') {
         $update->execute(['profile_picture' => $newPicture, 'id' => $sessionUser['id']]);
     } catch (PDOException $error) {
         delete_profile_picture($newPicture);
-        error_log('TanodBukid profile picture update failed: ' . $error->getMessage());
+        error_log('TanimTrack profile picture update failed: ' . $error->getMessage());
         json_response(['success' => false, 'message' => 'Unable to save your profile picture right now.'], 503);
     }
 
@@ -52,7 +52,7 @@ try {
     $statement->execute(['id' => $sessionUser['id']]);
     $user = $statement->fetch();
 } catch (PDOException $error) {
-    error_log('TanodBukid profile lookup failed: ' . $error->getMessage());
+    error_log('TanimTrack profile lookup failed: ' . $error->getMessage());
     json_response(['success' => false, 'message' => 'Unable to load your account information right now.'], 503);
 }
 

@@ -6,9 +6,9 @@
   const pageCard = document.querySelector('#page-card')
   const landingApp = document.querySelector('#landing-app')
   const authApp = document.querySelector('#auth-app')
-  const projectBaseUrl = new URL('./', window.location.href)
+  const projectBaseUrl = new URL('/', window.location.origin)
   const apiBaseUrl = new URL('api/', projectBaseUrl)
-  const dashboardHomePath = 'Tanod%20Bukid%20Dash%20Board%20(1)/index%20(1).html'
+  const dashboardHomePath = 'TanimTrack Dashboard/index (1).html'
   const state = { route: window.location.hash.slice(1) }
 
   try {
@@ -18,10 +18,10 @@
   }
 
   const pages = {
-    signin: ['WELCOME', 'Sign in to your TanodBukid account'],
-    register: ['CREATE YOUR ACCOUNT', 'Join TanodBukid for free'],
+    signin: ['WELCOME', 'Sign in to your TanimTrack account'],
+    register: ['CREATE YOUR ACCOUNT', 'Join TanimTrack for free'],
     verify: ['VERIFY YOUR NUMBER', ''],
-    reset: ['RESET PASSWORD', 'Enter your mobile number to receive a reset link']
+    reset: ['RESET PASSWORD', 'Verify a mobile reset code and choose a new password']
   }
   const passwordRules = [
     ['length', 'At least 8 characters'],
@@ -72,7 +72,7 @@
   function renderReset() {
     pageTitle.textContent = pages.reset[0]
     pageSubtitle.textContent = pages.reset[1]
-    authLayout(`${field('Mobile Number', 'reset-mobile', '09XX XXX XXXX', 'tel', 'tel')}<button class="primary-btn" data-action="send-reset">SEND RESET CODE</button><div class="info-box">A 6-digit reset code will be sent via SMS. Code valid for 15 minutes.</div><div class="footer">Remember password? <a href="#signin" class="link">Sign In</a></div>`)
+    authLayout(`<form id="password-reset-request">${field('Mobile Number', 'reset-mobile', '09XX XXX XXXX', 'tel', 'tel')}<button class="primary-btn" type="submit">SEND RESET CODE</button></form><form id="password-reset-confirm" hidden><div class="field"><label class="label" for="reset-otp">6-digit reset code</label><input id="reset-otp" class="input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></div>${passwordField('reset-password', 'new-password', 'New Password')}${passwordField('reset-confirm-password', 'new-password', 'Confirm New Password')}<button class="primary-btn" type="submit">RESET PASSWORD</button></form><div class="info-box">Codes expire after 15 minutes. SMS delivery is not configured; the development code is available only when local development OTP is explicitly enabled.</div><div class="footer">Remember password? <a href="#signin" class="link">Sign In</a></div>`)
   }
 
   function showFeedback(message, isError = true) {
@@ -214,6 +214,71 @@
     }
   }
 
+  async function requestPasswordReset(event) {
+    event.preventDefault()
+    const form = event.currentTarget
+    if (!form.checkValidity()) {
+      form.reportValidity()
+      return
+    }
+    const button = form.querySelector('button[type="submit"]')
+    const originalText = button.textContent
+    button.disabled = true
+    button.textContent = 'PLEASE WAIT'
+    showFeedback('')
+
+    try {
+      const result = await requestAuth('password-reset.php', {
+        action: 'send',
+        mobile_number: form.querySelector('#reset-mobile').value
+      })
+      const confirmForm = pageCard.querySelector('#password-reset-confirm')
+      confirmForm.dataset.mobileNumber = form.querySelector('#reset-mobile').value
+      confirmForm.hidden = false
+      showFeedback(result.dev_otp
+        ? `Local development reset code: ${result.dev_otp}`
+        : result.message, false)
+      confirmForm.querySelector('#reset-otp').focus()
+    } catch (error) {
+      showFeedback(error.message)
+    } finally {
+      button.disabled = false
+      button.textContent = originalText
+    }
+  }
+
+  async function confirmPasswordReset(event) {
+    event.preventDefault()
+    const form = event.currentTarget
+    const password = form.querySelector('#reset-password').value
+    const confirmation = form.querySelector('#reset-confirm-password').value
+    const { valid } = passwordState(password)
+    if (!form.checkValidity() || !valid || password !== confirmation) {
+      showFeedback(password !== confirmation ? 'The new passwords do not match.' : 'Enter a valid six-digit code and a password that meets all requirements.')
+      return
+    }
+
+    const button = form.querySelector('button[type="submit"]')
+    const originalText = button.textContent
+    button.disabled = true
+    button.textContent = 'PLEASE WAIT'
+    showFeedback('')
+    try {
+      const result = await requestAuth('password-reset.php', {
+        action: 'reset',
+        mobile_number: form.dataset.mobileNumber,
+        otp: form.querySelector('#reset-otp').value,
+        password
+      })
+      showFeedback(result.message, false)
+      window.setTimeout(() => { window.location.hash = 'signin' }, 1000)
+    } catch (error) {
+      showFeedback(error.message)
+      button.disabled = false
+      button.textContent = originalText
+    }
+  }
+
   function bindEvents() {
     pageCard.querySelectorAll('[data-toggle-password]').forEach(button => button.addEventListener('click', () => {
       const input = document.getElementById(button.dataset.togglePassword)
@@ -226,7 +291,8 @@
       authForm.addEventListener('input', () => updateRegistrationState(authForm))
       updateRegistrationState(authForm)
     }
-    pageCard.querySelector('[data-action="send-reset"]')?.addEventListener('click', () => alert('Password reset is not available yet.'))
+    pageCard.querySelector('#password-reset-request')?.addEventListener('submit', requestPasswordReset)
+    pageCard.querySelector('#password-reset-confirm')?.addEventListener('submit', confirmPasswordReset)
     pageCard.querySelector('[data-action="verify"]')?.addEventListener('click', () => { window.location.hash = 'signin' })
     pageCard.querySelectorAll('.otp').forEach((input, index, inputs) => input.addEventListener('input', () => {
       if (input.value && index < inputs.length - 1) inputs[index + 1].focus()

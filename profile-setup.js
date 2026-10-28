@@ -3,6 +3,7 @@
 
   const STORAGE_KEY = 'tanodbukid_profile_setup'
   const TOTAL_STEPS = 4
+  const projectBaseUrl = new URL('/', window.location.origin)
   const defaultNotifications = { climateAlerts: true, communityAlerts: true }
   const cropOptions = ['Plants', 'Vegetable', 'Rice Crops', 'Onion', 'Mais (Corn)', 'Kangkong', 'Tomato', 'Eggplant']
   const farmScaleOptions = ['Small Farm', 'Backyard Garden']
@@ -40,7 +41,7 @@
   }
 
   function validProfilePicture(path) { return typeof path === 'string' && /^uploads\/profile\/[a-f0-9]{32}\.(?:jpg|png|webp)$/i.test(path) }
-  function profilePictureUrl(path) { const url = new URL(path, new URL('./', window.location.href)); url.searchParams.set('v', Date.now().toString()); return url.href }
+  function profilePictureUrl(path) { const url = new URL(path, projectBaseUrl); url.searchParams.set('v', Date.now().toString()); return url.href }
 
   function persist(completed) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state.data, profileSetupCompleted: Boolean(completed), currentStep: state.step })) } catch (error) { console.warn('Unable to save profile setup state:', error) }
@@ -68,7 +69,7 @@
   function render() {
     title.textContent = state.step === 2 ? 'Create Account' : 'Set Up Your Profile'
     subtitle.textContent = state.step === 2
-      ? 'Join Tanod Bukid and be part of a smarter and healthier farming community.'
+      ? 'Join TanimTrack and be part of a smarter and healthier farming community.'
       : state.step === 3
         ? 'Tell us about your farm and what you’re growing. This helps us give you better and more relevant insights.'
         : 'Let’s get to know you. This helps us provide a better and more personalized experience.'
@@ -111,7 +112,7 @@
     const formData = new FormData()
     formData.append('profile_picture', file)
     try {
-      const response = await fetch(new URL('api/profile.php', new URL('./', window.location.href)), {
+      const response = await fetch(new URL('api/profile.php', projectBaseUrl), {
         method: 'POST',
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
@@ -119,7 +120,7 @@
       })
       const result = await response.json()
       if (response.status === 401) {
-        window.location.replace(new URL('index.html#signin', new URL('./', window.location.href)))
+        window.location.replace(new URL('index.html#signin', projectBaseUrl))
         return
       }
       if (!response.ok || !result.success || !validProfilePicture(result.profile_picture)) {
@@ -135,7 +136,7 @@
 
   async function loadProfilePicture() {
     try {
-      const response = await fetch(new URL('api/profile.php', new URL('./', window.location.href)), {
+      const response = await fetch(new URL('api/profile.php', projectBaseUrl), {
         method: 'GET',
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
@@ -143,7 +144,7 @@
       })
       const result = await response.json()
       if (response.status === 401) {
-        window.location.replace(new URL('index.html#signin', new URL('./', window.location.href)))
+        window.location.replace(new URL('index.html#signin', projectBaseUrl))
         return
       }
       if (!response.ok || !result.success || !result.profile) {
@@ -158,15 +159,15 @@
     }
   }
 
-  function finish() { persist(true); window.location.href = 'Tanod Bukid Dash Board (1)/index (1).html' }
+  function finish() { persist(true); window.location.assign(new URL('TanimTrack Dashboard/index (1).html', projectBaseUrl)) }
   function renderModal() { if (!state.otherType) { modalRoot.innerHTML = ''; return }; const noun = state.otherType === 'crops' ? 'crop' : state.otherType === 'farmScale' ? 'farm type' : 'livestock'; modalRoot.innerHTML = `<div class="other-modal-backdrop" data-close-modal><div class="other-modal" role="dialog" aria-modal="true" aria-labelledby="other-title"><h2 id="other-title">Add another ${noun}</h2><input id="other-value" autofocus class="profile-input" placeholder="Enter ${noun} type"><div class="modal-actions">${button('CANCEL', 'cancel-other', 'back-button')}${button('ADD', 'add-other')}</div></div></div>`; const value = modalRoot.querySelector('#other-value'); modalRoot.querySelector('[data-action="cancel-other"]').addEventListener('click', () => { state.otherType = null; renderModal() }); modalRoot.querySelector('[data-action="add-other"]').addEventListener('click', () => addOther(value.value)); value.addEventListener('keydown', event => { if (event.key === 'Enter') addOther(value.value) }); modalRoot.querySelector('[data-close-modal]').addEventListener('mousedown', event => { if (event.target === event.currentTarget) { state.otherType = null; renderModal() } }) }
   function addOther(value) { const cleanValue = value.trim(); if (!cleanValue || !state.otherType) return; if (Array.isArray(state.data[state.otherType])) { if (!state.data[state.otherType].includes(cleanValue)) state.data[state.otherType].push(cleanValue) } else state.data[state.otherType] = cleanValue; state.otherType = null; render() }
 
-  function renderDashboard() { const profile = state.data; document.querySelector('.profile-setup-page').innerHTML = `<section class="dashboard-content"><p class="dashboard-kicker">TANOD BUKID</p><h1>Welcome${profile.barangay ? `, ${escapeHtml(profile.barangay)}` : ''}.</h1><p>Your farm profile is ready. Keep your farm information and alerts close at hand.</p><div class="dashboard-overview"><div><span>Farm type</span><strong>${escapeHtml(profile.farmType || 'Not set')}</strong></div><div><span>Farm area</span><strong>${profile.farmArea ? `${escapeHtml(profile.farmArea)} ha` : 'Not set'}</strong></div></div></section>` }
+  function renderDashboard() { const profile = state.data; document.querySelector('.profile-setup-page').innerHTML = `<section class="dashboard-content"><p class="dashboard-kicker">TanimTrack</p><h1>Welcome${profile.barangay ? `, ${escapeHtml(profile.barangay)}` : ''}.</h1><p>Your farm profile is ready. Keep your farm information and alerts close at hand.</p><div class="dashboard-overview"><div><span>Farm type</span><strong>${escapeHtml(profile.farmType || 'Not set')}</strong></div><div><span>Farm area</span><strong>${profile.farmArea ? `${escapeHtml(profile.farmArea)} ha` : 'Not set'}</strong></div></div></section>` }
 
   document.querySelector('[data-profile-back]').addEventListener('click', () => {
     if (state.step > 1) { state.step -= 1; state.errors = {}; render() }
-    else window.location.href = 'index.html#register'
+    else window.location.assign(new URL('index.html#register', projectBaseUrl))
   })
 
   if (window.location.hash === '#dashboard') renderDashboard()
