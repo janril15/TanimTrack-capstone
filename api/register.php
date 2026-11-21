@@ -42,6 +42,13 @@ if ($errors !== []) {
     json_response(['success' => false, 'message' => 'Please correct the highlighted information.', 'errors' => $errors], 422);
 }
 
+if (!unisms_sms_configured()) {
+    json_response([
+        'success' => false,
+        'message' => 'SMS verification is not configured. Add your UniSMS API key and sender ID to the private environment file.',
+    ], 503);
+}
+
 $pdo = pdo_connection();
 $duplicate = $pdo->prepare('SELECT email, mobile_number FROM users WHERE email = :email OR mobile_number = :mobile_number LIMIT 1');
 $duplicate->execute(['email' => $email, 'mobile_number' => $mobile]);
@@ -57,41 +64,80 @@ if ($existing !== false) {
     json_response(['success' => false, 'message' => 'This account information is already registered.', 'errors' => $errors], 409);
 }
 
-$passwordHash = password_hash($password, PASSWORD_DEFAULT);
-if ($passwordHash === false) {
-    error_log('TanimTrack password hashing failed.');
-    json_response(['success' => false, 'message' => 'Unable to create the account right now. Please try again.'], 500);
+$limits = $pdo->prepare(
+    'SELECT COUNT(*) AS recent_count, MAX(created_at) AS latest_created
+     FROM registration_otps
+     WHERE mobile_number = :mobile_number AND created_at >= UTC_TIMESTAMP() - INTERVAL 1 HOUR'
+);
+$limits->execute(['mobile_number' => $mobile]);
+$rate = $limits->fetch();
+if ((int) ($rate['recent_count'] ?? 0) >= 5) {
+    json_response(['success' => false, 'message' => 'Too many verification requests. Try again later.'], 429);
+}
+if (is_string($rate['latest_created'] ?? null)
+    && strtotime($rate['latest_created'] . ' UTC') > time() - 60
+) {
+    json_response(['success' => false, 'message' => 'Wait one minute before requesting another verification code.'], 429);
 }
 
 try {
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $codeHash = password_hash($code, PASSWORD_DEFAULT);
+    if ($passwordHash === false || $codeHash === false) {
+        throw new RuntimeException('Registration data hashing failed.');
+    }
+
+    $pdo->beginTransaction();
+    $pdo->prepare(
+        'UPDATE registration_otps
+         SET consumed_at = UTC_TIMESTAMP()
+         WHERE mobile_number = :mobile_number AND consumed_at IS NULL'
+    )->execute(['mobile_number' => $mobile]);
+    $pdo->prepare(
+        'DELETE FROM registration_otps
+         WHERE created_at < UTC_TIMESTAMP() - INTERVAL 1 DAY'
+    )->execute();
     $insert = $pdo->prepare(
-        'INSERT INTO users (full_name, mobile_number, email, password_hash) VALUES (:full_name, :mobile_number, :email, :password_hash)'
+        'INSERT INTO registration_otps
+            (full_name, mobile_number, email, password_hash, otp_hash, expires_at)
+         VALUES
+            (:full_name, :mobile_number, :email, :password_hash, :otp_hash, UTC_TIMESTAMP() + INTERVAL 10 MINUTE)'
     );
     $insert->execute([
         'full_name' => $fullName,
         'mobile_number' => $mobile,
         'email' => $email,
         'password_hash' => $passwordHash,
+        'otp_hash' => $codeHash,
     ]);
-} catch (PDOException $error) {
-    if ($error->getCode() === '23000') {
-        json_response([
-            'success' => false,
-            'message' => 'An account with this email address or mobile number already exists.',
-        ], 409);
+    $otpId = (int) $pdo->lastInsertId();
+    $pdo->commit();
+} catch (Throwable $error) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
     }
-    error_log('TanimTrack registration failed: ' . $error->getMessage());
-    json_response(['success' => false, 'message' => 'Unable to create the account right now. Please try again.'], 500);
+    error_log('TanimTrack registration verification setup failed: ' . $error->getMessage());
+    json_response(['success' => false, 'message' => 'Unable to start registration right now. Please try again.'], 500);
 }
 
-start_app_session();
-session_regenerate_id(true);
-$_SESSION['user_id'] = (int) $pdo->lastInsertId();
-$_SESSION['full_name'] = $fullName;
-$_SESSION['role'] = 'farmer';
+try {
+    send_unisms_otp($mobile, $code, 'registration', 10);
+} catch (Throwable $error) {
+    $pdo->prepare('UPDATE registration_otps SET consumed_at = UTC_TIMESTAMP() WHERE id = :id')
+        ->execute(['id' => $otpId]);
+    error_log('TanimTrack registration SMS delivery failed: ' . $error->getMessage());
+    json_response([
+        'success' => false,
+        'message' => $error instanceof RuntimeException
+            ? $error->getMessage()
+            : 'Unable to send the verification code right now. Try again later.',
+    ], 502);
+}
 
 json_response([
     'success' => true,
-    'message' => 'Your account has been created.',
-    'user' => ['id' => (int) $_SESSION['user_id'], 'full_name' => $fullName, 'email' => $email, 'role' => 'farmer'],
-], 201);
+    'message' => 'A verification code SMS request was accepted.',
+    'mobile_number' => $mobile,
+    'expires_in_seconds' => 600,
+]);

@@ -1,6 +1,6 @@
 # TanimTrack local development
 
-This project runs locally with Docker Compose: Vite frontend, PHP API, MySQL, and an experimental image-classification service. The database and uploaded files persist in Docker volumes. Do not use this setup as an unattended production deployment.
+This project runs locally with Docker Compose: Vite frontend, PHP API, MySQL, and a Gemini-powered plant image-analysis service. The database and uploaded files persist in Docker volumes. Do not use this setup as an unattended production deployment.
 
 > **Publication status:** The Docker setup and application changes in this working copy are not committed or published yet. A fresh clone from GitHub will not contain these instructions or files until the changes are published. The current checkout is `janril15/Tanod-bukid-capstone` on `main`; the `maand3silva/TanodBukid` repository and `infra/local-development` branch mentioned in a separate handover guide are not this project source.
 
@@ -51,6 +51,8 @@ if path.exists():
 path.write_text(
     f"DB_PASSWORD={secrets.token_hex(24)}\n"
     f"DB_ROOT_PASSWORD={secrets.token_hex(24)}\n"
+    "GEMINI_API_KEY=\n"
+    "GEMINI_MODEL=gemini-3.5-flash-lite\n"
     "TANODBUKID_DEV_OTP=0\n"
 )
 path.chmod(0o600)
@@ -78,7 +80,7 @@ After startup, confirm all four services show healthy in `docker compose ps`, th
 1. Open <http://localhost:5173> and confirm the landing page loads.
 2. Register a disposable local test account and sign in.
 3. Use the app's own navigation for the dashboard and profile setup. Do not use `/dashboard/index.html`; that path is not present in this repository.
-4. The standalone, authenticated crop scanner is <http://localhost:5173/dashboard.html>. Upload a sample image; the first prediction can take longer while the model downloads.
+4. The standalone, authenticated crop scanner is <http://localhost:5173/dashboard.html>. Upload a sample plant image to request a Gemini analysis.
 5. Check the session endpoint and service logs:
 
    ```sh
@@ -118,24 +120,49 @@ docker compose --env-file $envFile up -d
 
 Use the same `--env-file $envFile` option for `ps`, `logs`, `exec`, `down`, and rebuild commands from this checkout. A fresh WSL clone can instead use its own Git-ignored `./.env` as shown above.
 
-The first image prediction downloads the configured model weights from Hugging Face and can take several minutes. Check AI readiness with:
+The AI service uses Google's official `google-genai` Python SDK. It sends only the validated image and a fixed analysis prompt to Gemini, and validates the structured response before returning it. The API key is passed only to the private AI container. Check service readiness and key configuration with:
 
 ```sh
 docker compose exec ai python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8080/health').read().decode())"
 ```
 
-An `ok` health response only proves that FastAPI is running; the model loads when the first image is submitted. The current experimental model is a PlantVillage classifier for Apple, Blueberry, Cherry, Corn (maize), Grape, Orange, Peach, Bell pepper, Potato, Raspberry, Soybean, Squash, Strawberry, and Tomato classes. It has no rice or livestock classes. Scores below the configured 0.55 model-confidence floor are marked uncertain; higher scores are still not calibrated diagnoses. Field photos may not match training images. Do not claim support for other crops or treat predictions as treatment advice.
+Set `GEMINI_API_KEY` in your private environment file and optionally choose a supported image-capable model with `GEMINI_MODEL` (default: `gemini-3.5-flash-lite`). For this Windows workspace, open `%LOCALAPPDATA%\TanodBukid\.env` in a text editor and add/update these entries without putting the key in a shell command:
 
-## Password reset demo
-
-SMS delivery is not configured. The backend defaults `TANODBUKID_DEV_OTP` to `0`, which keeps simulated codes disabled. To test the simulated reset-code flow locally only, change `TANODBUKID_DEV_OTP=1` in your private `.env`, then recreate the backend:
-
-```sh
-docker compose up -d --no-deps --force-recreate backend
-docker compose exec backend printenv TANODBUKID_DEV_OTP
+```env
+GEMINI_API_KEY=your-private-google-ai-studio-key
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
-The local app displays a development code only in this mode. Set it back to `0` and recreate the backend before opening any internet-accessible tunnel. Never run the development OTP flow on a public URL.
+In PowerShell, edit the existing private file and rebuild/recreate the AI container:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+notepad $envFile
+docker compose --env-file $envFile up -d --build ai
+```
+
+The health response's `configured` field is `false` until a key is supplied. Image results report qualitative confidence, not percentages; uncertain and non-plant images require verification or return no diagnosis. Gemini output is visual guidance, not a confirmed agricultural diagnosis.
+
+## SMS verification and password reset
+
+UniSMS sends real Philippine SMS messages for new-account phone verification and password resets. Create a UniSMS account, add SMS credits, and use the Sender ID assigned to your account. In your private environment file, set:
+
+```env
+TANODBUKID_UNISMS_API_KEY=your-private-secret-key
+TANODBUKID_UNISMS_SENDER_ID=your-account-sender-id
+TANODBUKID_DEV_OTP=0
+```
+
+For this Windows checkout, the private file is `%LOCALAPPDATA%\TanodBukid\.env`. Never commit or share the API key. Recreate the backend after editing it:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+docker compose --env-file $envFile up -d --force-recreate backend
+```
+
+UniSMS authentication uses HTTP Basic Auth with the secret key as the username and an empty password. The API requires a Sender ID on every message; the UniSMS default Sender ID can be used for testing, while ongoing use may require an approved Sender ID. Signup creates the account only after the SMS code is verified. Codes expire after 10 minutes for signup and 15 minutes for password resets, allow at most five verification attempts, and are stored as hashes. Request limits prevent repeated sends to one number. The provider may charge for each SMS and delivery depends on the account, credits, Sender ID, and mobile network.
+
+For private local development only, `TANODBUKID_DEV_OTP=1` enables simulated codes when no Semaphore API key is configured. The app displays those codes locally. Keep this setting at `0` before using any public URL; never expose development codes or enable this mode on an internet-accessible tunnel.
 
 ## Temporary phone demo
 

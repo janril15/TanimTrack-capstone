@@ -32,7 +32,8 @@ services:
       TANODBUKID_DB_USER: tanodbukid
       TANODBUKID_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your private .env file}
       TANODBUKID_AI_URL: http://ai:8080/predict
-      TANODBUKID_DEV_OTP: ${TANODBUKID_DEV_OTP:-0}
+      TANODBUKID_UNISMS_API_KEY: ${TANODBUKID_UNISMS_API_KEY:-}
+      TANODBUKID_UNISMS_SENDER_ID: ${TANODBUKID_UNISMS_SENDER_ID:-}
     ports:
       - "127.0.0.1:8001:8000"
     volumes:
@@ -77,9 +78,8 @@ services:
       context: ./ai
       dockerfile: Dockerfile
     environment:
-      MODEL_ID: neghani/plantvillage-mobilenetv2
-      MODEL_MIN_CONFIDENCE: "0.55"
-      HF_HOME: /models
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
     expose:
       - "8080"
     volumes:

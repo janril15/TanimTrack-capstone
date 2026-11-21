@@ -99,6 +99,75 @@ function pdo_connection(): PDO
     return $pdo;
 }
 
+function unisms_sms_configured(): bool
+{
+    return trim(getenv('TANODBUKID_UNISMS_API_KEY') ?: '') !== ''
+        && trim(getenv('TANODBUKID_UNISMS_SENDER_ID') ?: '') !== '';
+}
+
+function send_unisms_otp(string $mobile, string $code, string $purpose, int $expiresInMinutes): void
+{
+    $apiKey = trim(getenv('TANODBUKID_UNISMS_API_KEY') ?: '');
+    $senderId = trim(getenv('TANODBUKID_UNISMS_SENDER_ID') ?: '');
+    if ($apiKey === '' || $senderId === '') {
+        throw new RuntimeException('SMS delivery is not configured. Add your UniSMS API key and sender ID to the private environment file.');
+    }
+
+    $recipient = '+63' . substr($mobile, 1);
+    $payload = json_encode([
+        'recipient' => $recipient,
+        'content' => "TanimTrack OTP code is {$code}. Purpose: {$purpose}. Please do not share. Expires in {$expiresInMinutes} minutes.",
+        'sender_id' => $senderId,
+    ], JSON_THROW_ON_ERROR);
+    $request = curl_init('https://unismsapi.com/api/sms');
+    if ($request === false) {
+        throw new RuntimeException('Unable to initialize the UniSMS request.');
+    }
+
+    curl_setopt_array($request, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
+        CURLOPT_USERPWD => $apiKey . ':',
+        CURLOPT_HTTPHEADER => ['Accept: application/json', 'Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 15,
+    ]);
+    $responseBody = curl_exec($request);
+    $curlError = curl_error($request);
+    $httpStatus = (int) curl_getinfo($request, CURLINFO_RESPONSE_CODE);
+    curl_close($request);
+
+    if (!is_string($responseBody)) {
+        error_log('TanimTrack UniSMS request failed: ' . $curlError);
+        throw new RuntimeException('UniSMS could not be reached. Try again later.');
+    }
+    if ($httpStatus < 200 || $httpStatus >= 300) {
+        error_log('TanimTrack UniSMS rejected a request with HTTP status ' . $httpStatus . '.');
+        if ($httpStatus === 401) {
+            throw new RuntimeException('UniSMS authentication failed. Check your API key.');
+        }
+        if ($httpStatus === 422) {
+            throw new RuntimeException('UniSMS rejected the number or sender ID. Check the recipient and sender ID in your account.');
+        }
+        if ($httpStatus === 429) {
+            throw new RuntimeException('UniSMS rate limited the request. Wait a moment and try again.');
+        }
+        throw new RuntimeException('UniSMS could not accept the message. Check your account and try again.');
+    }
+
+    $providerResponse = json_decode($responseBody, true);
+    $message = is_array($providerResponse) ? ($providerResponse['message'] ?? null) : null;
+    $status = is_array($message) && is_string($message['status'] ?? null)
+        ? strtolower($message['status'])
+        : '';
+    if (!in_array($status, ['pending', 'retrying', 'sent'], true)) {
+        error_log('TanimTrack UniSMS returned an invalid or unsuccessful message response.');
+        throw new RuntimeException('UniSMS did not accept the message. Check your account balance and sender ID.');
+    }
+}
+
 function save_profile_picture(array $upload): string
 {
     if (!isset($upload['error']) || !is_int($upload['error'])) {

@@ -10,6 +10,7 @@
   const apiBaseUrl = new URL('api/', projectBaseUrl)
   const dashboardHomePath = 'TanimTrack Dashboard/index (1).html'
   const state = { route: window.location.hash.slice(1) }
+  let pendingRegistration = null
 
   try {
     localStorage.removeItem('tanodbukid_users')
@@ -62,17 +63,18 @@
     authLayout(`<form data-auth-form="register"><div style="display:flex;gap:10px"><div style="flex:1">${field('First Name', 'reg-first', 'First name', 'text', 'given-name')}</div><div style="flex:1">${field('Last Name', 'reg-last', 'Last name', 'text', 'family-name')}</div></div>${field('Mobile Number', 'reg-mobile', '09XX XXX XXXX', 'tel', 'tel')}${field('Email address', 'reg-email', 'youremail@gmail.com', 'email', 'email')}${passwordField('reg-password', 'new-password')}<div aria-live="polite" style="margin:-8px 0 12px"><strong style="font-size:12px">Password requirements</strong><ul id="password-checklist" style="display:grid;grid-template-columns:1fr 1fr;gap:1px 10px;margin:4px 0 6px;padding:0;list-style:none">${checklist}</ul><p id="password-strength" style="margin:0;font-size:12px">Strength: Weak</p><p id="password-match" role="status" style="margin:3px 0 0;font-size:12px"></p><p id="register-status" style="margin:3px 0 0;font-size:12px">Complete all required fields and password requirements.</p></div>${passwordField('reg-confirm-password', 'new-password', 'Confirm Password')}<button class="primary-btn" type="submit" disabled>CREATE ACCOUNT</button></form><div class="footer">Already Registered? <a href="#signin" class="link">Sign In</a></div>`)
   }
 
-  function renderVerify() {
+  function renderRegistrationVerify(mobileNumber) {
     pageTitle.textContent = pages.verify[0]
-    pageSubtitle.textContent = pages.verify[1]
-    const inputs = Array.from({ length: 6 }, (_, index) => `<input id="otp-${index}" class="otp" inputmode="numeric" maxlength="1">`).join('')
-    authLayout(`<div style="text-align:center;font-size:14px;color:#333">Enter the 6-digit code sent to 0912 345 6789</div><div class="otp-row">${inputs}</div><div style="text-align:center;margin-top:8px">Didn't receive a code? <span class="link">Resend</span></div><button class="primary-btn" data-action="verify">VERIFY</button><div class="info-box">Code expires in 10 minutes.</div>`)
+    pageSubtitle.textContent = 'Enter the one-time code sent to your phone'
+    authLayout(`<form id="registration-otp-form" data-mobile-number="${mobileNumber}"><div style="text-align:center;font-size:14px;color:#333;margin-bottom:16px">A verification SMS was requested for ${mobileNumber}.</div><div class="field"><label class="label" for="registration-otp">Verification code</label><input id="registration-otp" class="input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></div><button class="primary-btn" type="submit">VERIFY PHONE</button></form><button type="button" class="link" id="resend-registration-otp">Resend code</button><button type="button" class="link" id="change-registration-details">Change registration details</button><div class="info-box">The code expires in 10 minutes.</div>`)
+    showFeedback('Enter the code from the SMS to finish creating your account.', false)
+    pageCard.querySelector('#registration-otp').focus()
   }
 
   function renderReset() {
     pageTitle.textContent = pages.reset[0]
     pageSubtitle.textContent = pages.reset[1]
-    authLayout(`<form id="password-reset-request">${field('Mobile Number', 'reset-mobile', '09XX XXX XXXX', 'tel', 'tel')}<button class="primary-btn" type="submit">SEND RESET CODE</button></form><form id="password-reset-confirm" hidden><div class="field"><label class="label" for="reset-otp">6-digit reset code</label><input id="reset-otp" class="input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></div>${passwordField('reset-password', 'new-password', 'New Password')}${passwordField('reset-confirm-password', 'new-password', 'Confirm New Password')}<button class="primary-btn" type="submit">RESET PASSWORD</button></form><div class="info-box">Codes expire after 15 minutes. SMS delivery is not configured; the development code is available only when local development OTP is explicitly enabled.</div><div class="footer">Remember password? <a href="#signin" class="link">Sign In</a></div>`)
+    authLayout(`<form id="password-reset-request">${field('Mobile Number', 'reset-mobile', '09XX XXX XXXX', 'tel', 'tel')}<button class="primary-btn" type="submit">SEND RESET CODE</button></form><form id="password-reset-confirm" hidden><div class="field"><label class="label" for="reset-otp">6-digit reset code</label><input id="reset-otp" class="input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required></div>${passwordField('reset-password', 'new-password', 'New Password')}${passwordField('reset-confirm-password', 'new-password', 'Confirm New Password')}<button class="primary-btn" type="submit">RESET PASSWORD</button></form><div class="info-box">Codes are sent by SMS and expire after 15 minutes.</div><div class="footer">Remember password? <a href="#signin" class="link">Sign In</a></div>`)
   }
 
   function showFeedback(message, isError = true) {
@@ -190,14 +192,16 @@
 
     try {
       if (form.dataset.authForm === 'register') {
-        await requestAuth('register.php', {
+        const registration = {
           first_name: values['reg-first'],
           last_name: values['reg-last'],
           mobile_number: values['reg-mobile'],
           email: values['reg-email'],
           password: values['reg-password']
-        })
-        window.location.assign(new URL('profile-setup.html', projectBaseUrl))
+        }
+        const result = await requestAuth('register.php', registration)
+        pendingRegistration = registration
+        renderRegistrationVerify(result.mobile_number)
         return
       }
 
@@ -211,6 +215,65 @@
       button.disabled = false
       button.textContent = originalText
       updateRegistrationState(form)
+    }
+  }
+
+  async function verifyRegistrationCode(event) {
+    event.preventDefault()
+    const form = event.currentTarget
+    if (!form.checkValidity()) {
+      form.reportValidity()
+      return
+    }
+
+    const button = form.querySelector('button[type="submit"]')
+    const originalText = button.textContent
+    button.disabled = true
+    button.textContent = 'PLEASE WAIT'
+    showFeedback('')
+    try {
+      await requestAuth('verify-registration.php', {
+        mobile_number: form.dataset.mobileNumber,
+        otp: form.querySelector('#registration-otp').value
+      })
+      pendingRegistration = null
+      window.location.assign(new URL('profile-setup.html', projectBaseUrl))
+    } catch (error) {
+      showFeedback(error.message)
+      button.disabled = false
+      button.textContent = originalText
+    }
+  }
+
+  async function resendRegistrationCode(button) {
+    if (!pendingRegistration) {
+      showFeedback('Return to registration and submit your details to request another code.')
+      return
+    }
+
+    const originalText = button.textContent
+    button.disabled = true
+    button.textContent = 'PLEASE WAIT'
+    showFeedback('')
+    try {
+      const result = await requestAuth('register.php', pendingRegistration)
+      showFeedback(result.message, false)
+    } catch (error) {
+      showFeedback(error.message)
+    } finally {
+      let remainingSeconds = 60
+      button.disabled = true
+      button.textContent = `RESEND IN ${remainingSeconds}s`
+      const cooldown = window.setInterval(() => {
+        remainingSeconds -= 1
+        if (remainingSeconds <= 0) {
+          window.clearInterval(cooldown)
+          button.disabled = false
+          button.textContent = originalText
+        } else {
+          button.textContent = `RESEND IN ${remainingSeconds}s`
+        }
+      }, 1000)
     }
   }
 
@@ -235,9 +298,7 @@
       const confirmForm = pageCard.querySelector('#password-reset-confirm')
       confirmForm.dataset.mobileNumber = form.querySelector('#reset-mobile').value
       confirmForm.hidden = false
-      showFeedback(result.dev_otp
-        ? `Local development reset code: ${result.dev_otp}`
-        : result.message, false)
+      showFeedback(result.message, false)
       confirmForm.querySelector('#reset-otp').focus()
     } catch (error) {
       showFeedback(error.message)
@@ -293,7 +354,12 @@
     }
     pageCard.querySelector('#password-reset-request')?.addEventListener('submit', requestPasswordReset)
     pageCard.querySelector('#password-reset-confirm')?.addEventListener('submit', confirmPasswordReset)
-    pageCard.querySelector('[data-action="verify"]')?.addEventListener('click', () => { window.location.hash = 'signin' })
+    pageCard.querySelector('#registration-otp-form')?.addEventListener('submit', verifyRegistrationCode)
+    pageCard.querySelector('#resend-registration-otp')?.addEventListener('click', event => resendRegistrationCode(event.currentTarget))
+    pageCard.querySelector('#change-registration-details')?.addEventListener('click', () => {
+      pendingRegistration = null
+      window.location.hash = 'register'
+    })
     pageCard.querySelectorAll('.otp').forEach((input, index, inputs) => input.addEventListener('input', () => {
       if (input.value && index < inputs.length - 1) inputs[index + 1].focus()
     }))
@@ -309,7 +375,7 @@
       authApp.hidden = true
       return
     }
-    ;({ signin: renderSignin, register: renderRegister, verify: renderVerify, reset: renderReset }[state.route] || renderSignin)()
+    ;({ signin: renderSignin, register: renderRegister, reset: renderReset }[state.route] || renderSignin)()
   }
 
   window.addEventListener('hashchange', () => {

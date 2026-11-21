@@ -6,12 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard - TanimTrack</title>
   <meta name="application-name" content="TanimTrack">
-  <link rel="icon" href="/assets/LOGO-AmrPmLxz.png">
-  <script type="module" crossorigin src="/assets/dashboard-Cv0yY2va.js"></script>
+  <link rel="icon" href="/assets/LOGO-AmrPmLxz.png">
+
+
+
+  <script type="module" crossorigin src="/assets/dashboard-Ds_tSSok.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/responsive-tokens-D3s_mGTX.js">
   <link rel="modulepreload" crossorigin href="/assets/chat-widget-Cwg8wncc.js">
   <link rel="stylesheet" crossorigin href="/assets/responsive-tokens-DvAcVn5e.css">
-  <link rel="stylesheet" crossorigin href="/assets/styles-BZMvQuQT.css">
+  <link rel="stylesheet" crossorigin href="/assets/styles-z_d0-6N9.css">
   <link rel="stylesheet" crossorigin href="/assets/chat-widget-C_JfJj6j.css">
 </head>
 
@@ -19,7 +22,7 @@
   <main class="dashboard-page app-shell">
     <section class="monitor-shell" aria-label="Plant and crop scanner">
       <header class="monitor-header">
-        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · experimental crop classifier</small></span></div><button class="history-button" type="button"
+        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · Gemini-powered plant analysis</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
       </header>
       <div class="monitor-tabs" role="tablist" aria-label="Scan views"><button class="active" id="live-camera-tab"
@@ -105,72 +108,24 @@
         <section class="analysis-unavailable" id="analysis-unavailable" aria-live="polite" hidden>
           <div class="analysis-unavailable-image"><img id="analysis-unavailable-photo" alt="Submitted crop scan"
               hidden><span id="analysis-unavailable-placeholder" aria-hidden="true">🌱</span></div>
-          <div><span class="analysis-unavailable-label">AI RESULT</span>
+          <div class="analysis-result-copy"><span class="analysis-unavailable-label">GEMINI AI RESULT</span>
             <h2 id="analysis-unavailable-title">Result unavailable</h2>
             <p id="analysis-unavailable-copy"></p>
-          </div>
-        </section>
-        <div class="result-overview">
-          <section class="scan-photo-card">
-            <img id="analysis-photo" src="/assets/plants%20(1)-CaiXt4js.jpg" alt="Scanned crop leaf">
-            <span class="analysis-complete"><span>✓</span> Analysis Complete</span>
-          </section>
-          <section class="result-health-card">
-            <div class="result-crop-heading"><span class="crop-leaf">❧</span>
-              <div>
-                <h2>Rice</h2><em>Oryza sativa</em>
-              </div><span class="confidence-pill"><span id="result-confidence">98</span>% confidence</span>
-            </div>
-            <div class="result-metrics">
-              <div class="result-health-summary"><span class="result-metric-icon">♥</span><span>Plant
-                  Health</span><strong>Healthy</strong></div>
-              <div><span class="result-metric-icon">❧</span><span>Leaf Condition</span><strong>Normal</strong></div>
-              <div><span class="result-metric-icon">♣</span><span>Growth Stage</span><strong>Vegetative</strong></div>
-              <div><span class="result-metric-icon">✿</span><span>Disease Risk</span><strong>Low</strong></div>
-              <div><span class="result-metric-icon">◈</span><span>Discoloration</span><strong>None detected</strong>
+            <div class="gemini-result-fields" id="gemini-result-fields" hidden>
+              <div class="gemini-result-grid">
+                <div class="gemini-result-field"><span>Plant / crop</span><strong id="result-plant-name"></strong></div>
+                <div class="gemini-result-field"><span>Health status</span><strong id="result-health-status"></strong></div>
+                <div class="gemini-result-field"><span>Possible issue</span><strong id="result-detected-issue"></strong></div>
+                <div class="gemini-result-field"><span>Severity</span><strong id="result-severity"></strong></div>
+                <div class="gemini-result-field"><span>Qualitative confidence</span><strong id="result-confidence"></strong></div>
               </div>
-            </div>
-          </section>
-        </div>
-
-        <section class="result-section change-detection">
-          <div class="result-section-heading"><span class="result-section-icon">⟳</span>
-            <div>
-              <h2>Change Detection</h2>
-              <p>Compared to your previous scan (2 days ago)</p>
+              <p class="gemini-result-verification" id="result-verification" hidden>Manual verification is recommended. AI analysis is not a definitive diagnosis.</p>
+              <section class="gemini-result-section"><h3>Visible symptoms</h3><ul id="result-symptoms"></ul></section>
+              <section class="gemini-result-section"><h3>Analysis</h3><p id="result-analysis"></p></section>
+              <section class="gemini-result-section"><h3>Recommendations</h3><ul id="result-recommendations"></ul></section>
+              <section class="gemini-result-section"><h3>Prevention tips</h3><ul id="result-prevention-tips"></ul></section>
             </div>
           </div>
-          <div class="result-change-row"><span class="result-leaf-badge">❧</span>
-            <div><strong>Slight increase in leaf spot areas</strong>
-              <p>Leaf discoloration increased by 8% since last scan.</p>
-              <p class="change-detail-copy" id="change-detail-copy" hidden>Continue checking affected leaves and compare
-                again after your next scan.</p>
-            </div><button id="change-details-button" type="button" aria-expanded="false">View Details
-              <span>›</span></button>
-          </div>
-        </section>
-
-        <section class="result-section result-farm-log">
-          <div class="result-section-heading"><span class="result-section-icon">▤</span>
-            <h2>Farm Log</h2><button type="button">View All</button>
-          </div>
-          <div class="farm-log-entry"><img id="analysis-thumbnail" src="/assets/plants%20(1)-CaiXt4js.jpg"
-              alt="Rice scan thumbnail">
-            <div class="farm-log-content">
-              <p class="farm-log-time">Jul 17, 2025 <span>·</span> 10:24 AM</p>
-              <div class="farm-log-tags"><span>Health: Healthy</span><span>Growth: Vegetative</span><span>Risk:
-                  Low</span></div>
-              <p class="farm-log-note">▤ &nbsp;No issues detected.</p>
-            </div><span class="farm-log-arrow">›</span>
-          </div>
-        </section>
-
-        <section class="result-recommendation"><span class="recommendation-bulb">♧</span>
-          <div>
-            <h2>Recommendation</h2><strong>Continue current care routine.</strong>
-            <p>Monitor the affected areas closely. If discoloration increases or spreads, check for possible fungal
-              infection and improve field drainage.</p>
-          </div><span class="recommendation-arrow">›</span>
         </section>
       </div>
     </section>
@@ -183,7 +138,9 @@
         class="add-label">Add</span></button>
     <button type="button" data-dashboard-route="climate"><span class="nav-icon">⌁</span><span>Climate</span></button>
     <button type="button" data-dashboard-route="profile"><span class="nav-icon">♙</span><span>Profile</span></button>
-  </nav>
+  </nav>
+
+
 </body>
 
 </html>

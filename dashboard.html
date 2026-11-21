@@ -16,7 +16,7 @@
   <main class="dashboard-page app-shell">
     <section class="monitor-shell" aria-label="Plant and crop scanner">
       <header class="monitor-header">
-        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · experimental crop classifier</small></span></div><button class="history-button" type="button"
+        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · Gemini-powered plant analysis</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
       </header>
       <div class="monitor-tabs" role="tablist" aria-label="Scan views"><button class="active" id="live-camera-tab"
@@ -102,72 +102,24 @@
         <section class="analysis-unavailable" id="analysis-unavailable" aria-live="polite" hidden>
           <div class="analysis-unavailable-image"><img id="analysis-unavailable-photo" alt="Submitted crop scan"
               hidden><span id="analysis-unavailable-placeholder" aria-hidden="true">🌱</span></div>
-          <div><span class="analysis-unavailable-label">AI RESULT</span>
+          <div class="analysis-result-copy"><span class="analysis-unavailable-label">GEMINI AI RESULT</span>
             <h2 id="analysis-unavailable-title">Result unavailable</h2>
             <p id="analysis-unavailable-copy"></p>
-          </div>
-        </section>
-        <div class="result-overview">
-          <section class="scan-photo-card">
-            <img id="analysis-photo" src="TanimTrack Dashboard/plants (1).jpg" alt="Scanned crop leaf">
-            <span class="analysis-complete"><span>✓</span> Analysis Complete</span>
-          </section>
-          <section class="result-health-card">
-            <div class="result-crop-heading"><span class="crop-leaf">❧</span>
-              <div>
-                <h2>Rice</h2><em>Oryza sativa</em>
-              </div><span class="confidence-pill"><span id="result-confidence">98</span>% confidence</span>
-            </div>
-            <div class="result-metrics">
-              <div class="result-health-summary"><span class="result-metric-icon">♥</span><span>Plant
-                  Health</span><strong>Healthy</strong></div>
-              <div><span class="result-metric-icon">❧</span><span>Leaf Condition</span><strong>Normal</strong></div>
-              <div><span class="result-metric-icon">♣</span><span>Growth Stage</span><strong>Vegetative</strong></div>
-              <div><span class="result-metric-icon">✿</span><span>Disease Risk</span><strong>Low</strong></div>
-              <div><span class="result-metric-icon">◈</span><span>Discoloration</span><strong>None detected</strong>
+            <div class="gemini-result-fields" id="gemini-result-fields" hidden>
+              <div class="gemini-result-grid">
+                <div class="gemini-result-field"><span>Plant / crop</span><strong id="result-plant-name"></strong></div>
+                <div class="gemini-result-field"><span>Health status</span><strong id="result-health-status"></strong></div>
+                <div class="gemini-result-field"><span>Possible issue</span><strong id="result-detected-issue"></strong></div>
+                <div class="gemini-result-field"><span>Severity</span><strong id="result-severity"></strong></div>
+                <div class="gemini-result-field"><span>Qualitative confidence</span><strong id="result-confidence"></strong></div>
               </div>
-            </div>
-          </section>
-        </div>
-
-        <section class="result-section change-detection">
-          <div class="result-section-heading"><span class="result-section-icon">⟳</span>
-            <div>
-              <h2>Change Detection</h2>
-              <p>Compared to your previous scan (2 days ago)</p>
+              <p class="gemini-result-verification" id="result-verification" hidden>Manual verification is recommended. AI analysis is not a definitive diagnosis.</p>
+              <section class="gemini-result-section"><h3>Visible symptoms</h3><ul id="result-symptoms"></ul></section>
+              <section class="gemini-result-section"><h3>Analysis</h3><p id="result-analysis"></p></section>
+              <section class="gemini-result-section"><h3>Recommendations</h3><ul id="result-recommendations"></ul></section>
+              <section class="gemini-result-section"><h3>Prevention tips</h3><ul id="result-prevention-tips"></ul></section>
             </div>
           </div>
-          <div class="result-change-row"><span class="result-leaf-badge">❧</span>
-            <div><strong>Slight increase in leaf spot areas</strong>
-              <p>Leaf discoloration increased by 8% since last scan.</p>
-              <p class="change-detail-copy" id="change-detail-copy" hidden>Continue checking affected leaves and compare
-                again after your next scan.</p>
-            </div><button id="change-details-button" type="button" aria-expanded="false">View Details
-              <span>›</span></button>
-          </div>
-        </section>
-
-        <section class="result-section result-farm-log">
-          <div class="result-section-heading"><span class="result-section-icon">▤</span>
-            <h2>Farm Log</h2><button type="button">View All</button>
-          </div>
-          <div class="farm-log-entry"><img id="analysis-thumbnail" src="TanimTrack Dashboard/plants (1).jpg"
-              alt="Rice scan thumbnail">
-            <div class="farm-log-content">
-              <p class="farm-log-time">Jul 17, 2025 <span>·</span> 10:24 AM</p>
-              <div class="farm-log-tags"><span>Health: Healthy</span><span>Growth: Vegetative</span><span>Risk:
-                  Low</span></div>
-              <p class="farm-log-note">▤ &nbsp;No issues detected.</p>
-            </div><span class="farm-log-arrow">›</span>
-          </div>
-        </section>
-
-        <section class="result-recommendation"><span class="recommendation-bulb">♧</span>
-          <div>
-            <h2>Recommendation</h2><strong>Continue current care routine.</strong>
-            <p>Monitor the affected areas closely. If discoloration increases or spreads, check for possible fungal
-              infection and improve field drainage.</p>
-          </div><span class="recommendation-arrow">›</span>
         </section>
       </div>
     </section>
@@ -209,12 +161,10 @@
       const analysisUnavailablePlaceholder = document.querySelector('#analysis-unavailable-placeholder')
       const analysisUnavailableTitle = document.querySelector('#analysis-unavailable-title')
       const analysisUnavailableCopy = document.querySelector('#analysis-unavailable-copy')
+      const geminiResultFields = document.querySelector('#gemini-result-fields')
       const liveCameraTab = document.querySelector('#live-camera-tab')
       const aiAnalysisTab = document.querySelector('#ai-analysis-tab')
-      const analysisPhoto = document.querySelector('#analysis-photo')
-      const analysisThumbnail = document.querySelector('#analysis-thumbnail')
       const historyButton = document.querySelector('#scan-history-button')
-      const initialAnalysisPhoto = analysisPhoto.src
       let stream = null
       let cameraStartPromise = null
       let pageLeaving = false
@@ -242,43 +192,71 @@
         analysisSaveStatus.hidden = !message
       }
 
+      const authenticatedUserIdPromise = (async () => {
+        try {
+          const response = await fetch('/api/session.php', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' }
+          })
+          if (!response.ok) throw new Error('Session lookup failed.')
+          const session = await response.json()
+          const userId = session?.user?.id
+          return session?.success === true
+            && session?.authenticated === true
+            && Number.isSafeInteger(userId)
+            && userId > 0
+            ? userId
+            : null
+        } catch {
+          console.warn('[scanner history] Authenticated user ID is unavailable; saving without an account association.')
+          return null
+        }
+      })()
+
       async function persistSelectedScan(result = null, unavailableReason = '') {
         if (!selectedScanPhoto || selectedScanSaved) return
         if (scanSavePromise) return scanSavePromise
         selectedScanId ||= makeScanId()
-        const prediction = result?.prediction
-        const accepted = Boolean(prediction?.accepted)
-        const confidencePercent = Number.isFinite(Number(prediction?.confidence))
-          ? Number((Number(prediction.confidence) * 100).toFixed(1))
-          : null
-        const condition = String(prediction?.condition || '')
-        const isHealthy = /healthy/i.test(condition)
+        const scanId = selectedScanId
+        const image = selectedScanPhoto
+        const analysisReceived = result?.success === true
+        const plantName = typeof result?.plant_name === 'string' ? result.plant_name : null
         setScanHistoryStatus('Saving scan to history...')
-        scanSavePromise = saveScanRecord({
-          id: selectedScanId,
-          userId: null,
-          scannedAt: new Date().toISOString(),
-          cropName: accepted ? prediction.crop : null,
-          fieldName: null,
-          analysisStatus: accepted ? 'complete' : 'unavailable',
-          analysisResult: accepted ? {
-            summary: `${prediction.crop}: ${condition}`,
-            healthStatus: condition,
-            detectedIssue: isHealthy ? null : condition,
-            confidence: confidencePercent,
-            confidenceUnit: '%',
-            recommendations: 'Treat this experimental model result as a preliminary clue. Confirm it with a local agricultural expert.'
-          } : null,
-          resultUnavailableReason: accepted ? null : unavailableReason
-        }, selectedScanPhoto).then(() => {
-          selectedScanSaved = true
-          setScanHistoryStatus('Scan and model result saved to history.')
-        }).catch((storageError) => {
-          console.error('[scanner history] Unable to save scan', storageError)
-          setScanHistoryStatus('Unable to save scan history. Please try again.')
-        }).finally(() => {
+        scanSavePromise = (async () => {
+          try {
+            const userId = await authenticatedUserIdPromise
+            await saveScanRecord({
+              id: scanId,
+              userId,
+              scannedAt: new Date().toISOString(),
+              cropName: analysisReceived ? plantName : null,
+              fieldName: null,
+              analysisStatus: analysisReceived ? 'complete' : 'unavailable',
+              analysisResult: analysisReceived ? {
+                summary: plantName ? `${plantName}: ${result.health_status}` : result.health_status,
+                healthStatus: result.health_status,
+                detectedIssue: result.detected_issue,
+                visibleSymptoms: result.visible_symptoms,
+                severity: result.severity,
+                confidence: result.confidence,
+                analysis: result.analysis,
+                recommendations: result.recommendations,
+                preventionTips: result.prevention_tips,
+                needsVerification: result.needs_verification
+              } : null,
+              resultUnavailableReason: analysisReceived ? null : unavailableReason
+            }, image)
+            if (scanId === selectedScanId) {
+              selectedScanSaved = true
+              setScanHistoryStatus('Scan result saved to history.')
+            }
+          } catch (storageError) {
+            console.error('[scanner history] Unable to save scan', storageError)
+            if (scanId === selectedScanId) setScanHistoryStatus('Unable to save scan history. Please try again.')
+          } finally {
           scanSavePromise = null
-        })
+          }
+        })()
         return scanSavePromise
       }
 
@@ -403,11 +381,15 @@
           const field = record.fieldName || record.fieldId || 'Field not recorded'
           const issue = scanIssueText(record) || 'No issue recorded'
           const recommendations = analysis.recommendations
-          const recommendationText = Array.isArray(recommendations) ? recommendations.join('\n') : recommendations || 'No recommendation recorded'
+          const recommendationText = Array.isArray(recommendations) ? recommendations.join('\n') || 'No recommendation provided' : recommendations || 'No recommendation recorded'
+          const symptomsText = Array.isArray(analysis.visibleSymptoms) ? analysis.visibleSymptoms.join(', ') || 'No visible symptoms reported' : 'Not recorded'
+          const preventionText = Array.isArray(analysis.preventionTips) ? analysis.preventionTips.join('\n') || 'No prevention tips provided' : 'Not recorded'
+          const explanation = analysis.analysis || 'Not recorded'
+          const severity = analysis.severity || 'Not provided'
           const confidenceValue = analysis.confidence ?? analysis.confidenceScore
           const confidence = confidenceValue !== null && confidenceValue !== undefined && confidenceValue !== '' ? `${confidenceValue}${analysis.confidenceUnit || ''}` : 'Not provided'
           const savedResult = scanResultText(record)
-          detailView.innerHTML = `<div class="scan-history-detail-top"><button class="scan-history-back" type="button" aria-label="Back to scan history">‹</button><strong>Scan details</strong></div><div class="scan-history-detail-image-wrap"><div class="scan-history-detail-placeholder" data-detail-image aria-label="No saved scan image">🌱</div></div><div class="scan-history-detail-fields"><div class="scan-history-detail-field"><small>Crop</small><strong>${escapeScanHistoryHtml(crop)}</strong></div><div class="scan-history-detail-field"><small>Field</small><strong>${escapeScanHistoryHtml(field)}</strong></div><div class="scan-history-detail-field"><small>Scanned</small><strong>${escapeScanHistoryHtml(scanHistoryDate(record.scannedAt))}</strong></div><div class="scan-history-detail-field"><small>Analysis result</small><strong class="scan-history-status ${status.className}">${escapeScanHistoryHtml(savedResult)}</strong></div><div class="scan-history-detail-field"><small>Confidence</small><strong>${escapeScanHistoryHtml(confidence)}</strong></div><div class="scan-history-detail-field"><small>Detected issue</small><strong>${escapeScanHistoryHtml(issue)}</strong></div></div><section class="scan-history-detail-section"><h3>Result status</h3><p>${escapeScanHistoryHtml(record.resultUnavailableReason || status.label)}</p></section><section class="scan-history-detail-section"><h3>Recommendations</h3><p>${escapeScanHistoryHtml(recommendationText)}</p></section>`
+          detailView.innerHTML = `<div class="scan-history-detail-top"><button class="scan-history-back" type="button" aria-label="Back to scan history">‹</button><strong>Scan details</strong></div><div class="scan-history-detail-image-wrap"><div class="scan-history-detail-placeholder" data-detail-image aria-label="No saved scan image">🌱</div></div><div class="scan-history-detail-fields"><div class="scan-history-detail-field"><small>Crop</small><strong>${escapeScanHistoryHtml(crop)}</strong></div><div class="scan-history-detail-field"><small>Field</small><strong>${escapeScanHistoryHtml(field)}</strong></div><div class="scan-history-detail-field"><small>Scanned</small><strong>${escapeScanHistoryHtml(scanHistoryDate(record.scannedAt))}</strong></div><div class="scan-history-detail-field"><small>Analysis result</small><strong class="scan-history-status ${status.className}">${escapeScanHistoryHtml(savedResult)}</strong></div><div class="scan-history-detail-field"><small>Confidence</small><strong>${escapeScanHistoryHtml(confidence)}</strong></div><div class="scan-history-detail-field"><small>Severity</small><strong>${escapeScanHistoryHtml(severity)}</strong></div><div class="scan-history-detail-field"><small>Detected issue</small><strong>${escapeScanHistoryHtml(issue)}</strong></div></div><section class="scan-history-detail-section"><h3>Visible symptoms</h3><p>${escapeScanHistoryHtml(symptomsText)}</p></section><section class="scan-history-detail-section"><h3>Analysis</h3><p>${escapeScanHistoryHtml(explanation)}</p></section><section class="scan-history-detail-section"><h3>Recommendations</h3><p>${escapeScanHistoryHtml(recommendationText)}</p></section><section class="scan-history-detail-section"><h3>Prevention tips</h3><p>${escapeScanHistoryHtml(preventionText)}</p></section>`
           listView.hidden = true
           detailView.hidden = false
           detailView.querySelector('.scan-history-back').addEventListener('click', () => {
@@ -452,7 +434,7 @@
           list.setAttribute('aria-busy', 'true')
           if (!records.length) list.innerHTML = '<div class="scan-history-state"><span>Loading saved scans...</span></div>'
           try {
-            records = await listScanRecords()
+            records = await listScanRecords(await authenticatedUserIdPromise)
             if (!closed) renderList()
           } catch (storageError) {
             console.error('[scanner history] Unable to read saved scans', storageError)
@@ -515,12 +497,45 @@
 
       historyButton.addEventListener('click', openScanHistory)
 
-      const homePath = 'Tanod%20Bukid%20Dash%20Board%20(1)/index%20(1).html'
+      const homePath = 'TanimTrack%20Dashboard/index%20(1).html'
       dashboardNav.querySelectorAll('[data-dashboard-route]').forEach((button) => button.addEventListener('click', () => {
         const route = button.dataset.dashboardRoute
         if (route === 'scan') return
         window.location.href = route === 'home' ? homePath : `${homePath}#${route}`
       }))
+
+      function renderGeminiList(elementId, values, emptyMessage) {
+        const list = document.querySelector(elementId)
+        list.replaceChildren()
+        const items = values.length ? values : [emptyMessage]
+        items.forEach((value) => {
+          const item = document.createElement('li')
+          item.textContent = value
+          list.appendChild(item)
+        })
+      }
+
+      function renderGeminiAnalysis(result) {
+        const uncertain = result.health_status === 'Uncertain' || result.needs_verification
+        analysisUnavailableTitle.textContent = result.plant_name
+          ? `${result.plant_name} — ${result.health_status}`
+          : 'No recognizable plant identified'
+        analysisUnavailableCopy.textContent = uncertain
+          ? 'This visual assessment is uncertain and requires manual verification.'
+          : 'Gemini visual assessment, not a confirmed diagnosis. Confidence is qualitative, not calibrated.'
+        document.querySelector('#result-plant-name').textContent = result.plant_name || 'Not identified'
+        document.querySelector('#result-health-status').textContent = result.health_status
+        document.querySelector('#result-detected-issue').textContent = result.detected_issue || 'No specific issue identified'
+        document.querySelector('#result-severity').textContent = result.severity
+        document.querySelector('#result-confidence').textContent = result.confidence
+        document.querySelector('#result-analysis').textContent = result.analysis
+        document.querySelector('#result-verification').hidden = !uncertain
+        renderGeminiList('#result-symptoms', result.visible_symptoms, 'No clear symptoms reported.')
+        renderGeminiList('#result-recommendations', result.recommendations, 'No recommendation provided.')
+        renderGeminiList('#result-prevention-tips', result.prevention_tips, 'No prevention tips provided.')
+        geminiResultFields.hidden = false
+        analysisUnavailable.setAttribute('aria-busy', 'false')
+      }
 
       async function analyzeSelectedScan() {
         if (!selectedScanPhoto || scanRequestPromise || analysisAttempted) return scanRequestPromise
@@ -530,8 +545,10 @@
         const formData = new FormData()
         formData.append('scan_image', image, image.name || 'crop-image.jpg')
         analysisUnavailable.hidden = false
+        analysisUnavailable.setAttribute('aria-busy', 'true')
         analysisUnavailableTitle.textContent = 'Analyzing image...'
-        analysisUnavailableCopy.textContent = 'The experimental crop classifier may take a little longer on its first request while model weights download.'
+        analysisUnavailableCopy.textContent = 'Gemini is checking the image. Unclear or non-plant images will not receive a forced diagnosis.'
+        geminiResultFields.hidden = true
         analysisUnavailablePhoto.hidden = !capturedPhotoUrl
         analysisUnavailablePlaceholder.hidden = Boolean(capturedPhotoUrl)
         if (capturedPhotoUrl) analysisUnavailablePhoto.src = capturedPhotoUrl
@@ -551,30 +568,39 @@
             } catch {
               throw new Error('The scanner returned an invalid response.')
             }
-            if (!response.ok || !result.success || !result.prediction) {
-              throw new Error(result.message || 'The scanner could not analyze this image.')
+            if (!response.ok || result?.success !== true) {
+              throw new Error(typeof result?.message === 'string' ? result.message : 'The scanner could not analyze this image.')
             }
             if (scanId !== selectedScanId) return
-            const prediction = result.prediction
-            const confidence = Number(prediction.confidence)
-            if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
-              throw new Error('The scanner returned an invalid confidence score.')
+            const supportedHealthStatuses = ['Healthy', 'Diseased', 'Pest-Affected', 'Nutrient Deficiency', 'Uncertain']
+            const supportedSeverities = ['None', 'Low', 'Moderate', 'High', 'Unknown']
+            const supportedConfidence = ['Low', 'Medium', 'High', 'Unknown']
+            if (
+              !supportedHealthStatuses.includes(result.health_status)
+              || !supportedSeverities.includes(result.severity)
+              || !supportedConfidence.includes(result.confidence)
+              || !Array.isArray(result.visible_symptoms) || !result.visible_symptoms.every((value) => typeof value === 'string')
+              || !Array.isArray(result.recommendations) || !result.recommendations.every((value) => typeof value === 'string')
+              || !Array.isArray(result.prevention_tips) || !result.prevention_tips.every((value) => typeof value === 'string')
+              || typeof result.analysis !== 'string'
+              || !result.analysis.trim()
+              || typeof result.needs_verification !== 'boolean'
+              || (result.plant_name !== null && typeof result.plant_name !== 'string')
+              || (result.detected_issue !== null && typeof result.detected_issue !== 'string')
+            ) {
+              throw new Error('The scanner returned an invalid analysis result.')
             }
             currentAnalysis = result
-            if (prediction.accepted) {
-              analysisUnavailableTitle.textContent = `${prediction.crop}: ${prediction.condition}`
-              analysisUnavailableCopy.textContent = `${(confidence * 100).toFixed(1)}% model confidence. ${result.disclaimer || 'Experimental classifier output; confirm the result with a local agricultural expert.'}`
-            } else {
-              analysisUnavailableTitle.textContent = 'No reliable result'
-              analysisUnavailableCopy.textContent = `The top model class was ${prediction.label} at ${(confidence * 100).toFixed(1)}% confidence, below the acceptance threshold. Try a clearer close-up image; this result is not a diagnosis.`
-            }
-            unavailableReason = prediction.accepted ? '' : 'The model confidence was too low to accept this classification.'
+            renderGeminiAnalysis(result)
+            unavailableReason = result.needs_verification ? 'Gemini marked this result as requiring manual verification.' : ''
           } catch (scanError) {
             if (scanId !== selectedScanId) return
-            unavailableReason = scanError instanceof Error ? scanError.message : 'The scanner is unavailable.'
+            unavailableReason = scanError instanceof Error ? scanError.message : 'The scanner is unavailable. Please try again.'
             currentAnalysis = null
             result = null
             analysisError = unavailableReason
+            analysisUnavailable.setAttribute('aria-busy', 'false')
+            geminiResultFields.hidden = true
             analysisUnavailableTitle.textContent = 'Result unavailable'
             analysisUnavailableCopy.textContent = unavailableReason
           }
@@ -591,7 +617,6 @@
       function setScanTab(showAnalysis) {
         liveScanView.hidden = showAnalysis
         scanAnalysisView.hidden = !showAnalysis
-        scanAnalysisView.classList.toggle('has-unavailable-analysis', showAnalysis)
         dashboardPage.classList.toggle('showing-analysis', showAnalysis)
         scanShell.classList.toggle('showing-analysis', showAnalysis)
         liveCameraTab.classList.toggle('active', !showAnalysis)
@@ -601,28 +626,19 @@
 
         if (showAnalysis) {
           const hasSubmittedPhoto = Boolean(selectedScanPhoto)
-          if (selectedScanPhoto && capturedPhotoUrl) {
-            analysisPhoto.src = capturedPhotoUrl
-            analysisThumbnail.src = capturedPhotoUrl
-          }
           analysisUnavailable.hidden = false
           analysisUnavailableTitle.textContent = hasSubmittedPhoto ? 'Analyzing image...' : 'No scan result yet'
           analysisUnavailableCopy.textContent = hasSubmittedPhoto
-            ? 'Submitting the selected image to the experimental crop classifier.'
+            ? 'Submitting the selected image to Gemini for visual analysis.'
             : 'Capture or upload a crop photo, then choose Use Photo to request an analysis.'
+          geminiResultFields.hidden = !currentAnalysis
+          analysisUnavailable.setAttribute('aria-busy', String(hasSubmittedPhoto && !currentAnalysis && !analysisError))
           const hasPreview = Boolean(hasSubmittedPhoto && capturedPhotoUrl)
           analysisUnavailablePhoto.hidden = !hasPreview
           analysisUnavailablePlaceholder.hidden = hasPreview
           if (hasPreview) analysisUnavailablePhoto.src = capturedPhotoUrl
           if (hasSubmittedPhoto && currentAnalysis) {
-            const prediction = currentAnalysis.prediction
-            const confidence = Number(prediction.confidence)
-            analysisUnavailableTitle.textContent = prediction.accepted
-              ? `${prediction.crop}: ${prediction.condition}`
-              : 'No reliable result'
-            analysisUnavailableCopy.textContent = prediction.accepted
-              ? `${(confidence * 100).toFixed(1)}% model confidence. ${currentAnalysis.disclaimer || 'Experimental classifier output; confirm the result with a local agricultural expert.'}`
-              : `The top model class was ${prediction.label} at ${(confidence * 100).toFixed(1)}% confidence, below the acceptance threshold. This is not a diagnosis.`
+            renderGeminiAnalysis(currentAnalysis)
           } else if (hasSubmittedPhoto && analysisError) {
             analysisUnavailableTitle.textContent = 'Result unavailable'
             analysisUnavailableCopy.textContent = analysisError
@@ -640,12 +656,6 @@
 
       liveCameraTab.addEventListener('click', () => setScanTab(false))
       aiAnalysisTab.addEventListener('click', () => setScanTab(true))
-      document.querySelector('#change-details-button').addEventListener('click', (event) => {
-        const details = document.querySelector('#change-detail-copy')
-        details.hidden = !details.hidden
-        event.currentTarget.setAttribute('aria-expanded', String(!details.hidden))
-        event.currentTarget.firstChild.textContent = details.hidden ? 'View Details ' : 'Hide Details '
-      })
 
       function hasActiveCameraTrack(cameraStream) {
         return Boolean(cameraStream?.getVideoTracks?.().some((track) => track.readyState === 'live'))
@@ -918,8 +928,6 @@
         capturedPhotoPreview.hidden = true
         if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl)
         capturedPhotoUrl = ''
-        analysisPhoto.src = initialAnalysisPhoto
-        analysisThumbnail.src = initialAnalysisPhoto
         setCaptureStatus('')
       })
 

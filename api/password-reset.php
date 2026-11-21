@@ -12,12 +12,11 @@ if ($mobile === null) {
 }
 
 $pdo = pdo_connection();
-
 if ($action === 'send') {
-    if (getenv('TANODBUKID_DEV_OTP') !== '1') {
+    if (!unisms_sms_configured()) {
         json_response([
             'success' => false,
-            'message' => 'Password reset is unavailable because SMS delivery is not configured. Enable the local-only development OTP only on a private machine.',
+            'message' => 'SMS delivery is not configured. Add your UniSMS API key and sender ID to the private environment file.',
         ], 503);
     }
 
@@ -25,7 +24,7 @@ if ($action === 'send') {
     $lookup->execute(['mobile_number' => $mobile]);
     $user = $lookup->fetch();
     if ($user === false) {
-        json_response(['success' => true, 'message' => 'If the number is registered, a reset code is available for this local demo.']);
+        json_response(['success' => true, 'message' => 'If the number is registered, a reset code has been queued for SMS delivery.']);
     }
 
     $userId = (int) $user['id'];
@@ -63,10 +62,23 @@ if ($action === 'send') {
         json_response(['success' => false, 'message' => 'Unable to create a reset code right now.'], 500);
     }
 
+    try {
+        send_unisms_otp($mobile, $code, 'password reset', 15);
+    } catch (Throwable $error) {
+        $pdo->prepare('UPDATE password_reset_otps SET consumed_at = UTC_TIMESTAMP() WHERE user_id = :user_id AND consumed_at IS NULL')
+            ->execute(['user_id' => $userId]);
+        error_log('TanimTrack password reset SMS delivery failed: ' . $error->getMessage());
+        json_response([
+            'success' => false,
+            'message' => $error instanceof RuntimeException
+                ? $error->getMessage()
+                : 'Unable to send the reset code right now. Try again later.',
+        ], 502);
+    }
+
     json_response([
         'success' => true,
-        'message' => 'A reset code is ready for this local development demo.',
-        'dev_otp' => $code,
+        'message' => 'If the number is registered, a reset code SMS request was accepted.',
         'expires_in_seconds' => 900,
     ]);
 }
@@ -74,8 +86,8 @@ if ($action === 'send') {
 if ($action !== 'reset') {
     json_response(['success' => false, 'message' => 'Choose a valid password reset action.'], 422);
 }
-if (getenv('TANODBUKID_DEV_OTP') !== '1') {
-    json_response(['success' => false, 'message' => 'Password reset is unavailable because SMS delivery is not configured.'], 503);
+if (!unisms_sms_configured()) {
+    json_response(['success' => false, 'message' => 'SMS delivery is not configured. Add your UniSMS API key and sender ID to the private environment file.'], 503);
 }
 
 $code = is_string($data['otp'] ?? null) ? trim($data['otp']) : '';

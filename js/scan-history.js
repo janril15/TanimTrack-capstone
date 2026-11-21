@@ -68,7 +68,9 @@ export async function listScanRecords(userId = null) {
         const transaction = database.transaction(RECORD_STORE, 'readonly')
         const request = transaction.objectStore(RECORD_STORE).getAll()
         request.onsuccess = () => {
-            const records = userId ? request.result.filter((record) => record.userId === userId) : request.result
+            const records = userId
+                ? request.result.filter((record) => record.userId === userId || record.userId === null || record.userId === undefined)
+                : request.result
             records.sort((left, right) => new Date(right.scannedAt) - new Date(left.scannedAt))
             resolve(records)
         }
