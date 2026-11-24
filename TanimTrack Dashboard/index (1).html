@@ -60,19 +60,19 @@
       min-height: 100dvh;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
     }
 
     .app-shell {
       width: 100%;
       max-width: var(--tb-shell-width, 430px);
-      height: 100dvh;
+      height: auto;
       min-height: 100dvh;
       margin: auto;
       background: var(--paper);
       position: relative;
-      overflow-x: hidden;
-      overflow-y: auto;
+      overflow-x: clip;
+      overflow-y: visible;
       box-shadow: 0 0 36px #47604622;
       padding: 0 0 calc(88px + env(safe-area-inset-bottom));
     }
@@ -416,28 +416,13 @@
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2);
     }
 
-    .home-weather-cloud {
+    .home-weather-icon {
       position: absolute;
-      top: 19px;
+      top: 15px;
       left: 20%;
-      width: 55px;
-      height: 23px;
-      border-radius: 20px;
-      background: #effbf6;
-      box-shadow: 17px 4px 0 -4px #d5f0e9, -15px 5px 0 -6px #d5f0e9;
-    }
-
-    .home-weather-cloud::after {
-      content: '';
-      position: absolute;
-      right: 8px;
-      bottom: -27px;
-      width: 3px;
-      height: 22px;
-      border-radius: 4px;
-      background: #c8edf0;
-      box-shadow: -13px 6px 0 #c8edf0, 13px 4px 0 #c8edf0;
-      transform: rotate(18deg);
+      color: #effbf6;
+      font-size: 40px;
+      line-height: 1;
     }
 
     .home-weather-temp {
@@ -566,6 +551,12 @@
     .home-article-list {
       display: grid;
       gap: 7px;
+    }
+    .home-articles-empty {
+      margin: 0;
+      padding: 12px 7px;
+      color: #7e897f;
+      font-size: 11px;
     }
 
     .home-article {
@@ -3706,15 +3697,11 @@
       .app-shell {
         width: 390px;
         max-width: 390px;
-        height: 844px;
-        min-height: 844px;
+        height: auto;
+        min-height: 100dvh;
         border-radius: 40px;
         box-shadow: none;
         padding-bottom: 88px;
-      }
-
-      .bottom-nav {
-        position: absolute;
       }
 
       .home-indicator {
@@ -4145,12 +4132,12 @@
           </article>
           <article class="home-slide weather">
             <div class="home-slide-content"><span class="home-slide-kicker">Weather Update</span>
-              <h2>Rain expected today</h2>
-              <p>Light rain may affect your farm activities. Plan watering and field work accordingly.</p><button
+              <h2 id="home-weather-title">Loading current weather…</h2>
+              <p id="home-weather-description">Current conditions will appear when weather data is available.</p><button
                 class="home-slide-action" type="button" data-home-action="climate">Explore More →</button>
             </div>
-            <div class="home-weather-visual" aria-hidden="true"><span class="home-weather-cloud"></span><span
-                class="home-weather-temp">29°C<small>Light Rain<br>Sta. Maria, Bulacan</small></span></div>
+            <div class="home-weather-visual" aria-hidden="true"><span class="home-weather-icon" id="home-weather-icon">☁</span><span
+                class="home-weather-temp" id="home-weather-banner-temperature">--°C<small>Loading weather…<br>Sta. Maria, Bulacan</small></span></div>
           </article>
           <article class="home-slide scanner">
             <div class="home-slide-content"><span class="home-slide-kicker">Farm Scanner</span>
@@ -4173,19 +4160,19 @@
       </section>
       <section class="stats" aria-label="Farm metrics">
         <article class="stat">
-          <div class="stat-icon">🌿</div><strong>12</strong>
+          <div class="stat-icon">🌿</div><strong id="plants-monitored-count">0</strong>
           <p>Plants<br>Monitored</p>
         </article>
         <article class="stat">
-          <div class="stat-icon">💧</div><strong>3</strong>
+          <div class="stat-icon">💧</div><strong id="tasks-due-today-count">0</strong>
           <p>Tasks<br>Due Today</p>
         </article>
         <article class="stat">
-          <div class="stat-icon">🌤️</div><strong>28<small>°C</small></strong>
-          <p>Weather<br>Partly Cloudy</p>
+          <div class="stat-icon" id="home-weather-stat-icon">☁</div><strong id="home-weather-temperature">--<small>°C</small></strong>
+          <p>Weather<br><span id="home-weather-condition">Loading…</span></p>
         </article>
         <article class="stat">
-          <div class="stat-icon">🪴</div><strong>2</strong>
+          <div class="stat-icon">🪴</div><strong id="fertilizers-in-use-count">0</strong>
           <p>Fertilizers<br>In Use</p>
         </article>
       </section>
@@ -4200,49 +4187,15 @@
           <h2 id="latest-articles-title">Latest Articles</h2><button type="button" data-home-action="articles">View All
             →</button>
         </div>
-        <div class="home-article-list">
-          <button class="home-article" type="button" data-home-action="article"><img src="plants (1).jpg"
-              alt="Fresh pechay leaves"><span class="home-article-copy"><span class="home-article-tag">Crop Care</span>
-              <h3>How to Grow Healthy Pechay</h3>
-              <p>Simple steps for faster growth and better yield.</p><span class="home-article-meta">◷ 5 min read</span>
-            </span><span class="home-article-chevron" aria-hidden="true">›</span></button>
-          <button class="home-article" type="button" data-home-action="article"><img src="plants (1).jpg"
-              alt="Plant leaves showing natural variation"><span class="home-article-copy"><span
-                class="home-article-tag">Pest &amp; Disease</span>
-              <h3>Common Leaf Diseases and How to Treat Them</h3>
-              <p>Spot the signs early and protect your plants.</p><span class="home-article-meta">◷ 7 min read</span>
-            </span><span class="home-article-chevron" aria-hidden="true">›</span></button>
-        </div>
+        <div class="home-article-list" id="home-article-list"></div>
+        <p class="home-articles-empty" id="home-articles-empty">No articles yet.</p>
       </section>
       <section class="activity">
         <div class="section-head">
           <h2>Recent activity</h2><button class="activity-view-all" type="button">View All</button>
         </div>
-        <div class="activity-list">
-          <div class="activity-row" data-activity-context="Munggo · Field A"
-            data-activity-description="Health improved to 85%"><span class="activity-icon">🌿</span><span
-              class="activity-copy"><b>Munggo – Field
-                A</b><small>Health improved to 85%</small></span><span class="when">2h ago</span><span
-              class="chevron">›</span></div>
-          <div class="activity-row" data-activity-context="Munggo · Field A"
-            data-activity-description="Organic fertilizer was applied to support steady crop growth."><span
-              class="activity-icon">🪴</span><span class="activity-copy"><b>Applied Organic
-                Fertilizer</b><small>Munggo – Field A</small></span><span class="when">5h ago</span><span
-              class="chevron">›</span></div>
-          <div class="activity-row" data-activity-context="Talong · Field B"
-            data-activity-description="Scheduled watering was completed."><span class="activity-icon">💧</span><span
-              class="activity-copy"><b>Watering
-                Completed</b><small>Talong – Field B</small></span><span class="when">1d ago</span><span
-              class="chevron">›</span></div>
-          <div class="activity-row" data-activity-context="Tomato · Field C"
-            data-activity-description="Low nitrogen was detected during the latest crop check."><span
-              class="activity-icon">⚠️</span><span class="activity-copy"><b>Tomato – Field
-                C</b><small>Low nitrogen detected</small></span><span class="when">1d ago</span><span
-              class="chevron">›</span></div>
-          <div class="activity-row" data-activity-context="Pechay · Field A"
-            data-activity-description="Plant growth check completed."><span class="activity-icon">▤</span><span
-              class="activity-copy"><b>Plant Growth Check</b><small>Pechay – Field A</small></span><span class="when">2d
-              ago</span><span class="chevron">›</span></div>
+        <div class="activity-list" id="recent-activity-list">
+          <p class="farm-log-empty">No activity yet.</p>
         </div>
       </section>
       <section class="new-screen" id="climate-screen">
@@ -4405,11 +4358,11 @@
         </div>
         <div class="farm-log-summary" aria-label="Farm log summary">
           <div class="farm-log-summary-card"><span class="farm-log-summary-icon"
-              aria-hidden="true">⚖</span><strong>4.2t</strong><span>Last yield</span></div>
+              aria-hidden="true">⚖</span><strong>—</strong><span>Last yield</span></div>
           <div class="farm-log-summary-card"><span class="farm-log-summary-icon"
-              aria-hidden="true">♧</span><strong>68d</strong><span>Since plant</span></div>
+              aria-hidden="true">♧</span><strong>—</strong><span>Since plant</span></div>
           <div class="farm-log-summary-card"><span class="farm-log-summary-icon"
-              aria-hidden="true">⌛</span><strong>32d</strong><span>To harvest</span></div>
+              aria-hidden="true">⌛</span><strong>—</strong><span>To harvest</span></div>
         </div>
         <div class="farm-log-filters" role="tablist" aria-label="Farm log filters">
           <button class="farm-log-filter selected" type="button" role="tab" aria-selected="true"
@@ -4471,7 +4424,6 @@
       const activityDate = document.getElementById('activity-date');
       const farmLogList = document.getElementById('farm-log-list');
       const farmLogFeedback = document.getElementById('farm-log-feedback');
-      const FARM_ACTIVITIES_KEY = 'tanodbukid_farm_activities';
       let selectedFarmLogFilter = 'all';
       let farmActivityRequestPending = false;
       let farmActivitySaving = false;
@@ -4577,6 +4529,13 @@
       const climateRiskCopy = document.getElementById('climate-risk-copy');
       const climateCurrentSummary = document.getElementById('climate-current-summary');
       const climateAdvisory = document.getElementById('climate-advisory');
+      const homeWeatherTitle = document.getElementById('home-weather-title');
+      const homeWeatherDescription = document.getElementById('home-weather-description');
+      const homeWeatherIcon = document.getElementById('home-weather-icon');
+      const homeWeatherBannerTemperature = document.getElementById('home-weather-banner-temperature');
+      const homeWeatherStatIcon = document.getElementById('home-weather-stat-icon');
+      const homeWeatherTemperature = document.getElementById('home-weather-temperature');
+      const homeWeatherCondition = document.getElementById('home-weather-condition');
       const pagasaWarningsUrl = 'https://www.pagasa.dost.gov.ph/weather';
       let climateData = null;
       let climateLoading = false;
@@ -4603,6 +4562,36 @@
           96: ['⛈', 'Thunderstorm with hail'], 99: ['⛈', 'Thunderstorm with heavy hail'],
         };
         return descriptions[Number(code)] || ['☁', 'Weather condition unavailable'];
+      };
+      const renderHomeWeather = (data) => {
+        const current = data?.current;
+        if (!current) {
+          homeWeatherTitle.textContent = 'Weather unavailable';
+          homeWeatherDescription.textContent = 'Current conditions are unavailable.';
+          homeWeatherIcon.textContent = '☁';
+          homeWeatherBannerTemperature.innerHTML = '—°C<small>Weather unavailable</small>';
+          homeWeatherStatIcon.textContent = '☁';
+          homeWeatherTemperature.innerHTML = '—<small>°C</small>';
+          homeWeatherCondition.textContent = 'Unavailable';
+          return;
+        }
+
+        const [icon, description] = climateWeather(current.weather_code);
+        const weatherCode = Number(current.weather_code);
+        const isRaining = (weatherCode >= 51 && weatherCode <= 67) || (weatherCode >= 80 && weatherCode <= 82);
+        const condition = isRaining
+          ? 'Raining'
+          : description.replace(/\b[a-z]/g, (character) => character.toUpperCase());
+        const temperature = climateNumber(current.temperature);
+        const locationName = String(data.location?.name || 'Local forecast').replace(/, Philippines$/i, '');
+
+        homeWeatherTitle.textContent = condition;
+        homeWeatherDescription.textContent = `Current conditions in ${locationName}.`;
+        homeWeatherIcon.textContent = icon;
+        homeWeatherBannerTemperature.innerHTML = `${climateEscape(temperature)}°C<small>${climateEscape(condition)}<br>${climateEscape(locationName)}</small>`;
+        homeWeatherStatIcon.textContent = icon;
+        homeWeatherTemperature.innerHTML = `${climateEscape(temperature)}<small>°C</small>`;
+        homeWeatherCondition.textContent = condition;
       };
       const climateDate = (value, options) => {
         const date = new Date(String(value).replace(' ', 'T') + (String(value).includes('+') ? '' : '+08:00'));
@@ -4690,6 +4679,7 @@
       };
       const renderClimate = (data) => {
         climateData = data;
+        renderHomeWeather(data);
         renderClimateStatus(data);
         renderClimateForecast(data);
         renderClimateAlerts(data);
@@ -4711,6 +4701,7 @@
           console.error('Unable to load climate data:', error);
           climateStatus.innerHTML = `<i class="dot"></i>${climateEscape(climateData ? 'Showing last saved weather · Live refresh failed' : 'Weather unavailable · ' + (error.message || 'Check the PHP service'))}`;
           if (!climateData) {
+            renderHomeWeather(null);
             climateForecast.innerHTML = '<div class="forecast-card today"><b>No data</b><div class="weather">—</div><strong>Unavailable</strong><div class="progress"><i></i></div></div>';
             climateAlertsList.innerHTML = `<article class="alert advisory"><span class="alert-icon">◦</span><span class="badge">INFO</span><h3>Weather data unavailable</h3><p>${climateEscape(error.message || 'Try again when the weather service is available.')}</p><a class="source" href="${pagasaWarningsUrl}" target="_blank" rel="noopener noreferrer">› &nbsp; Check PAGASA official warnings</a></article>`;
             climateRiskTitle.textContent = 'Risk unavailable';
@@ -4748,9 +4739,9 @@
         if (record) modal(climateEscape(record.title), `<p>${climateEscape(record.description)}</p><p><strong>${climateEscape(record.severity.toUpperCase())} · ${climateEscape(record.source)}</strong><br>${climateEscape(record.location)}<br>Valid from ${climateEscape(record.valid_from)}${record.valid_until ? ` until ${climateEscape(record.valid_until)}` : ''}</p>`);
       });
       window.setInterval(() => {
-        if (location.hash.slice(1) === 'climate' && Date.now() - climateLastRequestAt >= climateRefreshIntervalSeconds * 1000) loadClimate();
+        if ((!location.hash.slice(1) || location.hash.slice(1) === 'climate') && Date.now() - climateLastRequestAt >= climateRefreshIntervalSeconds * 1000) loadClimate();
       }, 60000);
-      const showRoute = () => { const route = location.hash.slice(1); const active = routes.includes(route) ? route : ''; const isCommunityRoute = active === 'community-alerts'; shell.classList.toggle('new-route', Boolean(active)); shell.classList.toggle('community-route', isCommunityRoute); addedScreens.forEach((screen) => screen.classList.toggle('active', screen.id === `${active}-screen`)); addedNav.style.display = isCommunityRoute ? 'none' : 'grid'; addedNav.querySelectorAll('button[data-route]').forEach((button) => button.classList.toggle('active', button.dataset.route === (active || 'home'))); if (active === 'farm-logs') loadFarmActivities(); if (active === 'climate') loadClimate(); };
+      const showRoute = () => { const route = location.hash.slice(1); const active = routes.includes(route) ? route : ''; const isCommunityRoute = active === 'community-alerts'; shell.classList.toggle('new-route', Boolean(active)); shell.classList.toggle('community-route', isCommunityRoute); addedScreens.forEach((screen) => screen.classList.toggle('active', screen.id === `${active}-screen`)); addedNav.style.display = isCommunityRoute ? 'none' : 'grid'; addedNav.querySelectorAll('button[data-route]').forEach((button) => button.classList.toggle('active', button.dataset.route === (active || 'home'))); if (active === 'farm-logs' || !active) loadFarmActivities(); if (active === 'climate') loadClimate(); };
       const farmLogsCard = document.querySelector('.quick button:nth-child(3)');
       farmLogsCard.addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'farm-logs'; });
       document.getElementById('community-alerts-card').addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'community-alerts'; });
@@ -4945,22 +4936,7 @@
       document.getElementById('farm-logs-back').addEventListener('click', () => { location.hash = previousRoute; });
       document.getElementById('farm-log-add').addEventListener('click', () => { previousRoute = 'farm-logs'; location.hash = 'add'; });
       const dateFromToday = (offset) => { const date = new Date(); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() + offset); return date.toISOString().slice(0, 10); };
-      const sampleFarmActivities = () => [
-        { id: 'sample-fertilizer', type: 'Crop Care', date: dateFromToday(7), title: 'Applied fertilizer — Urea 46-0-0', details: 'Field A, 2.5 ha, 3 bags.', related: '', cost: '' },
-        { id: 'sample-watering', type: 'Crop Care', date: dateFromToday(2), title: 'Watering — North Field', details: 'Scheduled irrigation for Palay.', related: '', cost: '' },
-        { id: 'sample-vaccination', type: 'Livestock', date: dateFromToday(-3), title: 'FMD vaccination — 5 heads cattle', details: 'DA-facilitated vaccination.', related: '', cost: '' }
-      ];
-      const readFarmActivities = () => {
-        try {
-          const stored = JSON.parse(localStorage.getItem(FARM_ACTIVITIES_KEY) || 'null');
-          if (Array.isArray(stored) && stored.length) return stored.map((activity) => ({
-            ...activity,
-            author_name: activity.author_name || '',
-          }));
-          return sampleFarmActivities();
-        } catch (error) { console.warn('Unable to read farm activities:', error); return sampleFarmActivities(); }
-      };
-      let farmActivities = readFarmActivities();
+      let farmActivities = [];
       const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
       const categoryForType = (type) => type === 'Livestock' ? 'livestock' : type === 'Post-Harvest' ? 'post-harvest' : type === 'Expense' ? 'expense' : 'crop-care';
       const categoryLabelForType = (type) => type === 'Post-Harvest' ? 'Post-harvest' : type || 'Crop care';
@@ -4983,42 +4959,25 @@
         farmActivityRequestPending = true;
         const requestVersion = ++farmActivityLoadVersion;
         try {
-          let legacyActivities = [];
-          try {
-            const stored = JSON.parse(localStorage.getItem(FARM_ACTIVITIES_KEY) || 'null');
-            if (Array.isArray(stored)) legacyActivities = stored.filter((activity) => activity && typeof activity === 'object');
-          } catch (error) {
-            console.warn('Unable to read older farm activities for import:', error);
-          }
-          if (legacyActivities.length) {
-            for (let offset = 0; offset < legacyActivities.length; offset += 100) {
-              const importResponse = await fetch('/api/farm-activities.php', {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify({ action: 'import-legacy', activities: legacyActivities.slice(offset, offset + 100) }),
-              });
-              const importResult = await importResponse.json();
-              if (!importResponse.ok || !importResult.success) {
-                throw new Error(importResult.message || 'Unable to preserve older farm activities.');
-              }
-            }
-            localStorage.removeItem(FARM_ACTIVITIES_KEY);
-          }
-
           const response = await fetch('/api/farm-activities.php', {
             credentials: 'same-origin',
             headers: { Accept: 'application/json' },
             cache: 'no-store',
           });
           const result = await response.json();
-          if (response.status === 401) throw new Error('Your session has expired. Sign in again to view farm activities.');
+          if (response.status === 401) {
+            farmActivities = [];
+            renderFarmLogs(selectedFarmLogFilter);
+            renderRecentActivities();
+            throw new Error('Your session has expired. Sign in again to view farm activities.');
+          }
           if (!response.ok || !result.success || !Array.isArray(result.activities)) {
             throw new Error(result.message || 'Unable to load farm activities.');
           }
           if (requestVersion !== farmActivityLoadVersion) return;
           farmActivities = result.activities.map(normalizeFarmActivity);
           renderFarmLogs(selectedFarmLogFilter);
+          renderRecentActivities();
           if (farmLogFeedback.dataset.kind === 'error') setFarmLogFeedback('', '');
         } catch (error) {
           if (requestVersion !== farmActivityLoadVersion) return;
@@ -5038,15 +4997,20 @@
         if (days === 0) return 'Today';
         return `${Math.abs(days)}d ago`;
       };
+      const recentActivityList = document.getElementById('recent-activity-list');
+      const renderRecentActivities = () => {
+        const activities = farmActivities.slice(0, 5);
+        recentActivityList.innerHTML = activities.length
+          ? activities.map((activity) => {
+            const icon = activity.type === 'Livestock' ? '🐄' : activity.type === 'Post-Harvest' ? '🌾' : '🪴';
+            const context = activity.related || categoryLabelForType(activity.type);
+            return `<div class="activity-row"><span class="activity-icon">${icon}</span><span class="activity-copy"><b>${escapeHtml(activity.title)}</b><small>${escapeHtml(context)}</small></span><span class="when">${escapeHtml(activityTimeFromDate(activity.date))}</span><span class="chevron">›</span></div>`;
+          }).join('')
+          : '<p class="farm-log-empty">No activity yet.</p>';
+      };
+      renderRecentActivities();
       const openRecentActivity = () => {
         const trigger = document.querySelector('.activity-view-all');
-        const homeActivities = [...document.querySelectorAll('.activity-row')].map((row) => ({
-          title: row.querySelector('.activity-copy b')?.textContent.trim() || 'Farm activity',
-          context: row.dataset.activityContext || row.querySelector('.activity-copy small')?.textContent.trim() || 'Farm activity',
-          description: row.dataset.activityDescription || row.querySelector('.activity-copy small')?.textContent.trim() || '',
-          time: row.querySelector('.when')?.textContent.trim() || '',
-          icon: row.querySelector('.activity-icon')?.textContent.trim() || '🌱',
-        }));
         const savedActivities = farmActivities.map((activity) => ({
           title: activity.title,
           context: `${categoryLabelForType(activity.type)} · ${activity.date}`,
@@ -5054,7 +5018,7 @@
           time: activityTimeFromDate(activity.date),
           icon: activity.type === 'Livestock' ? '🐄' : activity.type === 'Post-Harvest' ? '🌾' : '🪴',
         }));
-        const activities = [...homeActivities, ...savedActivities];
+        const activities = savedActivities;
         const backdrop = document.createElement('div');
         backdrop.className = 'activity-modal-backdrop';
         backdrop.innerHTML = `<section class="activity-modal" role="dialog" aria-modal="true" aria-labelledby="activity-modal-title" aria-describedby="activity-modal-subtitle"><header class="activity-modal-header"><span class="activity-modal-mark" aria-hidden="true">🌱</span><div class="activity-modal-heading"><h2 id="activity-modal-title">All Recent Activity</h2><p id="activity-modal-subtitle">Your latest farm activities</p></div><button class="activity-modal-close" type="button" data-close-activity aria-label="Close recent activities">×</button></header><div class="activity-modal-list" id="activity-modal-list"></div><footer class="activity-modal-footer"><button class="activity-load-more" type="button">Load more</button></footer></section>`;
@@ -5125,7 +5089,7 @@
       const renderFarmLogs = (selectedFilter = selectedFarmLogFilter) => {
         selectedFarmLogFilter = selectedFilter;
         const visibleActivities = farmActivities.filter((activity) => selectedFilter === 'all' || categoryForType(activity.type) === selectedFilter);
-        farmLogList.innerHTML = visibleActivities.length ? visibleActivities.map((activity) => { const date = formatDateParts(activity.date); const category = categoryForType(activity.type); return `<article class="farm-log-card" data-log-category="${category}"><span class="farm-log-date" data-deadline="${escapeHtml(activity.date)}" aria-label="${date.day} ${date.month}">${date.day}<br>${date.month}</span><span class="farm-log-copy"><strong>${escapeHtml(activity.title)}</strong><p>${escapeHtml(activityDescription(activity))}</p><span class="farm-log-category ${category === 'livestock' || category === 'post-harvest' ? category : ''}">${escapeHtml(categoryLabelForType(activity.type))}</span></span><span class="farm-log-chevron">›</span></article>`; }).join('') : '<p class="farm-log-empty">No farm activities in this category yet.</p>';
+        farmLogList.innerHTML = visibleActivities.length ? visibleActivities.map((activity) => { const date = formatDateParts(activity.date); const category = categoryForType(activity.type); return `<article class="farm-log-card" data-log-category="${category}"><span class="farm-log-date" data-deadline="${escapeHtml(activity.date)}" aria-label="${date.day} ${date.month}">${date.day}<br>${date.month}</span><span class="farm-log-copy"><strong>${escapeHtml(activity.title)}</strong><p>${escapeHtml(activityDescription(activity))}</p><span class="farm-log-category ${category === 'livestock' || category === 'post-harvest' ? category : ''}">${escapeHtml(categoryLabelForType(activity.type))}</span></span><span class="farm-log-chevron">›</span></article>`; }).join('') : `<p class="farm-log-empty">${selectedFilter === 'all' ? 'No farm activities yet.' : 'No farm activities in this category yet.'}</p>`;
         document.querySelectorAll('[data-log-filter]').forEach((button) => { const selected = button.dataset.logFilter === selectedFilter; button.classList.toggle('selected', selected); button.setAttribute('aria-selected', String(selected)); });
         updateFarmLogDeadlineStatus();
       };
@@ -5192,6 +5156,7 @@
           farmActivityLoadVersion += 1;
           farmActivities = [normalizeFarmActivity(result.activity), ...farmActivities.filter((activity) => activity.id !== result.activity.id)]
             .sort((first, second) => second.date.localeCompare(first.date));
+          renderRecentActivities();
           activityForm.reset();
           document.querySelectorAll('.activity-type').forEach((button) => button.classList.toggle('selected', button.dataset.activityType === 'Crop Care'));
           activityDate.value = new Date().toISOString().slice(0, 10);
@@ -5423,8 +5388,42 @@
       document.querySelectorAll('.history-card').forEach((item) => item.addEventListener('click', () => modal(item.querySelector('.history-copy').firstChild.textContent, `<p>${item.querySelector('small').textContent}<br>Status: ${item.querySelector('.history-badge').textContent}</p><p>Review the recorded observations and compare them with the current crop condition.</p>`)));
       document.querySelectorAll('#profile-screen .profile-row').forEach((row) => row.addEventListener('click', () => { const label = row.querySelector('.row-label').textContent; if (label.includes('Crops')) modal('My Crops & Livestock', '<p><strong>Crops</strong><br>Palay · Irrigated<br>Tomato · Field A<br>Munggo · Field B</p><p><strong>Livestock</strong><br>Cattle · 4 heads<br>Chicken · 12 heads</p>'); if (label.includes('Location')) { const dialog = modal('Farm Location & Size', '<label>Farm location<input id="farm-location" value="Sta. Maria, Bulacan"></label><label>Farm size<input id="farm-size" value="3.5" type="number" step="0.1"></label><p class="modal-message" id="form-message"></p>', '<button class="secondary" data-close>Cancel</button><button class="primary" id="save-farm">Save</button>'); dialog.querySelector('#save-farm').addEventListener('click', () => { localStorage.setItem('farm-location', dialog.querySelector('#farm-location').value); localStorage.setItem('farm-size', dialog.querySelector('#farm-size').value); dialog.querySelector('#form-message').style.color = '#397454'; dialog.querySelector('#form-message').textContent = 'Farm information saved.'; }); } if (label.includes('Reports')) modal('Farm Reports & History', '<p>Weekly report: Farm health is stable at 80%.</p><p>Recent activity and scan records are available in your farm history.</p>'); if (label === 'Language') { const dialog = modal('Choose language', '<select id="language"><option>Filipino</option><option>English</option></select>', '<button class="primary" id="save-language">Save</button>'); dialog.querySelector('#language').value = localStorage.getItem('language') || 'Filipino'; dialog.querySelector('#save-language').addEventListener('click', () => { row.querySelector('.row-value').textContent = dialog.querySelector('#language').value; dialog.remove(); }); } if (label.includes('Password')) { const dialog = modal('Change Password', '<label>Current password<input type="password" id="current-password"></label><label>New password<input type="password" id="new-password"></label><label>Confirm new password<input type="password" id="confirm-password"></label><p class="modal-message" id="password-message"></p>', '<button class="secondary" data-close>Cancel</button><button class="primary" id="save-password">Update</button>'); dialog.querySelector('#save-password').addEventListener('click', () => { const next = dialog.querySelector('#new-password').value; const confirm = dialog.querySelector('#confirm-password').value; const message = dialog.querySelector('#password-message'); if (!next || next.length < 6 || next !== confirm) message.textContent = 'Use at least 6 characters and make both new passwords match.'; else { message.style.color = '#397454'; message.textContent = 'Password updated in this browser only.'; } }); } if (label.includes('Sign Out') && confirm('Sign out of TanimTrack?')) location.hash = ''; }));
       document.querySelectorAll('#profile-screen .profile-row .row-label').forEach((label) => { if (label.textContent === 'Language' && localStorage.getItem('language')) label.parentElement.querySelector('.row-value').textContent = localStorage.getItem('language'); });
+      const latestArticlesList = document.getElementById('home-article-list');
+      const latestArticlesEmpty = document.getElementById('home-articles-empty');
+      const renderLatestArticles = (articles) => {
+        const records = Array.isArray(articles) ? articles : [];
+        latestArticlesList.replaceChildren();
+        latestArticlesEmpty.hidden = records.length > 0;
+        records.forEach((article) => {
+          const item = document.createElement('button');
+          item.className = 'home-article';
+          item.type = 'button';
+          item.dataset.homeAction = 'article';
+          item.innerHTML = `<img src="${escapeHtml(article.image || 'plants (1).jpg')}" alt="${escapeHtml(article.imageAlt || article.title || 'Article')}"><span class="home-article-copy"><span class="home-article-tag">${escapeHtml(article.tag || '')}</span><h3>${escapeHtml(article.title || '')}</h3><p>${escapeHtml(article.summary || '')}</p><span class="home-article-meta">◷ ${escapeHtml(article.readTime || '')}</span></span><span class="home-article-chevron" aria-hidden="true">›</span>`;
+          latestArticlesList.appendChild(item);
+          item.addEventListener('click', () => modal(article.title || 'Article', `<p>${escapeHtml(article.summary || '')}</p>`));
+        });
+      };
+      window.renderLatestArticles = renderLatestArticles;
+      renderLatestArticles([]);
       window.addEventListener('hashchange', showRoute); showRoute();
     })();
+  </script>
+  <script type="module">
+    import { listScanRecords } from '../js/scan-history.js'
+
+    const plantsMonitoredCount = document.getElementById('plants-monitored-count')
+    const updatePlantsMonitoredCount = async () => {
+      try {
+        const records = await listScanRecords()
+        plantsMonitoredCount.textContent = String(records.length)
+      } catch (error) {
+        console.error('Unable to load saved scan count:', error)
+      }
+    }
+
+    updatePlantsMonitoredCount()
+    window.addEventListener('tanodbukid:scan-history-changed', updatePlantsMonitoredCount)
   </script>
   <script type="module" src="../js/chat-widget.js"></script>
   <script type="module" src="../js/dashboard-profile.js"></script>

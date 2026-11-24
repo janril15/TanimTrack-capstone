@@ -99,60 +99,26 @@ function farm_activity_response_row(array $row): array
 }
 
 if ($requestMethod === 'GET') {
-    $today = new DateTimeImmutable('today');
-    $demoActivities = [
-        [
-            'id' => 'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a01',
-            'legacy_key' => farm_activity_legacy_key('sample-fertilizer'),
-            'activity_type' => 'Crop Care',
-            'activity_date' => $today->modify('+7 days')->format('Y-m-d'),
-            'title' => 'Applied fertilizer — Urea 46-0-0',
-            'details' => 'Field A, 2.5 ha, 3 bags.',
-        ],
-        [
-            'id' => 'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a02',
-            'legacy_key' => farm_activity_legacy_key('sample-watering'),
-            'activity_type' => 'Crop Care',
-            'activity_date' => $today->modify('+2 days')->format('Y-m-d'),
-            'title' => 'Watering — North Field',
-            'details' => 'Scheduled irrigation for Palay.',
-        ],
-        [
-            'id' => 'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a03',
-            'legacy_key' => farm_activity_legacy_key('sample-vaccination'),
-            'activity_type' => 'Livestock',
-            'activity_date' => $today->modify('-3 days')->format('Y-m-d'),
-            'title' => 'FMD vaccination — 5 heads cattle',
-            'details' => 'DA-facilitated vaccination.',
-        ],
-    ];
-
     try {
-        $seed = $pdo->prepare(
-            'INSERT IGNORE INTO farm_activities
-                (id, user_id, activity_type, activity_date, title, details, legacy_key)
-             VALUES
-                (:id, :user_id, :activity_type, :activity_date, :title, :details, :legacy_key)'
-        );
-        foreach ($demoActivities as $activity) {
-            $seed->execute([
-                'id' => $activity['id'],
-                'user_id' => $sessionUser['id'],
-                'activity_type' => $activity['activity_type'],
-                'activity_date' => $activity['activity_date'],
-                'title' => $activity['title'],
-                'details' => $activity['details'],
-                'legacy_key' => $activity['legacy_key'],
-            ]);
-        }
-
-        $statement = $pdo->query(
-            'SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
+        $statement = $pdo->prepare(
+            "SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
                     a.title, a.details, a.related_crop_animal, a.cost, a.created_at, a.updated_at
              FROM farm_activities AS a
              INNER JOIN users AS u ON u.id = a.user_id
-             ORDER BY a.activity_date DESC, a.created_at DESC, a.id DESC'
+             WHERE a.user_id = :user_id
+               AND a.id NOT IN (
+                   'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a01',
+                   'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a02',
+                   'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a03'
+               )
+               AND (a.legacy_key IS NULL OR a.legacy_key NOT IN (
+                   'legacy:b89397fde04e4452692e4d2d8ac343474441008d70345d6e8f9ac6c57601a247',
+                   'legacy:375d7e9fe262fbd701f9b70431cbe79d3827b76f5308c04944b7bc79e80956e0',
+                   'legacy:140c8c724205719b1ba3267020f87c489d935dcd06bd0d310f86ec70f763fbf9'
+               ))
+             ORDER BY a.activity_date DESC, a.created_at DESC, a.id DESC"
         );
+        $statement->execute(['user_id' => $sessionUser['id']]);
         $activities = array_map('farm_activity_response_row', $statement->fetchAll());
     } catch (PDOException $error) {
         error_log('TanimTrack farm activities lookup failed: ' . $error->getMessage());
@@ -233,9 +199,9 @@ try {
                 a.title, a.details, a.related_crop_animal, a.cost, a.created_at, a.updated_at
          FROM farm_activities AS a
          INNER JOIN users AS u ON u.id = a.user_id
-         WHERE a.id = :id LIMIT 1'
+         WHERE a.id = :id AND a.user_id = :user_id LIMIT 1'
     );
-    $lookup->execute(['id' => $id]);
+    $lookup->execute(['id' => $id, 'user_id' => $sessionUser['id']]);
     $row = $lookup->fetch();
     if ($row === false) {
         throw new RuntimeException('The saved farm activity could not be read back.');
