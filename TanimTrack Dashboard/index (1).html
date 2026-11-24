@@ -151,25 +151,10 @@
       align-items: center;
     }
 
-    .menu {
-      display: grid;
-      place-content: center;
-      background: none;
-      font-size: 22px;
-      line-height: 1;
+    .menu-placeholder {
       width: 44px;
       height: 44px;
-      padding: 0;
-    }
-
-    .menu span,
-    .menu:before {
-      content: '';
-      display: block;
-      width: 14px;
-      height: 1.5px;
-      margin: 4px 0;
-      background: var(--ink);
+      flex: 0 0 44px;
     }
 
     .bell {
@@ -4109,7 +4094,7 @@
 <body>
   <div class="phone-frame">
     <main class="app-shell">
-      <header><button class="menu" aria-label="Open menu"><span></span><span></span></button>
+      <header><span class="menu-placeholder" aria-hidden="true"></span>
         <div><button class="bell" id="notifications-button" type="button" aria-label="Notifications"
             aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
