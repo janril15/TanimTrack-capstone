@@ -1782,10 +1782,6 @@
       font-size: 10px;
     }
 
-    #profile-screen .stats-pills span {
-      font-size: 10px;
-    }
-
     #profile-screen .profile-section .screen-title {
       font-size: 11px;
     }
@@ -2023,16 +2019,6 @@
       background: #e3f1df;
       font-size: 7px;
       font-weight: 800;
-    }
-
-    .farm-log-category.livestock {
-      color: #896d2d;
-      background: #f7edcf;
-    }
-
-    .farm-log-category.post-harvest {
-      color: #77619a;
-      background: #eee6f7;
     }
 
     .farm-log-chevron {
@@ -2707,6 +2693,10 @@
       margin-bottom: 14px;
     }
 
+    .activity-field[hidden] {
+      display: none;
+    }
+
     .activity-field span {
       display: block;
       margin-bottom: 6px;
@@ -3184,19 +3174,6 @@
     .profile-head p {
       margin: 1px 0 8px;
       color: #c5d8c8;
-      font-size: 8px;
-    }
-
-    .stats-pills {
-      display: flex;
-      gap: 6px;
-    }
-
-    .stats-pills span {
-      padding: 4px 9px;
-      border-radius: 10px;
-      color: #e3efe4;
-      background: #ffffff1b;
       font-size: 8px;
     }
 
@@ -3779,10 +3756,6 @@
       color: #e7f4e8;
     }
 
-    .profile-head .stats-pills span {
-      color: #f1f8ef;
-    }
-
     .activity-head h1 {
       color: #fff;
     }
@@ -4078,7 +4051,6 @@
       }
 
       #profile-screen .profile-head p,
-      #profile-screen .stats-pills span,
       #profile-screen .profile-row .row-value {
         font-size: 12px;
       }
@@ -4266,13 +4238,11 @@
         <div class="profile-head"><span class="profile-avatar">♙</span>
           <h1>Loading profile…</h1>
           <p>Loading account information…</p>
-          <div class="stats-pills"><span>3 crops</span><span>2 livestock</span><span>3.5 ha farm</span></div>
         </div>
         <section class="profile-section">
           <div class="screen-title"><span>FARM INFO</span></div>
           <div class="profile-card">
-            <div class="profile-row"><span class="row-icon">♧</span><span class="row-label">My Crops &amp;
-                Livestock</span><span class="row-value">Manage ›</span></div>
+            <div class="profile-row"><span class="row-icon">♧</span><span class="row-label">Farm Information</span><span class="row-value">Manage ›</span></div>
             <div class="profile-row"><span class="row-icon">⌖</span><span class="row-label">Farm Location &amp;
                 Size</span><span class="row-value">Edit ›</span></div>
             <div class="profile-row"><span class="row-icon">▣</span><span class="row-label">Farm Reports &amp;
@@ -4339,7 +4309,7 @@
       <section class="new-screen farm-logs-screen" id="farm-logs-screen" aria-labelledby="farm-logs-title">
         <div class="farm-logs-header"><button class="farm-logs-back" id="farm-logs-back" type="button"
             aria-label="Back">←</button>
-          <h1 id="farm-logs-title">Farm log &amp; post-harvest</h1>
+          <h1 id="farm-logs-title">Farm Logs</h1>
         </div>
         <div class="farm-log-summary" aria-label="Farm log summary">
           <div class="farm-log-summary-card"><span class="farm-log-summary-icon"
@@ -4353,11 +4323,13 @@
           <button class="farm-log-filter selected" type="button" role="tab" aria-selected="true"
             data-log-filter="all">All</button>
           <button class="farm-log-filter" type="button" role="tab" aria-selected="false"
-            data-log-filter="crop-care">Crop care</button>
+            data-log-filter="plant-growth">Plant Growth</button>
           <button class="farm-log-filter" type="button" role="tab" aria-selected="false"
-            data-log-filter="livestock">Livestock</button>
+            data-log-filter="garden-log">Garden Log</button>
           <button class="farm-log-filter" type="button" role="tab" aria-selected="false"
-            data-log-filter="post-harvest">Post-harvest</button>
+            data-log-filter="climate-risk">Climate Risk</button>
+          <button class="farm-log-filter" type="button" role="tab" aria-selected="false"
+            data-log-filter="harvest">Harvest</button>
         </div>
         <p class="farm-log-feedback" id="farm-log-feedback" role="status"></p>
         <div class="farm-log-list" id="farm-log-list"></div>
@@ -4371,21 +4343,33 @@
         <form class="activity-form" id="activity-form">
           <span class="activity-type-label">Activity Type</span>
           <div class="activity-types" role="group" aria-label="Activity type">
-            <button class="activity-type selected" type="button" data-activity-type="Crop Care">Crop Care</button>
-            <button class="activity-type" type="button" data-activity-type="Livestock">Livestock</button>
-            <button class="activity-type" type="button" data-activity-type="Post-Harvest">Post-Harvest</button>
-            <button class="activity-type" type="button" data-activity-type="Expense">Expense</button>
+            <button class="activity-type selected" type="button" aria-pressed="true" data-activity-type="Plant Growth">Plant Growth</button>
+            <button class="activity-type" type="button" aria-pressed="false" data-activity-type="Garden Log">Garden Log</button>
+            <button class="activity-type" type="button" aria-pressed="false" data-activity-type="Climate Risk">Climate Risk</button>
+            <button class="activity-type" type="button" aria-pressed="false" data-activity-type="Harvest">Harvest</button>
           </div>
           <label class="activity-field"><span>Date</span><input id="activity-date" name="date" type="date"
               required></label>
-          <label class="activity-field"><span>Activity Title</span><input name="title" type="text"
-              placeholder="e.g. Applied herbicide" required></label>
-          <label class="activity-field"><span>Details</span><textarea name="details"
-              placeholder="Describe what was done, quantities, location..."></textarea></label>
-          <label class="activity-field"><span>Related crop/animal</span><input name="related" type="text"
-              placeholder="Palay (Irrigated) - North Field"></label>
-          <label class="activity-field"><span>Cost incurred (optional)</span><input name="cost" type="text"
-              inputmode="decimal" placeholder="₱ 0.00"></label>
+          <label class="activity-field"><span id="activity-title-label">Activity Title</span><input id="activity-title"
+              name="title" type="text" maxlength="160" placeholder="Enter activity title" required></label>
+          <label class="activity-field" data-activity-field="related"><span id="related-plant-label">Related plant</span>
+            <input id="related-plant" name="related_plant" type="text" maxlength="200"
+              placeholder="Enter related plant"></label>
+          <label class="activity-field" data-activity-field="growth-stage"><span>Growth stage</span>
+            <input name="growth_stage" type="text" maxlength="100" placeholder="Enter growth stage"></label>
+          <label class="activity-field" data-activity-field="climate-risk" hidden><span>Weather or climate risk</span>
+            <textarea name="climate_risk" maxlength="500"
+              placeholder="Describe the weather or climate risk..."></textarea></label>
+          <label class="activity-field" data-activity-field="actions-taken" hidden><span>Actions taken</span>
+            <textarea name="actions_taken" maxlength="5000"
+              placeholder="Describe the actions taken..."></textarea></label>
+          <label class="activity-field" data-activity-field="harvest-quantity" hidden><span>Harvested quantity</span>
+            <input name="harvest_quantity" type="number" min="0" step="0.001" placeholder="0.00"></label>
+          <label class="activity-field" data-activity-field="harvest-unit" hidden><span>Unit</span>
+            <input name="harvest_unit" type="text" maxlength="40" placeholder="Enter harvest unit"></label>
+          <label class="activity-field" data-activity-field="details"><span id="activity-details-label">Details</span>
+            <textarea name="details" maxlength="5000"
+              placeholder="Enter details..."></textarea></label>
           <div class="activity-actions"><button class="activity-cancel" id="cancel-activity"
               type="button">Cancel</button><button class="activity-save" type="submit">Save Activity</button></div>
         </form>
@@ -4923,17 +4907,84 @@
       const dateFromToday = (offset) => { const date = new Date(); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() + offset); return date.toISOString().slice(0, 10); };
       let farmActivities = [];
       const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
-      const categoryForType = (type) => type === 'Livestock' ? 'livestock' : type === 'Post-Harvest' ? 'post-harvest' : type === 'Expense' ? 'expense' : 'crop-care';
-      const categoryLabelForType = (type) => type === 'Post-Harvest' ? 'Post-harvest' : type || 'Crop care';
+      const activityCategories = {
+        'Plant Growth': 'plant-growth',
+        'Garden Log': 'garden-log',
+        'Climate Risk': 'climate-risk',
+        Harvest: 'harvest',
+      };
+      const categoryForType = (type) => activityCategories[type] || '';
+      const categoryLabelForType = (type) => categoryForType(type) ? type : '';
+      const activityIconForType = (type) => type === 'Garden Log' ? '🌿' : type === 'Climate Risk' ? '🌦️' : type === 'Harvest' ? '🌾' : '🌱';
       const formatDateParts = (dateValue) => { const date = new Date(`${dateValue}T00:00:00`); return { day: date.getDate(), month: date.toLocaleString('en-US', { month: 'short' }).toUpperCase() }; };
-      const activityDescription = (activity) => [activity.details, activity.related ? `Related: ${activity.related}` : '', activity.cost ? `Cost: ₱${activity.cost}` : '', activity.author_name ? `By ${activity.author_name}` : ''].filter(Boolean).join(' · ');
+      const activityDescription = (activity) => [
+        activity.details,
+        activity.related ? `Related: ${activity.related}` : '',
+        activity.growth_stage ? `Growth stage: ${activity.growth_stage}` : '',
+        activity.climate_risk ? `Weather or climate risk: ${activity.climate_risk}` : '',
+        activity.actions_taken ? `Actions taken: ${activity.actions_taken}` : '',
+        activity.harvest_quantity !== '' && activity.harvest_quantity !== null && activity.harvest_quantity !== undefined
+          ? `Harvested: ${activity.harvest_quantity}${activity.harvest_unit ? ` ${activity.harvest_unit}` : ''}`
+          : '',
+        activity.author_name ? `By ${activity.author_name}` : '',
+      ].filter(Boolean).join(' · ');
       const normalizeFarmActivity = (activity) => ({
         ...activity,
         type: activity.activity_type || activity.type,
         date: activity.activity_date || activity.date,
-        related: activity.related_crop_animal || activity.related || '',
-        cost: activity.cost || '',
+        related: activity.related_plant || activity.related || '',
+        growth_stage: activity.growth_stage || '',
+        climate_risk: activity.climate_risk || '',
+        actions_taken: activity.actions_taken || '',
+        harvest_quantity: activity.harvest_quantity ?? '',
+        harvest_unit: activity.harvest_unit || '',
       });
+      const farmInformationMarkup = (activities) => {
+        if (activities.length === 0) return '<p>No farm information added yet.</p>';
+        return activities.map((record) => {
+          const activity = normalizeFarmActivity(record);
+          const harvestQuantity = activity.harvest_quantity !== '' && activity.harvest_quantity !== null
+            ? `${activity.harvest_quantity}${activity.harvest_unit ? ` ${activity.harvest_unit}` : ''}`
+            : '';
+          const fields = [
+            ['Date', activity.date],
+            ['Related plant/garden', activity.related],
+            ['Growth stage', activity.growth_stage],
+            ['Weather or climate risk', activity.climate_risk],
+            ['Actions taken', activity.actions_taken],
+            ['Harvested quantity', harvestQuantity],
+            ['Details', activity.details],
+          ].filter(([, value]) => value !== '' && value !== null && value !== undefined);
+          return `<p><strong>${escapeHtml(activity.type)} · ${escapeHtml(activity.title)}</strong>${fields.map(([label, value]) => `<br>${escapeHtml(label)}: ${escapeHtml(value)}`).join('')}</p>`;
+        }).join('');
+      };
+      const openFarmInformation = async () => {
+        const backdrop = modal('Farm Information', '<div class="farm-information-content" role="status"><p>Loading farm information…</p></div>');
+        const content = backdrop.querySelector('.farm-information-content');
+        try {
+          const response = await fetch('/api/farm-activities.php', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+            cache: 'no-store',
+          });
+          const result = await response.json();
+          if (response.status === 401) {
+            throw new Error('Your session has expired. Sign in again to view farm information.');
+          }
+          if (!response.ok || !result.success || !Array.isArray(result.activities)) {
+            throw new Error(result.message || 'Unable to load farm information.');
+          }
+          if (!backdrop.isConnected) return;
+          content.innerHTML = farmInformationMarkup(result.activities);
+          content.removeAttribute('role');
+          if (result.activities.length === 0) content.firstElementChild?.setAttribute('role', 'status');
+        } catch (error) {
+          console.error('Unable to load farm information:', error);
+          if (!backdrop.isConnected) return;
+          content.removeAttribute('role');
+          content.innerHTML = `<p class="modal-message" role="alert">${escapeHtml(error.message || 'Unable to load farm information. Please try again.')}</p>`;
+        }
+      };
       const setFarmLogFeedback = (message, kind) => {
         farmLogFeedback.textContent = message;
         farmLogFeedback.dataset.kind = kind;
@@ -4987,7 +5038,7 @@
         const activities = farmActivities.slice(0, 5);
         recentActivityList.innerHTML = activities.length
           ? activities.map((activity) => {
-            const icon = activity.type === 'Livestock' ? '🐄' : activity.type === 'Post-Harvest' ? '🌾' : '🪴';
+            const icon = activityIconForType(activity.type);
             const context = activity.related || categoryLabelForType(activity.type);
             return `<div class="activity-row"><span class="activity-icon">${icon}</span><span class="activity-copy"><b>${escapeHtml(activity.title)}</b><small>${escapeHtml(context)}</small></span><span class="when">${escapeHtml(activityTimeFromDate(activity.date))}</span><span class="chevron">›</span></div>`;
           }).join('')
@@ -5001,7 +5052,7 @@
           context: `${categoryLabelForType(activity.type)} · ${activity.date}`,
           description: activityDescription(activity) || 'Activity recorded for your farm.',
           time: activityTimeFromDate(activity.date),
-          icon: activity.type === 'Livestock' ? '🐄' : activity.type === 'Post-Harvest' ? '🌾' : '🪴',
+          icon: activityIconForType(activity.type),
         }));
         const activities = savedActivities;
         const backdrop = document.createElement('div');
@@ -5074,7 +5125,7 @@
       const renderFarmLogs = (selectedFilter = selectedFarmLogFilter) => {
         selectedFarmLogFilter = selectedFilter;
         const visibleActivities = farmActivities.filter((activity) => selectedFilter === 'all' || categoryForType(activity.type) === selectedFilter);
-        farmLogList.innerHTML = visibleActivities.length ? visibleActivities.map((activity) => { const date = formatDateParts(activity.date); const category = categoryForType(activity.type); return `<article class="farm-log-card" data-log-category="${category}"><span class="farm-log-date" data-deadline="${escapeHtml(activity.date)}" aria-label="${date.day} ${date.month}">${date.day}<br>${date.month}</span><span class="farm-log-copy"><strong>${escapeHtml(activity.title)}</strong><p>${escapeHtml(activityDescription(activity))}</p><span class="farm-log-category ${category === 'livestock' || category === 'post-harvest' ? category : ''}">${escapeHtml(categoryLabelForType(activity.type))}</span></span><span class="farm-log-chevron">›</span></article>`; }).join('') : `<p class="farm-log-empty">${selectedFilter === 'all' ? 'No farm activities yet.' : 'No farm activities in this category yet.'}</p>`;
+        farmLogList.innerHTML = visibleActivities.length ? visibleActivities.map((activity) => { const date = formatDateParts(activity.date); const category = categoryForType(activity.type); return `<article class="farm-log-card" data-log-category="${category}"><span class="farm-log-date" data-deadline="${escapeHtml(activity.date)}" aria-label="${date.day} ${date.month}">${date.day}<br>${date.month}</span><span class="farm-log-copy"><strong>${escapeHtml(activity.title)}</strong><p>${escapeHtml(activityDescription(activity))}</p><span class="farm-log-category">${escapeHtml(categoryLabelForType(activity.type))}</span></span><span class="farm-log-chevron">›</span></article>`; }).join('') : `<p class="farm-log-empty">${selectedFilter === 'all' ? 'No farm activities yet.' : 'No farm activities in this category yet.'}</p>`;
         document.querySelectorAll('[data-log-filter]').forEach((button) => { const selected = button.dataset.logFilter === selectedFilter; button.classList.toggle('selected', selected); button.setAttribute('aria-selected', String(selected)); });
         updateFarmLogDeadlineStatus();
       };
@@ -5100,7 +5151,81 @@
         location.hash = route === 'home' ? '' : route;
       }));
       addedNav.querySelector('.add-nav-item').addEventListener('click', () => { const currentRoute = location.hash.slice(1); previousRoute = routes.includes(currentRoute) && currentRoute !== 'add' ? currentRoute : ''; location.hash = 'add'; });
-      document.querySelectorAll('.activity-type').forEach((button) => button.addEventListener('click', () => { document.querySelectorAll('.activity-type').forEach((typeButton) => typeButton.classList.toggle('selected', typeButton === button)); }));
+      const activityTypeButtons = [...document.querySelectorAll('.activity-type')];
+      const activityFieldGroups = [...activityForm.querySelectorAll('[data-activity-field]')];
+      const activityTypeConfigurations = {
+        'Plant Growth': {
+          titleLabel: 'Activity Title',
+          titlePlaceholder: 'Enter activity title',
+          relatedLabel: 'Related plant',
+          relatedPlaceholder: 'Enter related plant',
+          detailsLabel: 'Details',
+          detailsPlaceholder: 'Enter details...',
+          fields: ['related', 'growth-stage', 'details'],
+          required: ['related', 'growth-stage', 'details'],
+        },
+        'Garden Log': {
+          titleLabel: 'Activity Title',
+          titlePlaceholder: 'Enter activity title',
+          relatedLabel: 'Related garden/plant',
+          relatedPlaceholder: 'Enter related garden or plant',
+          detailsLabel: 'Activity details',
+          detailsPlaceholder: 'Enter activity details...',
+          fields: ['related', 'details'],
+          required: ['related', 'details'],
+        },
+        'Climate Risk': {
+          titleLabel: 'Event Title',
+          titlePlaceholder: 'Enter event title',
+          relatedLabel: 'Related plant/garden (optional)',
+          relatedPlaceholder: 'Enter related plant or garden (optional)',
+          fields: ['related', 'climate-risk', 'actions-taken'],
+          required: ['climate-risk', 'actions-taken'],
+        },
+        Harvest: {
+          titleLabel: 'Harvest Title',
+          titlePlaceholder: 'Enter harvest title',
+          relatedLabel: 'Related plant',
+          relatedPlaceholder: 'Enter related plant',
+          detailsLabel: 'Additional details',
+          detailsPlaceholder: 'Enter additional details (optional)...',
+          fields: ['related', 'harvest-quantity', 'harvest-unit', 'details'],
+          required: ['related', 'harvest-quantity', 'harvest-unit'],
+        },
+      };
+      const updateActivityFields = (activityType) => {
+        const configuration = activityTypeConfigurations[activityType] || activityTypeConfigurations['Plant Growth'];
+        const titleLabel = document.getElementById('activity-title-label');
+        const titleInput = document.getElementById('activity-title');
+        const relatedLabel = document.getElementById('related-plant-label');
+        const relatedInput = document.getElementById('related-plant');
+        const detailsLabel = document.getElementById('activity-details-label');
+        const detailsInput = activityForm.elements.namedItem('details');
+        titleLabel.textContent = configuration.titleLabel;
+        titleInput.placeholder = configuration.titlePlaceholder;
+        relatedLabel.textContent = configuration.relatedLabel;
+        relatedInput.placeholder = configuration.relatedPlaceholder;
+        if (configuration.detailsLabel) detailsLabel.textContent = configuration.detailsLabel;
+        if (configuration.detailsPlaceholder) detailsInput.placeholder = configuration.detailsPlaceholder;
+        activityFieldGroups.forEach((field) => {
+          const fieldName = field.dataset.activityField;
+          const isVisible = configuration.fields.includes(fieldName);
+          const control = field.querySelector('input, textarea');
+          field.hidden = !isVisible;
+          control.required = configuration.required.includes(fieldName);
+          if (!isVisible) control.value = '';
+        });
+      };
+      const selectActivityType = (activityType) => {
+        activityTypeButtons.forEach((button) => {
+          const selected = button.dataset.activityType === activityType;
+          button.classList.toggle('selected', selected);
+          button.setAttribute('aria-pressed', String(selected));
+        });
+        updateActivityFields(activityType);
+      };
+      activityTypeButtons.forEach((button) => button.addEventListener('click', () => selectActivityType(button.dataset.activityType)));
+      updateActivityFields('Plant Growth');
       activityDate.value = new Date().toISOString().slice(0, 10);
       document.getElementById('cancel-activity').addEventListener('click', () => { location.hash = previousRoute; });
       activityForm.addEventListener('submit', async (event) => {
@@ -5128,8 +5253,12 @@
               activity_date: date,
               title,
               details: String(formData.get('details') || '').trim(),
-              related_crop_animal: String(formData.get('related') || '').trim(),
-              cost: String(formData.get('cost') || '').trim(),
+              related_plant: String(formData.get('related_plant') || '').trim(),
+              growth_stage: String(formData.get('growth_stage') || '').trim(),
+              climate_risk: String(formData.get('climate_risk') || '').trim(),
+              actions_taken: String(formData.get('actions_taken') || '').trim(),
+              harvest_quantity: String(formData.get('harvest_quantity') || '').trim(),
+              harvest_unit: String(formData.get('harvest_unit') || '').trim(),
             }),
           });
           const result = await response.json();
@@ -5143,7 +5272,7 @@
             .sort((first, second) => second.date.localeCompare(first.date));
           renderRecentActivities();
           activityForm.reset();
-          document.querySelectorAll('.activity-type').forEach((button) => button.classList.toggle('selected', button.dataset.activityType === 'Crop Care'));
+          selectActivityType('Plant Growth');
           activityDate.value = new Date().toISOString().slice(0, 10);
           setFarmLogFeedback(`Farm activity saved successfully. Created by ${result.activity.author_name}.`, 'success');
           renderFarmLogs();
@@ -5371,7 +5500,46 @@
       document.querySelectorAll('.screen-title a').forEach((link) => link.addEventListener('click', (event) => { if (link.closest('#climate-screen')) return; event.preventDefault(); modal(link.textContent === 'See all' ? 'All active alerts' : 'Complete scan history', '<p>Showing every available item for your farm. New updates will appear here after each scan or advisory.</p>'); }));
       document.querySelectorAll('.action').forEach((action) => action.addEventListener('click', () => modal(action.textContent.replace('›', '').trim(), '<p>This recommendation has been opened. Follow the steps carefully and monitor the crop over the next few days.</p>')));
       document.querySelectorAll('.history-card').forEach((item) => item.addEventListener('click', () => modal(item.querySelector('.history-copy').firstChild.textContent, `<p>${item.querySelector('small').textContent}<br>Status: ${item.querySelector('.history-badge').textContent}</p><p>Review the recorded observations and compare them with the current crop condition.</p>`)));
-      document.querySelectorAll('#profile-screen .profile-row').forEach((row) => row.addEventListener('click', () => { const label = row.querySelector('.row-label').textContent; if (label.includes('Crops')) modal('My Crops & Livestock', '<p><strong>Crops</strong><br>Palay · Irrigated<br>Tomato · Field A<br>Munggo · Field B</p><p><strong>Livestock</strong><br>Cattle · 4 heads<br>Chicken · 12 heads</p>'); if (label.includes('Location')) { const dialog = modal('Farm Location & Size', '<label>Farm location<input id="farm-location" value="Sta. Maria, Bulacan"></label><label>Farm size<input id="farm-size" value="3.5" type="number" step="0.1"></label><p class="modal-message" id="form-message"></p>', '<button class="secondary" data-close>Cancel</button><button class="primary" id="save-farm">Save</button>'); dialog.querySelector('#save-farm').addEventListener('click', () => { localStorage.setItem('farm-location', dialog.querySelector('#farm-location').value); localStorage.setItem('farm-size', dialog.querySelector('#farm-size').value); dialog.querySelector('#form-message').style.color = '#397454'; dialog.querySelector('#form-message').textContent = 'Farm information saved.'; }); } if (label.includes('Reports')) modal('Farm Reports & History', '<p>Weekly report: Farm health is stable at 80%.</p><p>Recent activity and scan records are available in your farm history.</p>'); if (label === 'Language') { const dialog = modal('Choose language', '<select id="language"><option>Filipino</option><option>English</option></select>', '<button class="primary" id="save-language">Save</button>'); dialog.querySelector('#language').value = localStorage.getItem('language') || 'Filipino'; dialog.querySelector('#save-language').addEventListener('click', () => { row.querySelector('.row-value').textContent = dialog.querySelector('#language').value; dialog.remove(); }); } if (label.includes('Password')) { const dialog = modal('Change Password', '<label>Current password<input type="password" id="current-password"></label><label>New password<input type="password" id="new-password"></label><label>Confirm new password<input type="password" id="confirm-password"></label><p class="modal-message" id="password-message"></p>', '<button class="secondary" data-close>Cancel</button><button class="primary" id="save-password">Update</button>'); dialog.querySelector('#save-password').addEventListener('click', () => { const next = dialog.querySelector('#new-password').value; const confirm = dialog.querySelector('#confirm-password').value; const message = dialog.querySelector('#password-message'); if (!next || next.length < 6 || next !== confirm) message.textContent = 'Use at least 6 characters and make both new passwords match.'; else { message.style.color = '#397454'; message.textContent = 'Password updated in this browser only.'; } }); } if (label.includes('Sign Out') && confirm('Sign out of TanimTrack?')) location.hash = ''; }));
+      document.querySelectorAll('#profile-screen .profile-row').forEach((row) => row.addEventListener('click', () => {
+        const label = row.querySelector('.row-label').textContent;
+        if (label.includes('Farm Information')) {
+          openFarmInformation();
+          return;
+        }
+        if (label.includes('Location')) {
+          const dialog = modal('Farm Location & Size', '<label>Farm location<input id="farm-location" value="Sta. Maria, Bulacan"></label><label>Farm size<input id="farm-size" value="3.5" type="number" step="0.1"></label><p class="modal-message" id="form-message"></p>', '<button class="secondary" data-close>Cancel</button><button class="primary" id="save-farm">Save</button>');
+          dialog.querySelector('#save-farm').addEventListener('click', () => {
+            localStorage.setItem('farm-location', dialog.querySelector('#farm-location').value);
+            localStorage.setItem('farm-size', dialog.querySelector('#farm-size').value);
+            dialog.querySelector('#form-message').style.color = '#397454';
+            dialog.querySelector('#form-message').textContent = 'Farm information saved.';
+          });
+        }
+        if (label.includes('Reports')) modal('Farm Reports & History', '<p>Weekly report: Farm health is stable at 80%.</p><p>Recent activity and scan records are available in your farm history.</p>');
+        if (label === 'Language') {
+          const dialog = modal('Choose language', '<select id="language"><option>Filipino</option><option>English</option></select>', '<button class="primary" id="save-language">Save</button>');
+          dialog.querySelector('#language').value = localStorage.getItem('language') || 'Filipino';
+          dialog.querySelector('#save-language').addEventListener('click', () => {
+            row.querySelector('.row-value').textContent = dialog.querySelector('#language').value;
+            dialog.remove();
+          });
+        }
+        if (label.includes('Password')) {
+          const dialog = modal('Change Password', '<label>Current password<input type="password" id="current-password"></label><label>New password<input type="password" id="new-password"></label><label>Confirm new password<input type="password" id="confirm-password"></label><p class="modal-message" id="password-message"></p>', '<button class="secondary" data-close>Cancel</button><button class="primary" id="save-password">Update</button>');
+          dialog.querySelector('#save-password').addEventListener('click', () => {
+            const next = dialog.querySelector('#new-password').value;
+            const confirm = dialog.querySelector('#confirm-password').value;
+            const message = dialog.querySelector('#password-message');
+            if (!next || next.length < 6 || next !== confirm) {
+              message.textContent = 'Use at least 6 characters and make both new passwords match.';
+            } else {
+              message.style.color = '#397454';
+              message.textContent = 'Password updated in this browser only.';
+            }
+          });
+        }
+        if (label.includes('Sign Out') && confirm('Sign out of TanimTrack?')) location.hash = '';
+      }));
       document.querySelectorAll('#profile-screen .profile-row .row-label').forEach((label) => { if (label.textContent === 'Language' && localStorage.getItem('language')) label.parentElement.querySelector('.row-value').textContent = localStorage.getItem('language'); });
       const latestArticlesList = document.getElementById('home-article-list');
       const latestArticlesEmpty = document.getElementById('home-articles-empty');

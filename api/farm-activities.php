@@ -16,7 +16,7 @@ if ($sessionUser === null) {
 }
 
 $pdo = pdo_connection();
-$allowedTypes = ['Crop Care', 'Livestock', 'Post-Harvest', 'Expense'];
+$allowedTypes = ['Plant Growth', 'Garden Log', 'Climate Risk', 'Harvest'];
 
 function farm_activity_uuid(): string
 {
@@ -38,10 +38,14 @@ function normalize_farm_activity(array $data, array $allowedTypes): array
     $date = trim(is_string($data['activity_date'] ?? $data['date'] ?? null) ? ($data['activity_date'] ?? $data['date']) : '');
     $title = trim(is_string($data['title'] ?? null) ? $data['title'] : '');
     $details = trim(is_string($data['details'] ?? null) ? $data['details'] : '');
-    $related = trim(is_string($data['related_crop_animal'] ?? $data['related'] ?? null) ? ($data['related_crop_animal'] ?? $data['related']) : '');
-    $costInput = trim(is_string($data['cost'] ?? null) || is_numeric($data['cost'] ?? null) ? (string) $data['cost'] : '');
-    $normalizedCost = str_replace(['₱', ',', ' '], '', $costInput);
-    $wholeCost = explode('.', $normalizedCost, 2)[0];
+    $related = trim(is_string($data['related_plant'] ?? null) ? $data['related_plant'] : '');
+    $growthStage = trim(is_string($data['growth_stage'] ?? null) ? $data['growth_stage'] : '');
+    $climateRisk = trim(is_string($data['climate_risk'] ?? null) ? $data['climate_risk'] : '');
+    $actionsTaken = trim(is_string($data['actions_taken'] ?? null) ? $data['actions_taken'] : '');
+    $quantityInput = trim(is_string($data['harvest_quantity'] ?? null) || is_numeric($data['harvest_quantity'] ?? null)
+        ? (string) $data['harvest_quantity']
+        : '');
+    $harvestUnit = trim(is_string($data['harvest_unit'] ?? null) ? $data['harvest_unit'] : '');
 
     $errors = [];
     if (!in_array($type, $allowedTypes, true)) {
@@ -58,13 +62,45 @@ function normalize_farm_activity(array $data, array $allowedTypes): array
         $errors['details'] = 'Activity details must be 5000 characters or fewer.';
     }
     if (mb_strlen($related, 'UTF-8') > 200) {
-        $errors['related_crop_animal'] = 'Related crop or animal must be 200 characters or fewer.';
+        $errors['related_plant'] = 'Related plant or garden must be 200 characters or fewer.';
     }
-    if ($costInput !== '' && (
-        preg_match('/^₱?\s*(?:\d{1,3}(?:,\d{3})*|\d{1,10})(?:\.\d{1,2})?$/uD', $costInput) !== 1
-        || strlen($wholeCost) > 10
-    )) {
-        $errors['cost'] = 'Enter a valid non-negative cost with up to two decimal places.';
+    if (mb_strlen($growthStage, 'UTF-8') > 100) {
+        $errors['growth_stage'] = 'Growth stage must be 100 characters or fewer.';
+    }
+    if (mb_strlen($climateRisk, 'UTF-8') > 500) {
+        $errors['climate_risk'] = 'Weather or climate risk must be 500 characters or fewer.';
+    }
+    if (mb_strlen($actionsTaken, 'UTF-8') > 5000) {
+        $errors['actions_taken'] = 'Actions taken must be 5000 characters or fewer.';
+    }
+    if (mb_strlen($harvestUnit, 'UTF-8') > 40 || preg_match('/[\x00-\x1F\x7F]/', $harvestUnit) === 1) {
+        $errors['harvest_unit'] = 'Enter a valid harvest unit (up to 40 characters).';
+    }
+
+    if (in_array($type, ['Plant Growth', 'Garden Log', 'Harvest'], true) && $related === '') {
+        $errors['related_plant'] = 'Enter the related plant or garden.';
+    }
+    if ($type === 'Plant Growth' && $growthStage === '') {
+        $errors['growth_stage'] = 'Enter the growth stage.';
+    }
+    if (in_array($type, ['Plant Growth', 'Garden Log'], true) && $details === '') {
+        $errors['details'] = 'Enter the activity details.';
+    }
+    if ($type === 'Climate Risk') {
+        if ($climateRisk === '') {
+            $errors['climate_risk'] = 'Describe the weather or climate risk.';
+        }
+        if ($actionsTaken === '') {
+            $errors['actions_taken'] = 'Describe the actions taken.';
+        }
+    }
+    if ($type === 'Harvest') {
+        if (preg_match('/^\d{1,9}(?:\.\d{1,3})?$/D', $quantityInput) !== 1) {
+            $errors['harvest_quantity'] = 'Enter a non-negative harvest quantity with up to three decimal places.';
+        }
+        if ($harvestUnit === '') {
+            $errors['harvest_unit'] = 'Enter the harvest unit.';
+        }
     }
 
     if ($errors !== []) {
@@ -76,8 +112,12 @@ function normalize_farm_activity(array $data, array $allowedTypes): array
         'activity_date' => $date,
         'title' => $title,
         'details' => $details,
-        'related_crop_animal' => $related !== '' ? $related : null,
-        'cost' => $costInput !== '' ? number_format((float) $normalizedCost, 2, '.', '') : null,
+        'related_plant' => $related !== '' ? $related : null,
+        'growth_stage' => $type === 'Plant Growth' ? $growthStage : null,
+        'climate_risk' => $type === 'Climate Risk' ? $climateRisk : null,
+        'actions_taken' => $type === 'Climate Risk' ? $actionsTaken : null,
+        'harvest_quantity' => $type === 'Harvest' ? number_format((float) $quantityInput, 3, '.', '') : null,
+        'harvest_unit' => $type === 'Harvest' ? $harvestUnit : null,
     ];
 }
 
@@ -91,8 +131,12 @@ function farm_activity_response_row(array $row): array
         'activity_date' => (string) $row['activity_date'],
         'title' => (string) $row['title'],
         'details' => (string) $row['details'],
-        'related_crop_animal' => $row['related_crop_animal'] !== null ? (string) $row['related_crop_animal'] : '',
-        'cost' => $row['cost'] !== null ? (string) $row['cost'] : '',
+        'related_plant' => $row['related_plant'] !== null ? (string) $row['related_plant'] : '',
+        'growth_stage' => $row['growth_stage'] !== null ? (string) $row['growth_stage'] : '',
+        'climate_risk' => $row['climate_risk'] !== null ? (string) $row['climate_risk'] : '',
+        'actions_taken' => $row['actions_taken'] !== null ? (string) $row['actions_taken'] : '',
+        'harvest_quantity' => $row['harvest_quantity'] !== null ? (string) $row['harvest_quantity'] : '',
+        'harvest_unit' => $row['harvest_unit'] !== null ? (string) $row['harvest_unit'] : '',
         'created_at' => (string) $row['created_at'],
         'updated_at' => (string) $row['updated_at'],
     ];
@@ -102,10 +146,12 @@ if ($requestMethod === 'GET') {
     try {
         $statement = $pdo->prepare(
             "SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
-                    a.title, a.details, a.related_crop_animal, a.cost, a.created_at, a.updated_at
+                    a.title, a.details, a.related_plant, a.growth_stage, a.climate_risk,
+                    a.actions_taken, a.harvest_quantity, a.harvest_unit, a.created_at, a.updated_at
              FROM farm_activities AS a
              INNER JOIN users AS u ON u.id = a.user_id
              WHERE a.user_id = :user_id
+               AND a.activity_type IN ('Plant Growth', 'Garden Log', 'Climate Risk', 'Harvest')
                AND a.id NOT IN (
                    'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a01',
                    'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a02',
@@ -150,9 +196,11 @@ if (($data['action'] ?? '') === 'import-legacy') {
         $pdo->beginTransaction();
         $insert = $pdo->prepare(
             'INSERT IGNORE INTO farm_activities
-                (id, user_id, activity_type, activity_date, title, details, related_crop_animal, cost, legacy_key)
+                (id, user_id, activity_type, activity_date, title, details, related_plant,
+                 growth_stage, climate_risk, actions_taken, harvest_quantity, harvest_unit, legacy_key)
              VALUES
-                (:id, :user_id, :activity_type, :activity_date, :title, :details, :related_crop_animal, :cost, :legacy_key)'
+                (:id, :user_id, :activity_type, :activity_date, :title, :details, :related_plant,
+                 :growth_stage, :climate_risk, :actions_taken, :harvest_quantity, :harvest_unit, :legacy_key)'
         );
         foreach ($normalizedActivities as $activity) {
             $insert->execute([
@@ -162,8 +210,12 @@ if (($data['action'] ?? '') === 'import-legacy') {
                 'activity_date' => $activity['activity_date'],
                 'title' => $activity['title'],
                 'details' => $activity['details'],
-                'related_crop_animal' => $activity['related_crop_animal'],
-                'cost' => $activity['cost'],
+                'related_plant' => $activity['related_plant'],
+                'growth_stage' => $activity['growth_stage'],
+                'climate_risk' => $activity['climate_risk'],
+                'actions_taken' => $activity['actions_taken'],
+                'harvest_quantity' => $activity['harvest_quantity'],
+                'harvest_unit' => $activity['harvest_unit'],
                 'legacy_key' => $activity['legacy_key'],
             ]);
         }
@@ -184,9 +236,11 @@ try {
     $id = farm_activity_uuid();
     $statement = $pdo->prepare(
         'INSERT INTO farm_activities
-            (id, user_id, activity_type, activity_date, title, details, related_crop_animal, cost)
+            (id, user_id, activity_type, activity_date, title, details, related_plant,
+             growth_stage, climate_risk, actions_taken, harvest_quantity, harvest_unit)
          VALUES
-            (:id, :user_id, :activity_type, :activity_date, :title, :details, :related_crop_animal, :cost)'
+            (:id, :user_id, :activity_type, :activity_date, :title, :details, :related_plant,
+             :growth_stage, :climate_risk, :actions_taken, :harvest_quantity, :harvest_unit)'
     );
     $statement->execute([
         'id' => $id,
@@ -196,7 +250,8 @@ try {
 
     $lookup = $pdo->prepare(
         'SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
-                a.title, a.details, a.related_crop_animal, a.cost, a.created_at, a.updated_at
+                a.title, a.details, a.related_plant, a.growth_stage, a.climate_risk,
+                a.actions_taken, a.harvest_quantity, a.harvest_unit, a.created_at, a.updated_at
          FROM farm_activities AS a
          INNER JOIN users AS u ON u.id = a.user_id
          WHERE a.id = :id AND a.user_id = :user_id LIMIT 1'
