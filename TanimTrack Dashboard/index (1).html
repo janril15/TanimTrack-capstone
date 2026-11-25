@@ -1282,14 +1282,14 @@
       position: relative;
       z-index: 1;
       float: left;
-      width: 32px;
-      height: 32px;
-      margin-right: 10px;
+      width: 64px;
+      height: 64px;
+      margin-right: 14px;
       display: grid;
       place-items: center;
-      border-radius: 10px;
+      border-radius: 16px;
       background: #d8f0d766;
-      font-size: 16px;
+      font-size: 34px;
     }
 
     .climate-hero b,
@@ -1644,6 +1644,21 @@
 
     #climate-screen .climate-hero span {
       font-size: 12px;
+    }
+
+    #climate-screen .climate-hero span.warning {
+      display: grid;
+      place-items: center;
+      font-size: 44px;
+      line-height: 1;
+    }
+
+    #climate-screen .climate-hero span.warning svg {
+      display: block;
+      width: 46px;
+      height: 46px;
+      max-width: none;
+      max-height: none;
     }
 
     #climate-screen .climate-hero .farm-risk-note {
@@ -4162,7 +4177,7 @@
             <p id="climate-status" role="status" aria-live="polite"><i class="dot"></i>Loading weather · Open-Meteo</p>
           </div>
         </div>
-        <div class="climate-hero"><span class="warning">☁</span><b id="climate-risk-title">Checking forecast</b><span id="climate-risk-copy">Local farm weather screening · Not an official warning</span><span class="farm-risk-note" id="climate-current-summary">Waiting for live weather measurements</span>
+        <div class="climate-hero"><span class="warning" role="img" aria-label="Weather condition unavailable" title="Weather condition unavailable">☁</span><b id="climate-risk-title">Checking forecast</b><span id="climate-risk-copy">Local farm weather screening · Not an official warning</span><span class="farm-risk-note" id="climate-current-summary">Waiting for live weather measurements</span>
           <div class="riskbar"><i></i><i></i><i></i><i></i></div>
         </div>
         <section class="screen-section">
@@ -4518,20 +4533,48 @@
         return Number.isFinite(Number(degrees)) ? directions[Math.round((Number(degrees) % 360) / 45) % 8] : '';
       };
       const climateWeather = (code) => {
-        if (code === null || code === undefined || code === '') return ['☁', 'Weather condition unavailable'];
+        const unavailable = ['☁', 'Weather condition unavailable', 'neutral'];
+        if (code === null || code === undefined || code === '' || !Number.isInteger(Number(code))) return unavailable;
         const descriptions = {
-          0: ['☀', 'Clear sky'], 1: ['🌤', 'Mainly clear'], 2: ['⛅', 'Partly cloudy'], 3: ['☁', 'Overcast'],
-          45: ['≋', 'Fog'], 48: ['≋', 'Depositing rime fog'], 51: ['☂', 'Light drizzle'], 53: ['☂', 'Drizzle'],
-          55: ['☂', 'Dense drizzle'], 56: ['☂', 'Freezing drizzle'], 57: ['☂', 'Dense freezing drizzle'],
-          61: ['🌧', 'Slight rain'], 63: ['🌧', 'Moderate rain'], 65: ['🌧', 'Heavy rain'],
-          66: ['🌧', 'Freezing rain'], 67: ['🌧', 'Heavy freezing rain'], 71: ['❄', 'Slight snow'],
-          73: ['❄', 'Moderate snow'], 75: ['❄', 'Heavy snow'], 77: ['❄', 'Snow grains'],
-          80: ['🌧', 'Slight rain showers'], 81: ['🌧', 'Rain showers'], 82: ['🌧', 'Violent rain showers'],
-          85: ['❄', 'Snow showers'], 86: ['❄', 'Heavy snow showers'], 95: ['⛈', 'Thunderstorm'],
-          96: ['⛈', 'Thunderstorm with hail'], 99: ['⛈', 'Thunderstorm with heavy hail'],
+          0: ['☀', 'Clear sky', 'sun'], 1: ['🌤', 'Mainly clear', 'partlyCloudy'],
+          2: ['⛅', 'Partly cloudy', 'partlyCloudy'], 3: ['☁', 'Overcast', 'cloud'],
+          45: ['≋', 'Fog', 'fog'], 48: ['≋', 'Depositing rime fog', 'fog'],
+          51: ['☂', 'Light drizzle', 'showers'], 53: ['☂', 'Drizzle', 'showers'],
+          55: ['☂', 'Dense drizzle', 'rain'], 56: ['☂', 'Freezing drizzle', 'showers'],
+          57: ['☂', 'Dense freezing drizzle', 'rain'],
+          61: ['🌧', 'Slight rain', 'rain'], 63: ['🌧', 'Moderate rain', 'rain'],
+          65: ['🌧', 'Heavy rain', 'heavyRain'], 66: ['🌧', 'Freezing rain', 'rain'],
+          67: ['🌧', 'Heavy freezing rain', 'heavyRain'], 71: ['❄', 'Slight snow', 'snow'],
+          73: ['❄', 'Moderate snow', 'snow'], 75: ['❄', 'Heavy snow', 'snow'],
+          77: ['❄', 'Snow grains', 'snow'], 80: ['🌧', 'Slight rain showers', 'showers'],
+          81: ['🌧', 'Rain showers', 'showers'], 82: ['🌧', 'Violent rain showers', 'heavyRain'],
+          85: ['❄', 'Snow showers', 'snow'], 86: ['❄', 'Heavy snow showers', 'snow'],
+          95: ['⛈', 'Thunderstorm', 'thunderstorm'],
+          96: ['⛈', 'Thunderstorm with hail', 'thunderstorm'],
+          99: ['⛈', 'Thunderstorm with heavy hail', 'thunderstorm'],
         };
-        return descriptions[Number(code)] || ['☁', 'Weather condition unavailable'];
+        return descriptions[Number(code)] || unavailable;
       };
+      const climateWeatherIcons = {
+        sun: '<circle cx="24" cy="24" r="8" fill="#FFD166"/><path d="M24 4v6m0 28v6M4 24h6m28 0h6M9.9 9.9l4.2 4.2m19.8 19.8 4.2 4.2m0-28.2-4.2 4.2m-19.8 19.8-4.2 4.2" stroke="#FFD166" stroke-width="3" stroke-linecap="round"/>',
+        partlyCloudy: '<circle cx="18" cy="18" r="7" fill="#FFD166"/><path d="M18 5v4m0 18v3M5 18h4m18 0h3m-21.2-9.2 2.8 2.8m12.8 12.8 2.8 2.8m0-18.4-2.8 2.8" stroke="#FFD166" stroke-width="2.5" stroke-linecap="round"/><path d="M14 37h21a7 7 0 0 0 0-14 10 10 0 0 0-19-2 8 8 0 0 0-2 16Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>',
+        cloud: '<path d="M13 35h22a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-1 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>',
+        rain: '<path d="M13 29h22a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-1 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/><path d="m19 34-2 5m11-5-2 5" stroke="#BFE8FF" stroke-width="3.5" stroke-linecap="round"/>',
+        heavyRain: '<path d="M12 27h24a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-3 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/><path d="m16 33-2 5m10-5-2 5m10-5-2 5" stroke="#BFE8FF" stroke-width="3.5" stroke-linecap="round"/>',
+        showers: '<path d="M13 29h22a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-1 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/><path d="m18 34-3 5m15-5-3 5" stroke="#BFE8FF" stroke-width="3.5" stroke-linecap="round"/>',
+        thunderstorm: '<path d="M12 27h24a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-3 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/><path d="m25 27-7 11h6l-1 8 9-13h-7l3-6" fill="#FFD166" stroke="#FFD166" stroke-width="1.5" stroke-linejoin="round"/>',
+        fog: '<path d="M13 26h22a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-1 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/><path d="M9 33h30M13 39h22" stroke="#BFE8FF" stroke-width="3" stroke-linecap="round"/>',
+        snow: '<path d="M13 28h22a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-1 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 35v7m-3.5-3.5h7m-6-2.5 5 5m0-5-5 5m14-6v7m-3.5-3.5h7m-6-2.5 5 5m0-5-5 5" stroke="#BFE8FF" stroke-width="2" stroke-linecap="round"/>',
+        neutral: '<path d="M13 35h22a8 8 0 0 0 0-16 11 11 0 0 0-21-2 9 9 0 0 0-1 18Z" fill="#F4FFF7" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round"/>',
+      };
+      const climateWarningIcon = climateScreen.querySelector('.warning');
+      const renderClimateWarningIcon = (hour) => {
+        const [, description, iconName] = climateWeather(hour?.weather_code);
+        climateWarningIcon.innerHTML = `<svg class="weather-icon" viewBox="0 0 48 48" aria-hidden="true">${climateWeatherIcons[iconName] || climateWeatherIcons.neutral}</svg>`;
+        climateWarningIcon.title = description;
+        climateWarningIcon.setAttribute('aria-label', description);
+      };
+      renderClimateWarningIcon(null);
       const renderHomeWeather = (data) => {
         const current = data?.current;
         if (!current) {
@@ -4625,6 +4668,28 @@
         const segments = climateScreen.querySelectorAll('.riskbar i');
         const activeSegments = risk.startsWith('High') ? 4 : risk.startsWith('Rain') ? 3 : risk.startsWith('Low') ? 1 : 0;
         segments.forEach((segment, index) => { segment.style.opacity = index < activeSegments ? '1' : '.35'; });
+        const maxForecastHour = (field) => nextDay.reduce((best, hour) => {
+          const value = hour[field];
+          if (value === null || value === undefined || value === '' || !Number.isFinite(Number(value))) return best;
+          return !best || Number(value) > Number(best[field]) ? hour : best;
+        }, null);
+        const peakProbabilityHour = maxForecastHour('precipitation_probability');
+        const heaviestRainHour = maxForecastHour('precipitation');
+        const firstKnownWeatherHour = nextDay.find((hour) => climateWeather(hour.weather_code)[2] !== 'neutral');
+        const riskProbabilityThreshold = risk.startsWith('High')
+          ? thresholds.high_probability_percent
+          : risk === 'Rain is possible' ? thresholds.moderate_probability_percent : null;
+        const riskPrecipitationThreshold = risk.startsWith('High')
+          ? thresholds.high_precipitation_mm
+          : risk === 'Rain is possible' ? thresholds.moderate_precipitation_mm : null;
+        const probabilityDrivesRisk = riskProbabilityThreshold !== null && rainProbability !== null && rainProbability >= riskProbabilityThreshold;
+        const precipitationDrivesRisk = riskPrecipitationThreshold !== null && rainAmount !== null && rainAmount >= riskPrecipitationThreshold;
+        const iconForecast = probabilityDrivesRisk
+          ? peakProbabilityHour
+          : precipitationDrivesRisk
+            ? heaviestRainHour
+            : peakProbabilityHour || heaviestRainHour || firstKnownWeatherHour;
+        renderClimateWarningIcon(iconForecast);
         const current = data.current || {};
         const summary = [
           current.temperature === null ? null : `${climateNumber(current.temperature)}°C`,
@@ -4634,9 +4699,6 @@
           current.precipitation === null ? null : `Rain ${climateNumber(current.precipitation, 1)} mm`,
           current.rain_probability === null ? null : `${climateNumber(current.rain_probability)}% rain chance`,
         ].filter(Boolean);
-        const [currentIcon, currentCondition] = climateWeather(current.weather_code);
-        climateScreen.querySelector('.warning').textContent = currentIcon;
-        climateScreen.querySelector('.warning').setAttribute('title', currentCondition);
         climateCurrentSummary.textContent = summary.length ? `Current · ${summary.join(' · ')} · local forecast screening, not an official warning` : 'Current measurements unavailable';
         climateAdvisory.textContent = risk.startsWith('High')
           ? `The next 24-hour forecast indicates a high chance of rain or at least ${thresholds.high_precipitation_mm} mm of forecast rainfall. Check field drainage and local conditions before exposed work. This screening is not an official warning.`

@@ -16,7 +16,7 @@
   <main class="dashboard-page app-shell">
     <section class="monitor-shell" aria-label="Plant and crop scanner">
       <header class="monitor-header">
-        <div class="monitor-brand"><span class="brand-mark">+</span><span><strong>Plant / Crop Scan</strong><small>Camera preview · Gemini-powered plant analysis</small></span></div><button class="history-button" type="button"
+        <div class="monitor-brand"><span class="brand-mark"><img src="scannerlogo.jpg" alt="" aria-hidden="true"></span><span><strong>Plant / Crop Scan</strong><small>Camera preview · Gemini-powered plant analysis</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
       </header>
       <div class="monitor-tabs" role="tablist" aria-label="Scan views"><button class="active" id="live-camera-tab"
@@ -104,21 +104,55 @@
               hidden><span id="analysis-unavailable-placeholder" aria-hidden="true">🌱</span></div>
           <div class="analysis-result-copy"><span class="analysis-unavailable-label">GEMINI AI RESULT</span>
             <h2 id="analysis-unavailable-title">Result unavailable</h2>
-            <p id="analysis-unavailable-copy"></p>
-            <div class="gemini-result-fields" id="gemini-result-fields" hidden>
-              <div class="gemini-result-grid">
-                <div class="gemini-result-field"><span>Plant / crop</span><strong id="result-plant-name"></strong></div>
-                <div class="gemini-result-field"><span>Health status</span><strong id="result-health-status"></strong></div>
-                <div class="gemini-result-field"><span>Possible issue</span><strong id="result-detected-issue"></strong></div>
-                <div class="gemini-result-field"><span>Severity</span><strong id="result-severity"></strong></div>
-                <div class="gemini-result-field"><span>Qualitative confidence</span><strong id="result-confidence"></strong></div>
+            <div class="scan-result-health" id="scan-result-health" hidden>
+              <span class="scan-result-health-icon" id="result-status-icon" aria-hidden="true">✓</span>
+              <div>
+                <strong id="result-health-status-label"></strong>
+                <p id="result-status-description"></p>
+                <small>Qualitative confidence: <strong id="result-confidence"></strong></small>
               </div>
-              <p class="gemini-result-verification" id="result-verification" hidden>Manual verification is recommended. AI analysis is not a definitive diagnosis.</p>
-              <section class="gemini-result-section"><h3>Visible symptoms</h3><ul id="result-symptoms"></ul></section>
-              <section class="gemini-result-section"><h3>Analysis</h3><p id="result-analysis"></p></section>
-              <section class="gemini-result-section"><h3>Recommendations</h3><ul id="result-recommendations"></ul></section>
-              <section class="gemini-result-section"><h3>Prevention tips</h3><ul id="result-prevention-tips"></ul></section>
             </div>
+            <p class="analysis-unavailable-copy" id="analysis-unavailable-copy"></p>
+          </div>
+          <div class="gemini-result-fields" id="gemini-result-fields" hidden>
+            <div class="gemini-result-grid">
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 3.5C11.4 3.5 5 7.7 5 14.2a5.3 5.3 0 0 0 5.3 5.3c6.5 0 10.2-6.4 10.2-16Z"/><path d="M4 20c3.3-4.8 7-7.9 12-10.7"/></svg></span>
+                <div><span>Plant / crop</span><strong id="result-plant-name"></strong></div>
+              </div>
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.2 8.8c0 5-8.2 10.1-8.2 10.1S3.8 13.8 3.8 8.8A4.6 4.6 0 0 1 12 6.4a4.6 4.6 0 0 1 8.2 2.4Z"/><path d="M3 12h4l2-3 3.1 6 2.1-4H21"/></svg></span>
+                <div><span>Health status</span><strong id="result-health-status"></strong></div>
+              </div>
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5"/><path d="M12 17.5h.01"/></svg></span>
+                <div><span>Possible issue</span><strong id="result-detected-issue"></strong></div>
+              </div>
+              <div class="gemini-result-field gemini-severity-field">
+                <span class="gemini-result-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 19v-5M10 19V9M15 19V5M20 19V2"/></svg></span>
+                <div><span>Severity</span><strong id="result-severity"></strong></div>
+              </div>
+            </div>
+            <p class="gemini-result-verification" id="result-verification" hidden>Manual verification is recommended. AI analysis is not a definitive diagnosis.</p>
+            <section class="gemini-result-section gemini-health-summary">
+              <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 16h6"/></svg> Health Summary</h3>
+              <div class="gemini-health-summary-copy"><span id="result-summary-icon" aria-hidden="true">✓</span><p id="result-health-summary"></p></div>
+            </section>
+            <div class="gemini-result-columns">
+              <section class="gemini-result-section gemini-analysis-section">
+                <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-6h4v6M10 20V9h4v11M16 20V4h4v16"/></svg> Analysis</h3>
+                <p id="result-analysis"></p>
+                <div class="gemini-visible-symptoms"><h4>Visible symptoms</h4><ul id="result-symptoms"></ul></div>
+              </section>
+              <section class="gemini-result-section gemini-recommendations-section">
+                <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M8.5 14.5a7 7 0 1 1 7 0c-.8.6-1.2 1.4-1.3 2.5H9.8c-.1-1.1-.5-1.9-1.3-2.5Z"/><path d="M12 1v2M4.2 4.2l1.4 1.4M1 12h2M19.8 4.2l-1.4 1.4M21 12h2"/></svg> Recommendations</h3>
+                <ul class="gemini-check-list" id="result-recommendations"></ul>
+              </section>
+            </div>
+            <section class="gemini-result-section gemini-prevention-section">
+              <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 3v5c0 5.2-3.7 8.7-8 10-4.3-1.3-8-4.8-8-10V6l8-3Z"/><path d="M8.1 13.5c3.7-.1 6.1-2.1 8.2-5.2-.1 4.7-2.3 7.7-6.2 7.7"/></svg> Prevention Tips</h3>
+              <ul class="gemini-check-list" id="result-prevention-tips"></ul>
+            </section>
           </div>
         </section>
       </div>
@@ -161,6 +195,7 @@
       const analysisUnavailablePlaceholder = document.querySelector('#analysis-unavailable-placeholder')
       const analysisUnavailableTitle = document.querySelector('#analysis-unavailable-title')
       const analysisUnavailableCopy = document.querySelector('#analysis-unavailable-copy')
+      const scanResultHealth = document.querySelector('#scan-result-health')
       const geminiResultFields = document.querySelector('#gemini-result-fields')
       const liveCameraTab = document.querySelector('#live-camera-tab')
       const aiAnalysisTab = document.querySelector('#ai-analysis-tab')
@@ -517,22 +552,46 @@
 
       function renderGeminiAnalysis(result) {
         const uncertain = result.health_status === 'Uncertain' || result.needs_verification
-        analysisUnavailableTitle.textContent = result.plant_name
-          ? `${result.plant_name} — ${result.health_status}`
-          : 'No recognizable plant identified'
+        const plantName = result.plant_name || 'The plant'
+        const healthy = result.health_status === 'Healthy'
+        const statusIcon = healthy ? '✓' : uncertain ? '!' : '△'
+        const summaryParts = [`${plantName} was assessed as ${result.health_status.toLowerCase()}.`]
+        summaryParts.push(result.detected_issue
+          ? `Possible issue: ${result.detected_issue}.`
+          : 'No specific issue was identified.')
+        if (result.visible_symptoms.length) {
+          summaryParts.push(`Visible symptoms: ${result.visible_symptoms.slice(0, 3).join(', ')}.`)
+        }
+        summaryParts.push(`Severity: ${result.severity}.`)
+        analysisUnavailableTitle.textContent = result.plant_name || 'No recognizable plant identified'
         analysisUnavailableCopy.textContent = uncertain
           ? 'This visual assessment is uncertain and requires manual verification.'
           : 'Gemini visual assessment, not a confirmed diagnosis. Confidence is qualitative, not calibrated.'
+        analysisUnavailable.dataset.healthState = healthy ? 'healthy' : uncertain ? 'uncertain' : 'attention'
+        document.querySelector('#result-status-icon').textContent = statusIcon
+        document.querySelector('#result-health-status-label').textContent = result.health_status
+        document.querySelector('#result-status-description').textContent = uncertain
+          ? 'The visual assessment is uncertain. Verify the plant and symptoms before taking action.'
+          : healthy
+            ? 'Your plant appears healthy based on this visual scan.'
+            : `${result.detected_issue || 'A plant health concern was detected'}. Severity: ${result.severity}.`
+        document.querySelector('#result-summary-icon').textContent = statusIcon
+        document.querySelector('#result-health-summary').textContent = summaryParts.join(' ')
         document.querySelector('#result-plant-name').textContent = result.plant_name || 'Not identified'
         document.querySelector('#result-health-status').textContent = result.health_status
         document.querySelector('#result-detected-issue').textContent = result.detected_issue || 'No specific issue identified'
         document.querySelector('#result-severity').textContent = result.severity
+        document.querySelector('.gemini-severity-field').dataset.severityTone =
+          result.severity === 'Low' ? 'low'
+            : result.severity === 'Moderate' || result.severity === 'Medium' ? 'medium'
+              : result.severity === 'High' ? 'high' : 'neutral'
         document.querySelector('#result-confidence').textContent = result.confidence
         document.querySelector('#result-analysis').textContent = result.analysis
         document.querySelector('#result-verification').hidden = !uncertain
         renderGeminiList('#result-symptoms', result.visible_symptoms, 'No clear symptoms reported.')
         renderGeminiList('#result-recommendations', result.recommendations, 'No recommendation provided.')
         renderGeminiList('#result-prevention-tips', result.prevention_tips, 'No prevention tips provided.')
+        scanResultHealth.hidden = false
         geminiResultFields.hidden = false
         analysisUnavailable.setAttribute('aria-busy', 'false')
       }
@@ -546,6 +605,7 @@
         formData.append('scan_image', image, image.name || 'crop-image.jpg')
         analysisUnavailable.hidden = false
         analysisUnavailable.setAttribute('aria-busy', 'true')
+        scanResultHealth.hidden = true
         analysisUnavailableTitle.textContent = 'Analyzing image...'
         analysisUnavailableCopy.textContent = 'Gemini is checking the image. Unclear or non-plant images will not receive a forced diagnosis.'
         geminiResultFields.hidden = true
@@ -627,6 +687,7 @@
         if (showAnalysis) {
           const hasSubmittedPhoto = Boolean(selectedScanPhoto)
           analysisUnavailable.hidden = false
+          scanResultHealth.hidden = true
           analysisUnavailableTitle.textContent = hasSubmittedPhoto ? 'Analyzing image...' : 'No scan result yet'
           analysisUnavailableCopy.textContent = hasSubmittedPhoto
             ? 'Submitting the selected image to Gemini for visual analysis.'
