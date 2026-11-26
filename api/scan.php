@@ -5,8 +5,27 @@ require __DIR__ . '/common.php';
 
 require_method('POST');
 start_app_session();
-if (session_user() === null) {
+$sessionUser = session_user();
+if ($sessionUser === null) {
     json_response(['success' => false, 'message' => 'Sign in before submitting a crop image.'], 401);
+}
+
+$plantId = '';
+if (array_key_exists('plant_id', $_POST)) {
+    if (!is_string($_POST['plant_id']) || preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/iD', $_POST['plant_id']) !== 1) {
+        json_response(['success' => false, 'message' => 'Choose a valid registered plant before scanning.'], 422);
+    }
+    $plantId = $_POST['plant_id'];
+    try {
+        $plantQuery = pdo_connection()->prepare('SELECT id FROM plants WHERE id = :id AND user_id = :user_id LIMIT 1');
+        $plantQuery->execute(['id' => $plantId, 'user_id' => $sessionUser['id']]);
+    } catch (PDOException $error) {
+        error_log('TanimTrack scanner plant lookup failed: ' . $error->getMessage());
+        json_response(['success' => false, 'message' => 'Unable to confirm the selected plant. Please try again.'], 503);
+    }
+    if ($plantQuery->fetchColumn() === false) {
+        json_response(['success' => false, 'message' => 'This plant could not be found in your account.'], 404);
+    }
 }
 
 $upload = $_FILES['scan_image'] ?? null;
@@ -118,6 +137,58 @@ foreach (['visible_symptoms', 'recommendations', 'prevention_tips'] as $listFiel
             error_log('TanimTrack AI returned an invalid analysis response.');
             json_response(['success' => false, 'message' => 'The AI scanner returned an invalid result. Please try again.'], 502);
         }
+    }
+}
+
+if ($plantId !== '') {
+    $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    $filename = null;
+    try {
+        $directory = __DIR__ . '/../uploads/plant-scans';
+        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+            throw new RuntimeException('The plant scan image directory could not be created.');
+        }
+        if (!is_writable($directory)) {
+            throw new RuntimeException('The plant scan image directory is not writable.');
+        }
+        $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mimeType];
+        if (!move_uploaded_file($upload['tmp_name'], $directory . '/' . $filename)) {
+            throw new RuntimeException('The plant scan image could not be saved.');
+        }
+
+        $scanId = app_uuid_v4();
+        $insert = pdo_connection()->prepare(
+            'INSERT INTO plant_analysis_history
+                (id, user_id, plant_id, image_path, image_mime_type, plant_name,
+                 health_status, detected_issue, severity, confidence, analysis_result)
+             VALUES
+                (:id, :user_id, :plant_id, :image_path, :image_mime_type, :plant_name,
+                 :health_status, :detected_issue, :severity, :confidence, :analysis_result)'
+        );
+        $insert->execute([
+            'id' => $scanId,
+            'user_id' => $sessionUser['id'],
+            'plant_id' => $plantId,
+            'image_path' => 'uploads/plant-scans/' . $filename,
+            'image_mime_type' => $mimeType,
+            'plant_name' => $result['plant_name'],
+            'health_status' => $result['health_status'],
+            'detected_issue' => $result['detected_issue'],
+            'severity' => $result['severity'],
+            'confidence' => $result['confidence'],
+            'analysis_result' => json_encode($result, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        ]);
+        $result['scan_id'] = $scanId;
+        $result['plant_id'] = $plantId;
+        $result['scan_saved'] = true;
+    } catch (Throwable $error) {
+        $imagePath = is_string($filename) ? __DIR__ . '/../uploads/plant-scans/' . $filename : '';
+        if ($imagePath !== '' && is_file($imagePath) && !unlink($imagePath)) {
+            error_log('TanimTrack failed to remove an unrecorded plant scan image.');
+        }
+        error_log('TanimTrack plant scan could not be persisted: ' . $error->getMessage());
+        $result['scan_saved'] = false;
+        $result['scan_save_error'] = 'The analysis completed, but this scan could not be saved to the selected plant. Please try again.';
     }
 }
 

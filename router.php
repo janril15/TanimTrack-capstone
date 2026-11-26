@@ -5,9 +5,11 @@ $path = rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: 
 $protectedPages = [
     '/profile-setup.html',
     '/dashboard.html',
+    '/plant-monitoring.html',
     '/TanimTrack Dashboard/index (1).html',
     '/dist/profile-setup.html',
     '/dist/dashboard.html',
+    '/dist/plant-monitoring.html',
     '/dist/TanimTrack Dashboard/index (1).html',
 ];
 

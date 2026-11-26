@@ -8,6 +8,7 @@
   <meta name="application-name" content="TanimTrack">
   <link rel="icon" href="../TANIMTRACK/images/LOGO.png">
   <link rel="stylesheet" href="../css/responsive-tokens.css">
+  <link rel="stylesheet" href="../css/plant-monitoring.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap');
 
@@ -755,10 +756,10 @@
 
     .activity-row {
       min-width: 0;
-      min-height: 47px;
-      padding: 6px 10px;
+      min-height: 54px;
+      padding: 9px 10px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 8px;
       border-bottom: 1px solid #f0f2ef;
     }
@@ -801,10 +802,9 @@
 
     .activity-copy b {
       display: block;
-      font-size: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 9px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
     }
 
     .activity-copy small {
@@ -812,6 +812,18 @@
       color: #788078;
       font-size: 7px;
       margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .activity-copy .activity-preview {
+      display: -webkit-box;
+      margin: 4px 0 0;
+      overflow: hidden;
+      color: #626c64;
+      font-size: 7px;
+      line-height: 1.4;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
 
     .when {
@@ -1855,6 +1867,49 @@
       font: 800 17px 'Manrope';
     }
 
+    .scan-your-plants {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 14px;
+      padding: 15px;
+      border: 1px solid #2d7652;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(125deg, #276b4a, #174a35);
+      box-shadow: 0 5px 14px #20563c20;
+    }
+
+    .scan-your-plants h2 {
+      margin: 0;
+      font: 800 14px/1.3 'Manrope';
+    }
+
+    .scan-your-plants p {
+      margin: 4px 0 0;
+      color: #d7eadc;
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .scan-plant-button {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid #d5efdc;
+      border-radius: 11px;
+      color: #20563c;
+      background: #f5fff6;
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .scan-plant-button:hover,
+    .scan-plant-button:focus-visible {
+      background: #e5f4e7;
+    }
+
     .farm-log-summary {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1905,6 +1960,23 @@
       margin-top: 2px;
       color: #8a948b;
       font-size: 8px;
+    }
+
+    .farm-activities-heading {
+      margin: 0 0 7px;
+    }
+
+    .farm-activities-heading h2 {
+      margin: 0;
+      color: #234b36;
+      font: 800 13px 'Manrope';
+    }
+
+    .farm-activities-heading p {
+      margin: 3px 0 0;
+      color: #748278;
+      font-size: 9px;
+      line-height: 1.4;
     }
 
     .farm-log-filters {
@@ -2721,7 +2793,8 @@
     }
 
     .activity-field input,
-    .activity-field textarea {
+    .activity-field textarea,
+    .activity-field select {
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
@@ -2740,6 +2813,11 @@
       padding: 0 12px;
     }
 
+    .activity-field select {
+      height: 43px;
+      padding: 0 12px;
+    }
+
     .activity-field textarea {
       min-height: 86px;
       padding: 11px 12px;
@@ -2747,7 +2825,8 @@
     }
 
     .activity-field input:focus,
-    .activity-field textarea:focus {
+    .activity-field textarea:focus,
+    .activity-field select:focus {
       border-color: #8bb99a;
       box-shadow: 0 0 0 3px #dcefe0;
     }
@@ -2755,6 +2834,42 @@
     .activity-field input::placeholder,
     .activity-field textarea::placeholder {
       color: #a0a19b;
+    }
+
+    .activity-register-plant {
+      margin-top: 8px;
+      padding: 0;
+      border: 0;
+      color: #276348;
+      background: transparent;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: underline;
+    }
+
+    .activity-form-feedback,
+    .dashboard-activity-feedback {
+      padding: 9px 11px;
+      border-radius: 9px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .activity-form-feedback[hidden],
+    .dashboard-activity-feedback[hidden] {
+      display: none;
+    }
+
+    .activity-form-feedback[data-kind="error"],
+    .dashboard-activity-feedback[data-kind="error"] {
+      color: #8f302b;
+      background: #fff0ed;
+    }
+
+    .dashboard-activity-feedback[data-kind="success"] {
+      color: #20563c;
+      background: #e7f3e9;
     }
 
     .activity-actions {
@@ -4164,8 +4279,9 @@
       </section>
       <section class="activity">
         <div class="section-head">
-          <h2>Recent activity</h2><button class="activity-view-all" type="button">View All</button>
+          <h2>Recent Farm Activities</h2><button class="activity-view-all" type="button">View All</button>
         </div>
+        <p class="dashboard-activity-feedback" id="dashboard-activity-feedback" role="status" aria-live="polite" hidden></p>
         <div class="activity-list" id="recent-activity-list">
           <p class="farm-log-empty">No activity yet.</p>
         </div>
@@ -4326,6 +4442,13 @@
             aria-label="Back">←</button>
           <h1 id="farm-logs-title">Farm Logs</h1>
         </div>
+        <section class="scan-your-plants" aria-labelledby="scan-your-plants-title">
+          <div>
+            <h2 id="scan-your-plants-title">Scan Your Plants</h2>
+            <p>Choose a registered plant to add a new scan to its monitoring history.</p>
+          </div>
+          <button class="scan-plant-button" id="scan-plant-button" type="button">Scan Plant</button>
+        </section>
         <div class="farm-log-summary" aria-label="Farm log summary">
           <div class="farm-log-summary-card"><span class="farm-log-summary-icon"
               aria-hidden="true">⚖</span><strong>—</strong><span>Last yield</span></div>
@@ -4333,6 +4456,18 @@
               aria-hidden="true">♧</span><strong>—</strong><span>Since plant</span></div>
           <div class="farm-log-summary-card"><span class="farm-log-summary-icon"
               aria-hidden="true">⌛</span><strong>—</strong><span>To harvest</span></div>
+        </div>
+        <section class="registered-plants" aria-labelledby="registered-plants-title">
+          <div class="registered-plants-heading">
+            <div><h2 id="registered-plants-title">My Plants</h2><p>Open a plant to view its scans and growth records.</p></div>
+            <button class="register-plant-button" id="register-plant-button" type="button">+ Register plant</button>
+          </div>
+          <p class="registered-plants-feedback" id="registered-plants-feedback" role="status">Loading registered plants…</p>
+          <div class="registered-plants-list" id="registered-plants-list"></div>
+        </section>
+        <div class="farm-activities-heading">
+          <h2>Recent Activities</h2>
+          <p>Plant scans, garden logs, climate risk alerts, and harvest records.</p>
         </div>
         <div class="farm-log-filters" role="tablist" aria-label="Farm log filters">
           <button class="farm-log-filter selected" type="button" role="tab" aria-selected="true"
@@ -4363,10 +4498,16 @@
             <button class="activity-type" type="button" aria-pressed="false" data-activity-type="Climate Risk">Climate Risk</button>
             <button class="activity-type" type="button" aria-pressed="false" data-activity-type="Harvest">Harvest</button>
           </div>
+          <p class="activity-form-feedback" id="activity-form-feedback" role="status" aria-live="polite" hidden></p>
           <label class="activity-field"><span>Date</span><input id="activity-date" name="date" type="date"
               required></label>
           <label class="activity-field"><span id="activity-title-label">Activity Title</span><input id="activity-title"
               name="title" type="text" maxlength="160" placeholder="Enter activity title" required></label>
+          <div class="activity-field" data-activity-field="registered-plant">
+            <label for="activity-plant-id"><span>Registered plant</span></label>
+            <select id="activity-plant-id" name="plant_id" required></select>
+            <button class="activity-register-plant" id="activity-register-plant" type="button">Register a new plant</button>
+          </div>
           <label class="activity-field" data-activity-field="related"><span id="related-plant-label">Related plant</span>
             <input id="related-plant" name="related_plant" type="text" maxlength="200"
               placeholder="Enter related plant"></label>
@@ -4406,12 +4547,23 @@
       const addedNav = document.querySelector('.new-bottom-nav');
       const activityForm = document.getElementById('activity-form');
       const activityDate = document.getElementById('activity-date');
+      const activityPlantSelect = document.getElementById('activity-plant-id');
+      const activityFormFeedback = document.getElementById('activity-form-feedback');
       const farmLogList = document.getElementById('farm-log-list');
       const farmLogFeedback = document.getElementById('farm-log-feedback');
+      const dashboardActivityFeedback = document.getElementById('dashboard-activity-feedback');
+      const registeredPlantsList = document.getElementById('registered-plants-list');
+      const registeredPlantsFeedback = document.getElementById('registered-plants-feedback');
       let selectedFarmLogFilter = 'all';
       let farmActivityRequestPending = false;
       let farmActivitySaving = false;
       let farmActivityLoadVersion = 0;
+      let farmActivityRequestId = null;
+      let farmActivityRequestFingerprint = '';
+      let registeredPlants = [];
+      let plantsLoading = false;
+      let plantsLoadPromise = null;
+      let plantRegistrationSaving = false;
       let previousRoute = '';
       const modal = (title, body, actions = '') => { const backdrop = document.createElement('div'); backdrop.className = 'modal-backdrop'; backdrop.innerHTML = `<div class="modal" role="dialog" aria-modal="true"><h2>${title}</h2>${body}<div class="modal-actions">${actions || '<button class="secondary" data-close>Close</button>'}</div></div>`; document.body.appendChild(backdrop); backdrop.addEventListener('click', (event) => { if (event.target === backdrop || event.target.closest('[data-close]')) backdrop.remove(); }); return backdrop; };
       const notifications = [
@@ -4772,7 +4924,7 @@
       window.setInterval(() => {
         if ((!location.hash.slice(1) || location.hash.slice(1) === 'climate') && Date.now() - climateLastRequestAt >= climateRefreshIntervalSeconds * 1000) loadClimate();
       }, 60000);
-      const showRoute = () => { const route = location.hash.slice(1); const active = routes.includes(route) ? route : ''; const isCommunityRoute = active === 'community-alerts'; shell.classList.toggle('new-route', Boolean(active)); shell.classList.toggle('community-route', isCommunityRoute); addedScreens.forEach((screen) => screen.classList.toggle('active', screen.id === `${active}-screen`)); addedNav.style.display = isCommunityRoute ? 'none' : 'grid'; addedNav.querySelectorAll('button[data-route]').forEach((button) => button.classList.toggle('active', button.dataset.route === (active || 'home'))); if (active === 'farm-logs' || !active) loadFarmActivities(); if (active === 'climate') loadClimate(); };
+      const showRoute = () => { const route = location.hash.slice(1); const active = routes.includes(route) ? route : ''; const isCommunityRoute = active === 'community-alerts'; shell.classList.toggle('new-route', Boolean(active)); shell.classList.toggle('community-route', isCommunityRoute); addedScreens.forEach((screen) => screen.classList.toggle('active', screen.id === `${active}-screen`)); addedNav.style.display = isCommunityRoute ? 'none' : 'grid'; addedNav.querySelectorAll('button[data-route]').forEach((button) => button.classList.toggle('active', button.dataset.route === (active || 'home'))); if (active === 'farm-logs' || !active) { loadFarmActivities(); loadRegisteredPlants(); } if (active === 'climate') loadClimate(); };
       const farmLogsCard = document.querySelector('.quick button:nth-child(3)');
       farmLogsCard.addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'farm-logs'; });
       document.getElementById('community-alerts-card').addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'community-alerts'; });
@@ -4969,6 +5121,159 @@
       const dateFromToday = (offset) => { const date = new Date(); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() + offset); return date.toISOString().slice(0, 10); };
       let farmActivities = [];
       const escapeHtml = (value) => String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+      const createFarmActivityRequestId = () => {
+        const webCrypto = window.crypto;
+        if (typeof webCrypto?.randomUUID === 'function') return webCrypto.randomUUID();
+        if (typeof webCrypto?.getRandomValues !== 'function') throw new Error('Secure activity saving is unavailable in this browser.');
+        const bytes = webCrypto.getRandomValues(new Uint8Array(16));
+        bytes[6] = (bytes[6] & 0x0f) | 0x40;
+        bytes[8] = (bytes[8] & 0x3f) | 0x80;
+        const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+        return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+      };
+      const setRegisteredPlantsFeedback = (message, kind = '') => {
+        registeredPlantsFeedback.textContent = message;
+        registeredPlantsFeedback.dataset.kind = kind;
+        registeredPlantsFeedback.hidden = !message;
+      };
+      const plantDateLabel = (value) => {
+        const dateValue = String(value || '').slice(0, 10);
+        const date = new Date(`${dateValue}T00:00:00`);
+        return dateValue && !Number.isNaN(date.getTime())
+          ? date.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })
+          : 'Not scanned yet';
+      };
+      const plantMeasurementLabel = (value) => Number(value).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+      const renderRegisteredPlants = () => {
+        registeredPlantsList.innerHTML = registeredPlants.length
+          ? registeredPlants.map((plant) => {
+            const details = [plant.species, plant.location, plant.planted_on ? `Planted ${plant.planted_on}` : ''].filter(Boolean).join(' · ');
+            const latest = plant.latest_scan;
+            const measurements = latest ? [
+              latest.leaf_count !== null && latest.leaf_count !== undefined ? `${latest.leaf_count} leaves` : '',
+              latest.plant_size_cm !== null && latest.plant_size_cm !== undefined ? `Size ${plantMeasurementLabel(latest.plant_size_cm)} cm` : '',
+              latest.plant_height_cm !== null && latest.plant_height_cm !== undefined ? `Height ${plantMeasurementLabel(latest.plant_height_cm)} cm` : '',
+            ].filter(Boolean) : [];
+            const image = latest?.image_url
+              ? `<img class="registered-plant-image" src="${escapeHtml(latest.image_url)}" alt="${escapeHtml(`${plant.name} latest scan`)}" loading="lazy">`
+              : '<span class="registered-plant-icon" aria-hidden="true">🌱</span>';
+            return `<button class="registered-plant-card" type="button" data-plant-id="${escapeHtml(plant.id)}">${image}<span class="registered-plant-copy"><strong>${escapeHtml(plant.name)}</strong><small>${escapeHtml(details || 'Registered plant')}</small><span class="plant-card-health">${escapeHtml(latest?.health_status || 'Not scanned yet')}</span><small>Growth stage: ${escapeHtml(plant.growth_stage || 'Not recorded')}</small><small class="plant-card-measurements">Measurements: ${escapeHtml(measurements.length ? measurements.join(' · ') : 'None recorded')}</small><small>Last scan: ${escapeHtml(latest ? plantDateLabel(latest.scanned_at) : 'Not scanned yet')}</small></span><span class="registered-plant-chevron" aria-hidden="true">›</span></button>`;
+          }).join('')
+          : '<p class="registered-plants-empty">No registered plants yet. Add a plant to start its individual monitoring history.</p>';
+        renderActivityPlantOptions();
+        registeredPlantsList.querySelectorAll('.registered-plant-image').forEach((image) => {
+          image.addEventListener('error', () => {
+            const fallback = document.createElement('span');
+            fallback.className = 'registered-plant-icon';
+            fallback.setAttribute('aria-hidden', 'true');
+            fallback.textContent = '🌱';
+            image.replaceWith(fallback);
+          }, { once: true });
+        });
+      };
+      const renderActivityPlantOptions = (selectedId = '') => {
+        if (!activityPlantSelect) return;
+        const currentId = selectedId || activityPlantSelect.value;
+        const placeholder = registeredPlants.length ? 'Select a registered plant' : 'No registered plants yet';
+        activityPlantSelect.innerHTML = `<option value="">${placeholder}</option>${registeredPlants.map((plant) => `<option value="${escapeHtml(plant.id)}">${escapeHtml(plant.name)}</option>`).join('')}`;
+        if (registeredPlants.some((plant) => plant.id === currentId)) activityPlantSelect.value = currentId;
+      };
+      const loadRegisteredPlants = () => {
+        if (plantsLoadPromise) return plantsLoadPromise;
+        plantsLoading = true;
+        plantsLoadPromise = (async () => {
+          try {
+            const response = await fetch('/api/plants.php', {
+              credentials: 'same-origin',
+              headers: { Accept: 'application/json' },
+              cache: 'no-store',
+            });
+            const result = await response.json();
+            if (response.status === 401) throw new Error('Your session has expired. Sign in again to view registered plants.');
+            if (!response.ok || !result.success || !Array.isArray(result.plants)) {
+              throw new Error(result.message || 'Unable to load registered plants.');
+            }
+            const fetchedPlantIds = new Set(result.plants.map((plant) => plant.id));
+            registeredPlants = [
+              ...registeredPlants.filter((plant) => !fetchedPlantIds.has(plant.id)),
+              ...result.plants,
+            ];
+            renderRegisteredPlants();
+            setRegisteredPlantsFeedback('', '');
+            return true;
+          } catch (error) {
+            console.error('Unable to load registered plants:', error);
+            registeredPlants = [];
+            renderRegisteredPlants();
+            setRegisteredPlantsFeedback(error.message || 'Unable to load registered plants. Please try again.', 'error');
+            return false;
+          } finally {
+            plantsLoading = false;
+            plantsLoadPromise = null;
+          }
+        })();
+        return plantsLoadPromise;
+      };
+      const openPlantRegistration = () => {
+        const backdrop = modal('Register a plant', '<form class="plant-registration-form" id="plant-registration-form"><label for="plant-name">Plant name</label><input id="plant-name" name="name" maxlength="120" placeholder="e.g. North field tomato" required><label for="plant-species">Species or variety <span>(optional)</span></label><input id="plant-species" name="species" maxlength="120" placeholder="e.g. Tomato"><label for="plant-location">Location <span>(optional)</span></label><input id="plant-location" name="location" maxlength="200" placeholder="e.g. Greenhouse bed 2"><label for="plant-planted-on">Planting date <span>(optional)</span></label><input id="plant-planted-on" name="planted_on" type="date"><p class="plant-registration-error" id="plant-registration-error" role="alert"></p></form>', '<button class="secondary" type="button" data-close>Cancel</button><button class="primary" type="submit" form="plant-registration-form" id="save-registered-plant">Save plant</button>');
+        const form = backdrop.querySelector('#plant-registration-form');
+        const saveButton = backdrop.querySelector('#save-registered-plant');
+        const error = backdrop.querySelector('#plant-registration-error');
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          if (plantRegistrationSaving || !form.reportValidity()) return;
+          plantRegistrationSaving = true;
+          saveButton.disabled = true;
+          saveButton.textContent = 'Saving…';
+          error.textContent = '';
+          try {
+            const formData = new FormData(form);
+            const response = await fetch('/api/plants.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+              body: JSON.stringify({
+                name: String(formData.get('name') || '').trim(),
+                species: String(formData.get('species') || '').trim(),
+                location: String(formData.get('location') || '').trim(),
+                planted_on: String(formData.get('planted_on') || '').trim(),
+              }),
+            });
+            const result = await response.json();
+            if (response.status === 401) throw new Error('Your session has expired. Sign in again before registering a plant.');
+            if (!response.ok || !result.success || !result.plant) {
+              const fieldErrors = result.errors && Object.values(result.errors);
+              throw new Error(fieldErrors?.join(' ') || result.message || 'Unable to register this plant.');
+            }
+            registeredPlants = [result.plant, ...registeredPlants.filter((plant) => plant.id !== result.plant.id)];
+            renderRegisteredPlants();
+            renderActivityPlantOptions(result.plant.id);
+            setRegisteredPlantsFeedback('Plant registered. Select it to open its monitoring details.', 'success');
+            backdrop.remove();
+          } catch (requestError) {
+            console.error('Unable to register plant:', requestError);
+            error.textContent = requestError.message || 'Unable to register this plant. Please try again.';
+          } finally {
+            plantRegistrationSaving = false;
+            if (saveButton.isConnected) {
+              saveButton.disabled = false;
+              saveButton.textContent = 'Save plant';
+            }
+          }
+        });
+      };
+      document.getElementById('register-plant-button').addEventListener('click', openPlantRegistration);
+      document.getElementById('activity-register-plant').addEventListener('click', openPlantRegistration);
+      document.getElementById('scan-plant-button').addEventListener('click', () => {
+        window.location.href = '/dashboard.html?return_to=farm-logs';
+      });
+      registeredPlantsList.addEventListener('click', (event) => {
+        const card = event.target.closest('[data-plant-id]');
+        if (!card) return;
+        const plant = registeredPlants.find((item) => item.id === card.dataset.plantId);
+        if (!plant) return;
+        window.location.href = `/plant-monitoring.html?plant_id=${encodeURIComponent(plant.id)}`;
+      });
       const activityCategories = {
         'Plant Growth': 'plant-growth',
         'Garden Log': 'garden-log',
@@ -4976,7 +5281,14 @@
         Harvest: 'harvest',
       };
       const categoryForType = (type) => activityCategories[type] || '';
-      const categoryLabelForType = (type) => categoryForType(type) ? type : '';
+      const categoryLabelForType = (type) => type === 'Climate Risk'
+        ? 'Climate Risk Alert'
+        : type === 'Harvest'
+          ? 'Harvest Record'
+          : categoryForType(type) ? type : '';
+      const activityDisplayLabel = (activity) => activity.type === 'Plant Growth' && activity.title === 'Plant Growth Scan'
+        ? 'Plant Growth Scan'
+        : categoryLabelForType(activity.type);
       const activityIconForType = (type) => type === 'Garden Log' ? '🌿' : type === 'Climate Risk' ? '🌦️' : type === 'Harvest' ? '🌾' : '🌱';
       const formatDateParts = (dateValue) => { const date = new Date(`${dateValue}T00:00:00`); return { day: date.getDate(), month: date.toLocaleString('en-US', { month: 'short' }).toUpperCase() }; };
       const activityDescription = (activity) => [
@@ -5052,8 +5364,21 @@
         farmLogFeedback.dataset.kind = kind;
         farmLogFeedback.classList.toggle('visible', Boolean(message));
       };
-      const loadFarmActivities = async () => {
-        if (farmActivityRequestPending || farmActivitySaving) return;
+      const setDashboardActivityFeedback = (message, kind = '') => {
+        dashboardActivityFeedback.textContent = message;
+        dashboardActivityFeedback.dataset.kind = kind;
+        dashboardActivityFeedback.hidden = !message;
+        dashboardActivityFeedback.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+      };
+      const setActivityFormFeedback = (message, kind = '') => {
+        activityFormFeedback.textContent = message;
+        activityFormFeedback.dataset.kind = kind;
+        activityFormFeedback.hidden = !message;
+        activityFormFeedback.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+      };
+      const loadFarmActivities = async (force = false) => {
+        if (!force && (farmActivityRequestPending || farmActivitySaving)) return false;
+        if (force) farmActivityLoadVersion += 1;
         farmActivityRequestPending = true;
         const requestVersion = ++farmActivityLoadVersion;
         try {
@@ -5077,12 +5402,16 @@
           renderFarmLogs(selectedFarmLogFilter);
           renderRecentActivities();
           if (farmLogFeedback.dataset.kind === 'error') setFarmLogFeedback('', '');
+          if (dashboardActivityFeedback.dataset.kind === 'error') setDashboardActivityFeedback('', '');
+          return true;
         } catch (error) {
-          if (requestVersion !== farmActivityLoadVersion) return;
+          if (requestVersion !== farmActivityLoadVersion) return false;
           console.error('Unable to load farm activities:', error);
           setFarmLogFeedback(error.message || 'Unable to load farm activities. Please try again.', 'error');
+          setDashboardActivityFeedback(error.message || 'Unable to load farm activities. Please try again.', 'error');
+          return false;
         } finally {
-          farmActivityRequestPending = false;
+          if (requestVersion === farmActivityLoadVersion) farmActivityRequestPending = false;
         }
       };
       const activityTimeFromDate = (dateValue) => {
@@ -5096,13 +5425,26 @@
         return `${Math.abs(days)}d ago`;
       };
       const recentActivityList = document.getElementById('recent-activity-list');
+      const farmActivityDateLabel = (dateValue) => {
+        const date = new Date(`${dateValue}T00:00:00`);
+        return Number.isNaN(date.getTime())
+          ? 'Date unavailable'
+          : date.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+      };
       const renderRecentActivities = () => {
         const activities = farmActivities.slice(0, 5);
         recentActivityList.innerHTML = activities.length
           ? activities.map((activity) => {
             const icon = activityIconForType(activity.type);
-            const context = activity.related || categoryLabelForType(activity.type);
-            return `<div class="activity-row"><span class="activity-icon">${icon}</span><span class="activity-copy"><b>${escapeHtml(activity.title)}</b><small>${escapeHtml(context)}</small></span><span class="when">${escapeHtml(activityTimeFromDate(activity.date))}</span><span class="chevron">›</span></div>`;
+            const relatedPlant = activity.related || 'No plant linked';
+            const activityDetails = activity.details || activity.climate_risk || activity.actions_taken ||
+              (activity.harvest_quantity !== '' && activity.harvest_quantity !== null
+                ? `Harvested ${activity.harvest_quantity}${activity.harvest_unit ? ` ${activity.harvest_unit}` : ''}`
+                : 'No details recorded.');
+            const growthStage = activity.type === 'Plant Growth' && activity.growth_stage
+              ? `<small>Growth stage: ${escapeHtml(activity.growth_stage)}</small>`
+              : '';
+            return `<article class="activity-row"><span class="activity-icon" aria-hidden="true">${icon}</span><span class="activity-copy"><b>${escapeHtml(activity.title)}</b><small>${escapeHtml(activityDisplayLabel(activity))} · ${escapeHtml(relatedPlant)} · ${escapeHtml(farmActivityDateLabel(activity.date))}</small>${growthStage}<small class="activity-preview">${escapeHtml(activityDetails)}</small></span><span class="chevron" aria-hidden="true">›</span></article>`;
           }).join('')
           : '<p class="farm-log-empty">No activity yet.</p>';
       };
@@ -5111,7 +5453,7 @@
         const trigger = document.querySelector('.activity-view-all');
         const savedActivities = farmActivities.map((activity) => ({
           title: activity.title,
-          context: `${categoryLabelForType(activity.type)} · ${activity.date}`,
+          context: `${activityDisplayLabel(activity)} · ${activity.date}`,
           description: activityDescription(activity) || 'Activity recorded for your farm.',
           time: activityTimeFromDate(activity.date),
           icon: activityIconForType(activity.type),
@@ -5187,7 +5529,7 @@
       const renderFarmLogs = (selectedFilter = selectedFarmLogFilter) => {
         selectedFarmLogFilter = selectedFilter;
         const visibleActivities = farmActivities.filter((activity) => selectedFilter === 'all' || categoryForType(activity.type) === selectedFilter);
-        farmLogList.innerHTML = visibleActivities.length ? visibleActivities.map((activity) => { const date = formatDateParts(activity.date); const category = categoryForType(activity.type); return `<article class="farm-log-card" data-log-category="${category}"><span class="farm-log-date" data-deadline="${escapeHtml(activity.date)}" aria-label="${date.day} ${date.month}">${date.day}<br>${date.month}</span><span class="farm-log-copy"><strong>${escapeHtml(activity.title)}</strong><p>${escapeHtml(activityDescription(activity))}</p><span class="farm-log-category">${escapeHtml(categoryLabelForType(activity.type))}</span></span><span class="farm-log-chevron">›</span></article>`; }).join('') : `<p class="farm-log-empty">${selectedFilter === 'all' ? 'No farm activities yet.' : 'No farm activities in this category yet.'}</p>`;
+        farmLogList.innerHTML = visibleActivities.length ? visibleActivities.map((activity) => { const date = formatDateParts(activity.date); const category = categoryForType(activity.type); return `<article class="farm-log-card" data-log-category="${category}"><span class="farm-log-date" data-deadline="${escapeHtml(activity.date)}" aria-label="${date.day} ${date.month}">${date.day}<br>${date.month}</span><span class="farm-log-copy"><strong>${escapeHtml(activity.title)}</strong><p>${escapeHtml(activityDescription(activity))}</p><span class="farm-log-category">${escapeHtml(activityDisplayLabel(activity))}</span></span><span class="farm-log-chevron">›</span></article>`; }).join('') : `<p class="farm-log-empty">${selectedFilter === 'all' ? 'No farm activities yet.' : 'No farm activities in this category yet.'}</p>`;
         document.querySelectorAll('[data-log-filter]').forEach((button) => { const selected = button.dataset.logFilter === selectedFilter; button.classList.toggle('selected', selected); button.setAttribute('aria-selected', String(selected)); });
         updateFarmLogDeadlineStatus();
       };
@@ -5223,8 +5565,8 @@
           relatedPlaceholder: 'Enter related plant',
           detailsLabel: 'Details',
           detailsPlaceholder: 'Enter details...',
-          fields: ['related', 'growth-stage', 'details'],
-          required: ['related', 'growth-stage', 'details'],
+          fields: ['registered-plant', 'growth-stage', 'details'],
+          required: ['registered-plant', 'growth-stage', 'details'],
         },
         'Garden Log': {
           titleLabel: 'Activity Title',
@@ -5272,7 +5614,7 @@
         activityFieldGroups.forEach((field) => {
           const fieldName = field.dataset.activityField;
           const isVisible = configuration.fields.includes(fieldName);
-          const control = field.querySelector('input, textarea');
+          const control = field.querySelector('input, textarea, select');
           field.hidden = !isVisible;
           control.required = configuration.required.includes(fieldName);
           if (!isVisible) control.value = '';
@@ -5301,27 +5643,35 @@
         const activityType = document.querySelector('.activity-type.selected')?.dataset.activityType;
         if (!activityType) return;
         const originalButtonText = saveButton.textContent;
+        const activityPayload = {
+          activity_type: activityType,
+          activity_date: date,
+          title,
+          details: String(formData.get('details') || '').trim(),
+          related_plant: String(formData.get('related_plant') || '').trim(),
+          plant_id: String(formData.get('plant_id') || '').trim(),
+          growth_stage: String(formData.get('growth_stage') || '').trim(),
+          climate_risk: String(formData.get('climate_risk') || '').trim(),
+          actions_taken: String(formData.get('actions_taken') || '').trim(),
+          harvest_quantity: String(formData.get('harvest_quantity') || '').trim(),
+          harvest_unit: String(formData.get('harvest_unit') || '').trim(),
+        };
+        const requestFingerprint = JSON.stringify(activityPayload);
         farmActivitySaving = true;
         saveButton.disabled = true;
         saveButton.textContent = 'Saving…';
         setFarmLogFeedback('', '');
+        setActivityFormFeedback('', '');
         try {
+          if (!farmActivityRequestId || farmActivityRequestFingerprint !== requestFingerprint) {
+            farmActivityRequestId = createFarmActivityRequestId();
+            farmActivityRequestFingerprint = requestFingerprint;
+          }
           const response = await fetch('/api/farm-activities.php', {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({
-              activity_type: activityType,
-              activity_date: date,
-              title,
-              details: String(formData.get('details') || '').trim(),
-              related_plant: String(formData.get('related_plant') || '').trim(),
-              growth_stage: String(formData.get('growth_stage') || '').trim(),
-              climate_risk: String(formData.get('climate_risk') || '').trim(),
-              actions_taken: String(formData.get('actions_taken') || '').trim(),
-              harvest_quantity: String(formData.get('harvest_quantity') || '').trim(),
-              harvest_unit: String(formData.get('harvest_unit') || '').trim(),
-            }),
+            body: JSON.stringify({ ...activityPayload, request_id: farmActivityRequestId }),
           });
           const result = await response.json();
           if (response.status === 401) throw new Error('Your session has expired. Sign in again before saving an activity.');
@@ -5333,16 +5683,25 @@
           farmActivities = [normalizeFarmActivity(result.activity), ...farmActivities.filter((activity) => activity.id !== result.activity.id)]
             .sort((first, second) => second.date.localeCompare(first.date));
           renderRecentActivities();
+          renderFarmLogs();
+          const dashboardRefreshed = await loadFarmActivities(true);
           activityForm.reset();
           selectActivityType('Plant Growth');
           activityDate.value = new Date().toISOString().slice(0, 10);
+          farmActivityRequestId = null;
+          farmActivityRequestFingerprint = '';
           setFarmLogFeedback(`Farm activity saved successfully. Created by ${result.activity.author_name}.`, 'success');
-          renderFarmLogs();
-          previousRoute = 'farm-logs';
-          location.hash = 'farm-logs';
+          setDashboardActivityFeedback(
+            dashboardRefreshed
+              ? 'Activity saved successfully.'
+              : 'Activity saved successfully, but the dashboard could not refresh. The saved entry is shown below.',
+            dashboardRefreshed ? 'success' : 'error',
+          );
+          previousRoute = '';
+          location.hash = '';
         } catch (error) {
           console.error('Unable to save farm activity:', error);
-          setFarmLogFeedback(error.message || 'Unable to save the farm activity. Please try again.', 'error');
+          setActivityFormFeedback(error.message || 'Unable to save the farm activity. Please try again.', 'error');
         } finally {
           farmActivitySaving = false;
           saveButton.disabled = false;

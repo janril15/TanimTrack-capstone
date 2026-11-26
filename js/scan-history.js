@@ -61,16 +61,17 @@ export async function saveScanRecord(record, imageBlob = null) {
     })
 }
 
-export async function listScanRecords(userId = null) {
+export async function listScanRecords(userId = null, plantId = null) {
     const database = await openDatabase()
 
     return new Promise((resolve, reject) => {
         const transaction = database.transaction(RECORD_STORE, 'readonly')
         const request = transaction.objectStore(RECORD_STORE).getAll()
         request.onsuccess = () => {
-            const records = userId
+            let records = userId
                 ? request.result.filter((record) => record.userId === userId || record.userId === null || record.userId === undefined)
                 : request.result
+            if (plantId) records = records.filter((record) => record.plantId === plantId)
             records.sort((left, right) => new Date(right.scannedAt) - new Date(left.scannedAt))
             resolve(records)
         }

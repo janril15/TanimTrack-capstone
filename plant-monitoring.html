@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="application-name" content="TanimTrack">
+  <title>Plant Monitoring Details | TanimTrack</title>
+  <link rel="icon" href="TanimTrack System/TANIMTRACK/images/LOGO.jpg">
+  <link rel="stylesheet" href="css/responsive-tokens.css">
+  <link rel="stylesheet" href="css/plant-monitoring.css?v=20261126-ref3">
+</head>
+<body class="plant-details-body">
+  <main class="details-page">
+    <header class="details-hero">
+      <a class="details-back" href="TanimTrack%20Dashboard/index%20(1).html#farm-logs" aria-label="Back to Farm Logs">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+      </a>
+      <div class="details-hero-copy">
+        <div class="details-hero-title">
+          <svg class="details-brand-leaf" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5C11.4 3.5 5 7.7 5 14.2a5.3 5.3 0 0 0 5.3 5.3c6.5 0 10.2-6.4 10.2-16Z" /><path d="M4 20c3.3-4.8 7-7.9 12-10.7" /></svg>
+          <h1>Plant Monitoring</h1>
+        </div>
+        <p>Track and compare your plant's health over time</p>
+      </div>
+    </header>
+    <div class="details-content">
+      <p class="plant-monitoring-feedback" id="monitoring-feedback" role="status" aria-live="polite"></p>
+      <section class="details-card details-overview" aria-labelledby="plant-name">
+        <div class="details-overview-grid">
+          <div class="details-plant-image-wrap" id="latest-image-wrap">
+            <span id="latest-image-placeholder" aria-hidden="true">🌱</span>
+            <img class="details-plant-image" id="latest-image" alt="" hidden>
+            <span class="details-image-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h8v8H8z" /></svg></span>
+          </div>
+          <div class="details-plant-info">
+            <div class="details-plant-heading">
+              <span class="plant-health-badge is-uncertain" id="latest-health">Not scanned</span>
+              <button class="details-card-scan" id="scan-again" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3v12H4z" /><circle cx="12" cy="13" r="3.5" /></svg>
+                Scan Again
+              </button>
+            </div>
+            <h2 class="details-plant-name" id="plant-name">Loading plant…</h2>
+            <div class="details-last-scan">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2" /><path d="M7.5 3v4M16.5 3v4M4 9.5h16" /></svg>
+              <span>Scanned: <strong id="latest-scan-date">No scans recorded yet</strong></span>
+            </div>
+            <div class="details-measurements" aria-label="Latest available measurements">
+              <div class="details-measurement">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5C11.4 3.5 5 7.7 5 14.2a5.3 5.3 0 0 0 5.3 5.3c6.5 0 10.2-6.4 10.2-16Z" /><path d="M4 20c3.3-4.8 7-7.9 12-10.7" /></svg>
+                <strong id="latest-leaf-count">—</strong>
+                <small>Leaf Count</small>
+              </div>
+              <div class="details-measurement">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M4 12l4-4M4 12l4 4M20 12l-4-4M20 12l-4 4" /></svg>
+                <strong><span id="latest-plant-size">—</span> cm</strong>
+                <small>Plant Size</small>
+              </div>
+              <div class="details-measurement">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M12 3l-4 4M12 3l4 4M12 21l-4-4M12 21l4-4" /></svg>
+                <strong><span id="latest-plant-height">—</span> cm</strong>
+                <small>Height</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="details-health-feedback"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18 10 12l4 3 6-8" /><path d="M15 7h5v5" /></svg><span id="health-feedback"></span></p>
+      </section>
+      <section class="details-card details-history" aria-labelledby="scan-history-heading">
+        <div class="details-section-heading">
+          <div class="details-section-title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3.5 2" /><path d="M4 5v4h4" /></svg><h2 id="scan-history-heading">Scan History</h2></div>
+          <button class="details-view-all" id="history-toggle" type="button" hidden>View All <span aria-hidden="true">→</span></button>
+        </div>
+        <div class="details-history-list" id="scan-history-list" aria-live="polite"></div>
+      </section>
+      <section class="details-card details-scan-card" id="scan-details-card" aria-labelledby="scan-details-heading" hidden>
+        <div class="details-section-heading">
+          <div class="details-section-title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3.5 2" /></svg><h2 id="scan-details-heading">Scan Details</h2></div>
+          <button class="details-view-all" id="close-scan-details" type="button">Close</button>
+        </div>
+        <div id="selected-scan-details"><p class="plant-history-empty">Select a scan to review its full AI analysis.</p></div>
+      </section>
+      <section class="details-card details-comparison" aria-labelledby="comparison-heading">
+        <div class="details-comparison-heading">
+          <div class="details-section-title"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19V2" /></svg><div><h2 id="comparison-heading">Comparison</h2><p>See how your plant has improved over time</p></div></div>
+          <div class="details-comparison-controls">
+            <label><span class="visually-hidden">Earlier scan</span><select class="plant-comparison-select" id="comparison-older" aria-label="Choose earlier scan"></select></label>
+            <label><span class="visually-hidden">Later scan</span><select class="plant-comparison-select" id="comparison-newer" aria-label="Choose later scan"></select></label>
+          </div>
+        </div>
+        <div id="comparison-result"><p class="plant-history-empty">Two scans of this plant are needed for a comparison.</p></div>
+      </section>
+      <aside class="details-tip">
+        <span class="details-tip-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8.5 14.5a7 7 0 1 1 7 0c-.8.6-1.2 1.4-1.3 2.5H9.8c-.1-1.1-.5-1.9-1.3-2.5Z" /></svg></span>
+        <div><strong>Tip</strong><p>Keep scanning regularly to monitor your plant's progress and get early warnings for potential issues.</p></div>
+        <svg class="details-tip-leaves" viewBox="0 0 40 40" aria-hidden="true"><path d="M34 5C20 5 9 12 9 24a9 9 0 0 0 9 9C30 33 34 19 34 5ZM8 36c5-9 12-15 22-21" /><path d="M24 13c-11 0-17 5-17 13 0 5 4 8 8 8" /></svg>
+      </aside>
+      <button class="details-bottom-scan" id="scan-again-bottom" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h8v8H8z" /></svg>
+        Scan Plant Again
+      </button>
+    </div>
+  </main>
+  <nav class="details-bottom-nav" aria-label="Main navigation">
+    <button type="button" data-monitor-route="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10h-6v-6H9v6H3z" /></svg><span>Home</span></button>
+    <button class="active" type="button" data-monitor-route="farm-logs"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5C11.4 3.5 5 7.7 5 14.2a5.3 5.3 0 0 0 5.3 5.3c6.5 0 10.2-6.4 10.2-16Z" /><path d="M4 20c3.3-4.8 7-7.9 12-10.7" /></svg><span>Farm Log</span></button>
+    <button type="button" data-monitor-route="scan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 8h8v8H8z" /></svg><span>Scan</span></button>
+    <button type="button" data-monitor-route="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg><span>Profile</span></button>
+  </nav>
+  <script type="module" src="js/plant-monitoring.js?v=20261126-ref3"></script>
+</body>
+</html>

@@ -32,13 +32,14 @@ function farm_activity_legacy_key(string $legacyId): string
     return 'legacy:' . hash('sha256', $legacyId);
 }
 
-function normalize_farm_activity(array $data, array $allowedTypes): array
+function normalize_farm_activity(array $data, array $allowedTypes, bool $requirePlantLink = false): array
 {
     $type = trim(is_string($data['activity_type'] ?? $data['type'] ?? null) ? ($data['activity_type'] ?? $data['type']) : '');
     $date = trim(is_string($data['activity_date'] ?? $data['date'] ?? null) ? ($data['activity_date'] ?? $data['date']) : '');
     $title = trim(is_string($data['title'] ?? null) ? $data['title'] : '');
     $details = trim(is_string($data['details'] ?? null) ? $data['details'] : '');
     $related = trim(is_string($data['related_plant'] ?? null) ? $data['related_plant'] : '');
+    $plantId = trim(is_string($data['plant_id'] ?? null) ? $data['plant_id'] : '');
     $growthStage = trim(is_string($data['growth_stage'] ?? null) ? $data['growth_stage'] : '');
     $climateRisk = trim(is_string($data['climate_risk'] ?? null) ? $data['climate_risk'] : '');
     $actionsTaken = trim(is_string($data['actions_taken'] ?? null) ? $data['actions_taken'] : '');
@@ -64,6 +65,9 @@ function normalize_farm_activity(array $data, array $allowedTypes): array
     if (mb_strlen($related, 'UTF-8') > 200) {
         $errors['related_plant'] = 'Related plant or garden must be 200 characters or fewer.';
     }
+    if ($plantId !== '' && preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iD', $plantId) !== 1) {
+        $errors['plant_id'] = 'Select a valid registered plant.';
+    }
     if (mb_strlen($growthStage, 'UTF-8') > 100) {
         $errors['growth_stage'] = 'Growth stage must be 100 characters or fewer.';
     }
@@ -77,8 +81,13 @@ function normalize_farm_activity(array $data, array $allowedTypes): array
         $errors['harvest_unit'] = 'Enter a valid harvest unit (up to 40 characters).';
     }
 
-    if (in_array($type, ['Plant Growth', 'Garden Log', 'Harvest'], true) && $related === '') {
+    if (in_array($type, ['Plant Growth', 'Garden Log', 'Harvest'], true)
+        && $related === ''
+        && !($type === 'Plant Growth' && $plantId !== '')) {
         $errors['related_plant'] = 'Enter the related plant or garden.';
+    }
+    if ($requirePlantLink && $type === 'Plant Growth' && $plantId === '') {
+        $errors['plant_id'] = 'Select a registered plant or register a new plant first.';
     }
     if ($type === 'Plant Growth' && $growthStage === '') {
         $errors['growth_stage'] = 'Enter the growth stage.';
@@ -113,6 +122,7 @@ function normalize_farm_activity(array $data, array $allowedTypes): array
         'title' => $title,
         'details' => $details,
         'related_plant' => $related !== '' ? $related : null,
+        'plant_id' => $plantId !== '' ? $plantId : null,
         'growth_stage' => $type === 'Plant Growth' ? $growthStage : null,
         'climate_risk' => $type === 'Climate Risk' ? $climateRisk : null,
         'actions_taken' => $type === 'Climate Risk' ? $actionsTaken : null,
@@ -131,6 +141,7 @@ function farm_activity_response_row(array $row): array
         'activity_date' => (string) $row['activity_date'],
         'title' => (string) $row['title'],
         'details' => (string) $row['details'],
+        'plant_id' => $row['plant_id'] !== null ? (string) $row['plant_id'] : null,
         'related_plant' => $row['related_plant'] !== null ? (string) $row['related_plant'] : '',
         'growth_stage' => $row['growth_stage'] !== null ? (string) $row['growth_stage'] : '',
         'climate_risk' => $row['climate_risk'] !== null ? (string) $row['climate_risk'] : '',
@@ -146,6 +157,7 @@ if ($requestMethod === 'GET') {
     try {
         $statement = $pdo->prepare(
             "SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
+                    a.plant_id,
                     a.title, a.details, a.related_plant, a.growth_stage, a.climate_risk,
                     a.actions_taken, a.harvest_quantity, a.harvest_unit, a.created_at, a.updated_at
              FROM farm_activities AS a
@@ -162,13 +174,29 @@ if ($requestMethod === 'GET') {
                    'legacy:375d7e9fe262fbd701f9b70431cbe79d3827b76f5308c04944b7bc79e80956e0',
                    'legacy:140c8c724205719b1ba3267020f87c489d935dcd06bd0d310f86ec70f763fbf9'
                ))
-             ORDER BY a.activity_date DESC, a.created_at DESC, a.id DESC"
+             UNION ALL
+             SELECT h.id, h.user_id, u.full_name AS author_name, 'Plant Growth' AS activity_type,
+                    DATE(h.created_at) AS activity_date, h.plant_id, 'Plant Growth Scan' AS title,
+                    CONCAT('Health status: ', h.health_status,
+                           IF(h.detected_issue IS NOT NULL AND h.detected_issue <> '',
+                              CONCAT('. Finding: ', h.detected_issue), '')) AS details,
+                    p.name AS related_plant, NULL AS growth_stage, NULL AS climate_risk,
+                    NULL AS actions_taken, NULL AS harvest_quantity, NULL AS harvest_unit,
+                    h.created_at, h.updated_at
+             FROM plant_analysis_history AS h
+             INNER JOIN plants AS p ON p.user_id = h.user_id AND p.id = h.plant_id
+             INNER JOIN users AS u ON u.id = h.user_id
+             WHERE h.user_id = :scan_user_id AND h.plant_id IS NOT NULL
+             ORDER BY activity_date DESC, created_at DESC, id DESC"
         );
-        $statement->execute(['user_id' => $sessionUser['id']]);
+        $statement->execute([
+            'user_id' => $sessionUser['id'],
+            'scan_user_id' => $sessionUser['id'],
+        ]);
         $activities = array_map('farm_activity_response_row', $statement->fetchAll());
     } catch (PDOException $error) {
         error_log('TanimTrack farm activities lookup failed: ' . $error->getMessage());
-        json_response(['success' => false, 'message' => 'Unable to load farm activities. Check that the farm_activities database migration has been applied.'], 503);
+        json_response(['success' => false, 'message' => 'Unable to load farm activities. Check that the farm activity and plant-link migrations have been applied.'], 503);
     }
 
     json_response(['success' => true, 'activities' => $activities]);
@@ -231,15 +259,42 @@ if (($data['action'] ?? '') === 'import-legacy') {
     json_response(['success' => true, 'message' => 'Older farm activities were preserved.']);
 }
 
-$activity = normalize_farm_activity($data, $allowedTypes);
+$activity = normalize_farm_activity($data, $allowedTypes, true);
+$requestId = trim(is_string($data['request_id'] ?? null) ? $data['request_id'] : '');
+if ($requestId !== '' && preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iD', $requestId) !== 1) {
+    json_response(['success' => false, 'message' => 'The activity request identifier is invalid.'], 422);
+}
+$id = $requestId !== '' ? $requestId : farm_activity_uuid();
+$lookupSql = 'SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
+                     a.plant_id, a.title, a.details, a.related_plant, a.growth_stage, a.climate_risk,
+                     a.actions_taken, a.harvest_quantity, a.harvest_unit, a.created_at, a.updated_at
+              FROM farm_activities AS a
+              INNER JOIN users AS u ON u.id = a.user_id
+              WHERE a.id = :id AND a.user_id = :user_id LIMIT 1';
 try {
-    $id = farm_activity_uuid();
+    if ($activity['plant_id'] !== null) {
+        $plantLookup = $pdo->prepare('SELECT name FROM plants WHERE id = :id AND user_id = :user_id LIMIT 1');
+        $plantLookup->execute(['id' => $activity['plant_id'], 'user_id' => $sessionUser['id']]);
+        $plant = $plantLookup->fetch();
+        if ($plant === false) {
+            json_response(['success' => false, 'message' => 'Select a registered plant that belongs to your account.'], 422);
+        }
+        $activity['related_plant'] = (string) $plant['name'];
+    }
+
+    $lookup = $pdo->prepare($lookupSql);
+    $lookup->execute(['id' => $id, 'user_id' => $sessionUser['id']]);
+    $existingRow = $lookup->fetch();
+    if ($existingRow !== false) {
+        json_response(['success' => true, 'activity' => farm_activity_response_row($existingRow)], 200);
+    }
+
     $statement = $pdo->prepare(
         'INSERT INTO farm_activities
-            (id, user_id, activity_type, activity_date, title, details, related_plant,
+            (id, user_id, plant_id, activity_type, activity_date, title, details, related_plant,
              growth_stage, climate_risk, actions_taken, harvest_quantity, harvest_unit)
          VALUES
-            (:id, :user_id, :activity_type, :activity_date, :title, :details, :related_plant,
+            (:id, :user_id, :plant_id, :activity_type, :activity_date, :title, :details, :related_plant,
              :growth_stage, :climate_risk, :actions_taken, :harvest_quantity, :harvest_unit)'
     );
     $statement->execute([
@@ -248,14 +303,7 @@ try {
         ...$activity,
     ]);
 
-    $lookup = $pdo->prepare(
-        'SELECT a.id, a.user_id, u.full_name AS author_name, a.activity_type, a.activity_date,
-                a.title, a.details, a.related_plant, a.growth_stage, a.climate_risk,
-                a.actions_taken, a.harvest_quantity, a.harvest_unit, a.created_at, a.updated_at
-         FROM farm_activities AS a
-         INNER JOIN users AS u ON u.id = a.user_id
-         WHERE a.id = :id AND a.user_id = :user_id LIMIT 1'
-    );
+    $lookup = $pdo->prepare($lookupSql);
     $lookup->execute(['id' => $id, 'user_id' => $sessionUser['id']]);
     $row = $lookup->fetch();
     if ($row === false) {

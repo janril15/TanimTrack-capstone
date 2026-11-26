@@ -73,6 +73,24 @@ The PHP image is built from `Dockerfile.backend` (not `docker/php/Dockerfile`); 
 
 On a fresh database volume, MySQL runs every SQL file in `database/migrations` in filename order during its first initialization. The initial `users` table and password-reset table are included, along with the climate, farm activity, and report tables. Existing volumes are not migrated again automatically. For an existing database, inspect its schema and migration state, back it up, and apply only migrations that have not already run; do not delete the volume to force initialization. In particular, apply `20261124_update_farm_activities_for_protocol.sql` once to an existing database before using the updated Add Farm Activity form. Existing rows using retired activity types remain stored but are hidden from the activity API and logs; the old cost column remains only to preserve existing values and is no longer used by the form or API.
 
+Plant Monitoring adds the `plants` table and extends the existing `plant_analysis_history` table with plant ownership, full scanner results, images, and optional measurements in `database/migrations/20261125_create_plant_monitoring.sql`. Before using the feature with an existing database volume, back up the database and apply that migration once:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+Get-Content .\database\migrations\20261125_create_plant_monitoring.sql -Raw |
+  docker compose --env-file $envFile exec -T database sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" tanodbukid_db'
+```
+
+The migration is also applied automatically when MySQL initializes a fresh volume.
+
+Plant Growth activities are linked to registered plants by `plant_id` using `database/migrations/20261125_link_farm_activities_to_plants.sql`. Apply this after the Plant Monitoring migration on an existing database volume:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+Get-Content .\database\migrations\20261125_link_farm_activities_to_plants.sql -Raw |
+  docker compose --env-file $envFile exec -T database sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" tanodbukid_db'
+```
+
 After startup, confirm all four services show healthy in `docker compose ps`, then use a disposable test account to check registration, login, the dashboard, and one image upload. Do not use real account information for development testing.
 
 ## Smoke test and useful pages

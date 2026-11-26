@@ -1,0 +1,2583 @@
+.registered-plants {
+  margin: 15px 0 18px;
+  padding: 14px;
+  border: 1px solid #e6eee4;
+  border-radius: 17px;
+  background: #f7fbf5;
+}
+
+.registered-plants-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.registered-plants-heading h2 {
+  margin: 0;
+  color: #234b36;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.registered-plants-heading p {
+  margin: 4px 0 0;
+  color: #748278;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.register-plant-button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 11px;
+  border-radius: 11px;
+  color: #fff;
+  background: #276348;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.register-plant-button:hover,
+.register-plant-button:focus-visible {
+  background: #1d5038;
+}
+
+.registered-plants-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+}
+
+.registered-plant-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 16px;
+  align-items: start;
+  gap: 10px;
+  width: 100%;
+  min-height: 82px;
+  padding: 9px 10px;
+  border: 1px solid #e7eee5;
+  border-radius: 13px;
+  background: #fff;
+  text-align: left;
+}
+
+.registered-plant-card:hover,
+.registered-plant-card:focus-visible {
+  border-color: #9cbea0;
+  background: #fbfef9;
+}
+
+.registered-plant-icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: 12px;
+  background: #e7f2e4;
+  font-size: 26px;
+}
+
+.registered-plant-image {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #e7f2e4;
+  object-fit: cover;
+}
+
+.registered-plant-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.registered-plant-copy strong {
+  color: #253b2d;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.registered-plant-copy small {
+  color: #7a887d;
+  font-size: 10px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.registered-plant-copy .plant-card-health {
+  color: #276348;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.registered-plant-copy .plant-card-measurements {
+  color: #4b6252;
+}
+
+.plant-scan-select-field {
+  display: block;
+  margin: 0 0 8px;
+}
+
+.plant-scan-select-field span {
+  display: block;
+  margin-bottom: 6px;
+  color: #4c5a50;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.plant-scan-select-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid #d5e0d5;
+  border-radius: 9px;
+  color: #263d2c;
+  background: #fff;
+  font: inherit;
+}
+
+.registered-plant-chevron {
+  color: #75877a;
+  font-size: 20px;
+}
+
+.registered-plants-empty,
+.registered-plants-feedback {
+  margin: 0;
+  padding: 11px 8px;
+  color: #77847a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.registered-plants-feedback[data-kind="error"] {
+  color: #a9433d;
+}
+
+.registered-plants-feedback[data-kind="success"] {
+  color: #276348;
+}
+
+.plant-registration-form label span {
+  color: #818b83;
+  font-weight: 500;
+}
+
+.plant-registration-error {
+  margin: 8px 0 0;
+  color: #a9433d;
+  font-size: 12px;
+}
+
+.plant-monitoring-page {
+  min-height: 100vh;
+  padding: 20px 20px 104px;
+  color: #1d3024;
+  background: #f6f9f5;
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+.plant-monitoring-main {
+  width: min(100%, 920px);
+  margin: 0 auto;
+}
+
+.plant-monitoring-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.plant-monitoring-back {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #e2eae1;
+  border-radius: 14px;
+  color: #2f6346;
+  background: #fff;
+  font-size: 21px;
+  text-decoration: none;
+}
+
+.plant-monitoring-title {
+  min-width: 0;
+  flex: 1;
+}
+
+.plant-monitoring-title p,
+.plant-monitoring-title h1 {
+  margin: 0;
+}
+
+.plant-monitoring-title p {
+  color: #718078;
+  font-size: 12px;
+}
+
+.plant-monitoring-title h1 {
+  overflow: hidden;
+  margin-top: 3px;
+  color: #1e5037;
+  font-size: clamp(20px, 4vw, 28px);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plant-scan-again {
+  min-height: 42px;
+  padding: 0 15px;
+  border-radius: 13px;
+  color: #fff;
+  background: #286547;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.plant-scan-again:hover,
+.plant-scan-again:focus-visible {
+  background: #1c5037;
+}
+
+.plant-monitoring-feedback {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid #e6eee4;
+  border-radius: 13px;
+  color: #516356;
+  background: #fff;
+  font-size: 13px;
+}
+
+.plant-monitoring-feedback[data-kind="error"] {
+  border-color: #f0d7d4;
+  color: #9f413b;
+  background: #fff8f7;
+}
+
+.plant-monitoring-feedback:empty {
+  display: none;
+}
+
+.plant-monitoring-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.plant-monitoring-card {
+  min-width: 0;
+  padding: 19px;
+  border: 1px solid #e6ece4;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 5px 18px #25473108;
+}
+
+.plant-monitoring-card h2 {
+  margin: 0;
+  color: #214e37;
+  font-size: 17px;
+}
+
+.plant-monitoring-card-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.plant-latest {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.8fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  min-height: 250px;
+}
+
+.plant-latest-image-wrap {
+  display: grid;
+  min-height: 215px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 15px;
+  color: #78907b;
+  background: linear-gradient(145deg, #eaf3e7, #f8faf6);
+  font-size: 36px;
+}
+
+.plant-latest-image {
+  width: 100%;
+  height: 100%;
+  min-height: 215px;
+  max-height: 280px;
+  object-fit: cover;
+}
+
+.plant-latest-copy {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+}
+
+.plant-latest-copy h2 {
+  font-size: 19px;
+}
+
+.plant-latest-date {
+  margin: 0;
+  color: #748177;
+  font-size: 12px;
+}
+
+.plant-health-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #286345;
+  background: #eaf5e9;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.plant-health-badge.is-attention {
+  color: #9a5a18;
+  background: #fff1dc;
+}
+
+.plant-health-badge.is-uncertain {
+  color: #5e6570;
+  background: #eef0f2;
+}
+
+.plant-health-badge.is-unavailable {
+  color: #8a4c46;
+  background: #f9eae8;
+}
+
+.plant-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.plant-summary-item {
+  padding: 13px;
+  border: 1px solid #edf1eb;
+  border-radius: 14px;
+  background: #fbfdf9;
+}
+
+.plant-summary-item span {
+  display: block;
+  color: #77847a;
+  font-size: 11px;
+}
+
+.plant-summary-item strong {
+  display: block;
+  margin-top: 5px;
+  color: #244b36;
+  font-size: 18px;
+}
+
+.plant-summary-item small {
+  color: #839087;
+  font-size: 10px;
+}
+
+.plant-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.plant-history-record {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #edf1eb;
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+}
+
+.plant-history-record:hover,
+.plant-history-record:focus-visible,
+.plant-history-record.is-selected {
+  border-color: #a7c7a6;
+  background: #f7fbf5;
+}
+
+.plant-history-thumb {
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #eaf3e7;
+  object-fit: cover;
+}
+
+.plant-history-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.plant-history-copy strong {
+  color: #2a4834;
+  font-size: 12px;
+}
+
+.plant-history-copy small,
+.plant-history-copy span {
+  overflow: hidden;
+  color: #77847a;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plant-history-status {
+  max-width: 110px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  color: #286345;
+  background: #eaf5e9;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.plant-history-status.is-attention {
+  color: #9a5a18;
+  background: #fff1dc;
+}
+
+.plant-history-status.is-uncertain {
+  color: #5e6570;
+  background: #eef0f2;
+}
+
+.plant-history-toggle {
+  margin-top: 12px;
+  padding: 8px 0;
+  color: #286345;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.plant-history-empty {
+  margin: 0;
+  padding: 16px 0;
+  color: #77847a;
+  font-size: 13px;
+}
+
+.plant-analysis-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(250px, 0.8fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.plant-analysis-detail {
+  display: grid;
+  gap: 14px;
+}
+
+.plant-analysis-detail h3 {
+  margin: 0 0 5px;
+  color: #315940;
+  font-size: 13px;
+}
+
+.plant-analysis-detail p,
+.plant-analysis-detail ul {
+  margin: 0;
+  color: #606f64;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.plant-analysis-detail ul {
+  padding-left: 18px;
+}
+
+.plant-measurement-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 15px;
+  border-top: 1px solid #edf1eb;
+}
+
+.plant-measurement-form label {
+  display: grid;
+  gap: 6px;
+  color: #536258;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.plant-measurement-form input,
+.plant-comparison-select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #dfe8de;
+  border-radius: 10px;
+  color: #263d2e;
+  background: #fff;
+  font: inherit;
+}
+
+.plant-measurement-help {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #7a887c;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.plant-measurement-save {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 11px;
+  color: #fff;
+  background: #286547;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.plant-measurement-save:disabled {
+  opacity: 0.65;
+}
+
+.plant-measurement-feedback {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #286345;
+  font-size: 11px;
+}
+
+.plant-measurement-feedback[data-kind="error"] {
+  color: #a9433d;
+}
+
+.plant-comparison-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.plant-comparison-controls label {
+  display: grid;
+  gap: 6px;
+  color: #59685d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.plant-compare-button {
+  min-height: 40px;
+  padding: 0 13px;
+  border-radius: 10px;
+  color: #fff;
+  background: #286547;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.plant-trend {
+  margin: 0 0 12px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  color: #286345;
+  background: #eaf5e9;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.plant-trend.is-caution {
+  color: #865421;
+  background: #fff3e1;
+}
+
+.plant-comparison-note {
+  margin: 0 0 12px;
+  color: #77847a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.plant-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.plant-comparison-table th,
+.plant-comparison-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #edf1eb;
+  text-align: left;
+  vertical-align: top;
+}
+
+.plant-comparison-table th {
+  width: 20%;
+  color: #315940;
+}
+
+.plant-comparison-table td {
+  color: #59685d;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.plant-monitoring-bottom-nav {
+  position: fixed;
+  z-index: 20;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: min(100%, 430px);
+  min-height: 70px;
+  justify-content: space-around;
+  margin: 0 auto;
+  padding: 7px 6px max(7px, env(safe-area-inset-bottom));
+  border: 1px solid #e6ece4;
+  border-bottom: 0;
+  border-radius: 17px 17px 0 0;
+  background: #fff;
+  box-shadow: 0 -7px 24px #1937210d;
+}
+
+.plant-monitoring-bottom-nav button {
+  display: grid;
+  min-width: 52px;
+  place-content: center;
+  justify-items: center;
+  gap: 4px;
+  color: #79867d;
+  background: transparent;
+  font-size: 10px;
+}
+
+.plant-monitoring-bottom-nav .nav-icon {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.plant-monitoring-bottom-nav button.active {
+  color: #276348;
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .plant-monitoring-page {
+    padding: 14px 13px 98px;
+  }
+
+  .plant-monitoring-grid,
+  .plant-analysis-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .plant-latest {
+    grid-template-columns: minmax(110px, 0.75fr) minmax(0, 1fr);
+    gap: 13px;
+    min-height: 180px;
+  }
+
+  .plant-latest-image-wrap,
+  .plant-latest-image {
+    min-height: 170px;
+  }
+
+  .plant-monitoring-card {
+    padding: 15px;
+    border-radius: 17px;
+  }
+}
+
+@media (max-width: 460px) {
+  .registered-plants-heading {
+    align-items: center;
+  }
+
+  .registered-plants-heading p {
+    max-width: 190px;
+  }
+
+  .plant-monitoring-header {
+    gap: 9px;
+  }
+
+  .plant-monitoring-back {
+    width: 37px;
+    height: 37px;
+  }
+
+  .plant-monitoring-title p {
+    font-size: 10px;
+  }
+
+  .plant-monitoring-title h1 {
+    font-size: 18px;
+  }
+
+  .plant-scan-again {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .plant-latest {
+    grid-template-columns: 1fr;
+  }
+
+  .plant-latest-image-wrap,
+  .plant-latest-image {
+    min-height: 195px;
+    max-height: 260px;
+  }
+
+  .plant-latest-copy {
+    gap: 9px;
+  }
+
+  .plant-summary {
+    gap: 6px;
+  }
+
+  .plant-summary-item {
+    padding: 10px 8px;
+  }
+
+  .plant-summary-item span {
+    font-size: 9px;
+  }
+
+  .plant-summary-item strong {
+    font-size: 15px;
+  }
+
+  .plant-history-record {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .plant-history-thumb {
+    width: 48px;
+    height: 48px;
+  }
+
+  .plant-history-status {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: -1px;
+  }
+
+  .plant-measurement-form {
+    grid-template-columns: 1fr;
+  }
+
+  .plant-comparison-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .plant-compare-button {
+    justify-self: start;
+  }
+
+  .plant-comparison-table th,
+  .plant-comparison-table td {
+    padding: 8px 5px;
+  }
+}
+
+.plant-monitoring-page {
+  margin: -8px;
+  padding: 0 12px calc(120px + env(safe-area-inset-bottom));
+  color: #233b2c;
+  background: #f5f8f3;
+}
+
+.plant-monitoring-main {
+  width: min(100%, 430px);
+}
+
+.monitoring-hero {
+  display: grid;
+  grid-template-columns: 36px 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-height: 58px;
+  margin: 0 -12px 12px;
+  padding: 8px 14px;
+  border-radius: 0 0 18px 18px;
+  color: #fff;
+  background: linear-gradient(120deg, #1d7142, #48a55f);
+  box-shadow: 0 8px 18px #204a2d1f;
+}
+
+.monitoring-back {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #ffffff5c;
+  border-radius: 11px;
+  color: #fff;
+  background: #ffffff1a;
+  font-size: 27px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.monitoring-brand-icon {
+  color: #e6f4ce;
+  font-size: 25px;
+  text-align: center;
+}
+
+.monitoring-hero-copy {
+  min-width: 0;
+}
+
+.monitoring-hero-copy h1,
+.monitoring-hero-copy p {
+  margin: 0;
+}
+
+.monitoring-hero-copy h1 {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.monitoring-hero-copy p {
+  margin-top: 3px;
+  color: #e5f1e4;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.monitoring-content {
+  display: grid;
+  gap: 11px;
+}
+
+.monitoring-content > .plant-monitoring-feedback {
+  margin: 0;
+  font-size: 11px;
+}
+
+.monitoring-card {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid #e8eee6;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 4px 13px #203b2510;
+}
+
+.monitoring-overview {
+  padding: 12px;
+}
+
+.monitoring-plant-summary {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 9px;
+}
+
+.monitoring-plant-image-wrap {
+  display: grid;
+  width: 76px;
+  height: 88px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 12px;
+  color: #56825e;
+  background: linear-gradient(145deg, #eaf4e7, #f8faf6);
+  font-size: 27px;
+}
+
+.monitoring-plant-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monitoring-plant-image[hidden],
+#latest-image-placeholder[hidden] {
+  display: none;
+}
+
+.monitoring-plant-copy {
+  display: grid;
+  min-width: 0;
+  justify-items: start;
+  gap: 4px;
+  padding-top: 1px;
+}
+
+.monitoring-plant-copy h2 {
+  max-width: 100%;
+  margin: 0;
+  color: #244b36;
+  font-size: 16px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.monitoring-scan-date,
+.monitoring-plant-meta {
+  margin: 0;
+  color: #728078;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.monitoring-plant-meta {
+  overflow-wrap: anywhere;
+}
+
+.monitoring-plant-copy .plant-health-badge {
+  padding: 4px 7px;
+  font-size: 9px;
+}
+
+.monitoring-scan-button,
+.monitoring-bottom-scan {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 10px;
+  color: #fff;
+  background: #286547;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.monitoring-scan-button {
+  min-height: 31px;
+  padding: 0 8px;
+}
+
+.monitoring-scan-button span,
+.monitoring-bottom-scan span {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.monitoring-measurements {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1eb;
+}
+
+.monitoring-measurement {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+  text-align: center;
+}
+
+.monitoring-measurement > span {
+  color: #4b8958;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.monitoring-measurement strong {
+  color: #284c35;
+  font-size: 16px;
+  line-height: 1.1;
+}
+
+.monitoring-measurement small {
+  color: #748178;
+  font-size: 9px;
+}
+
+.monitoring-health-feedback {
+  margin: 10px 0 0;
+  padding: 8px 9px;
+  border-radius: 9px;
+  color: #347147;
+  background: #eff8eb;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.monitoring-section-heading,
+.monitoring-section-title {
+  display: flex;
+  align-items: center;
+}
+
+.monitoring-section-heading {
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.monitoring-section-title {
+  min-width: 0;
+  gap: 7px;
+}
+
+.monitoring-section-title > span:first-child {
+  color: #3c8250;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.monitoring-section-title h2 {
+  margin: 0;
+  color: #284b35;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.monitoring-history-count {
+  color: #8a968e;
+  font-size: 9px;
+}
+
+.monitoring-view-all {
+  flex: 0 0 auto;
+  padding: 4px 0 4px 5px;
+  color: #34754a;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.monitoring-history-list {
+  display: grid;
+  gap: 7px;
+}
+
+.monitoring-history-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid #e9eee8;
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+}
+
+.monitoring-history-row.is-latest {
+  border-color: #9dc5a0;
+  background: #f5fbf2;
+}
+
+.monitoring-history-row.is-selected {
+  box-shadow: inset 0 0 0 1px #8fb994;
+}
+
+.monitoring-history-row:focus-visible {
+  outline: 2px solid #3b8051;
+  outline-offset: 2px;
+}
+
+.monitoring-history-image {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 9px;
+  color: #56825e;
+  background: #eaf3e7;
+  font-size: 20px;
+}
+
+.monitoring-history-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monitoring-history-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.monitoring-history-copy strong {
+  color: #334d39;
+  font-size: 10px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-history-copy small,
+.monitoring-history-copy > span {
+  overflow: hidden;
+  color: #78847b;
+  font-size: 8px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-history-status {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  max-width: 104px;
+}
+
+.monitoring-history-status .plant-health-badge {
+  max-width: 100%;
+  padding: 4px 6px;
+  font-size: 8px;
+  text-align: center;
+}
+
+.monitoring-latest-label {
+  color: #36784b;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.monitoring-details-card[hidden] {
+  display: none;
+}
+
+.monitoring-detail-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.monitoring-detail-image {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 10px;
+  color: #56825e;
+  background: #eaf3e7;
+}
+
+.monitoring-detail-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monitoring-detail-summary p {
+  margin: 5px 0 0;
+  color: #77847a;
+  font-size: 10px;
+}
+
+.monitoring-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.monitoring-analysis-grid h3 {
+  margin: 0 0 4px;
+  color: #315940;
+  font-size: 11px;
+}
+
+.monitoring-analysis-grid p,
+.monitoring-analysis-grid ul {
+  margin: 0;
+  color: #606f64;
+  font-size: 10px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.monitoring-analysis-grid ul {
+  padding-left: 16px;
+}
+
+.monitoring-comparison .monitoring-section-heading {
+  margin-bottom: 8px;
+}
+
+.monitoring-comparison .monitoring-section-heading p {
+  margin: 4px 0 0 23px;
+  color: #77847a;
+  font-size: 9px;
+}
+
+.monitoring-comparison-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.monitoring-comparison-controls label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  color: #607066;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.monitoring-comparison-controls .plant-comparison-select {
+  min-height: 34px;
+  padding: 5px 7px;
+  border-radius: 9px;
+  font-size: 9px;
+}
+
+.plant-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 9px;
+  padding: 8px 9px;
+  border-radius: 9px;
+  color: #317249;
+  background: #eff8eb;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.plant-trend.is-caution {
+  color: #87571e;
+  background: #fff4e3;
+}
+
+.plant-trend > span {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.monitoring-compare-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+}
+
+.monitoring-compare-card {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid #e7eee5;
+  border-radius: 11px;
+  background: #fbfdf9;
+}
+
+.monitoring-compare-card-heading {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.monitoring-compare-card-heading span {
+  color: #718078;
+  font-size: 8px;
+}
+
+.monitoring-compare-card-heading strong {
+  overflow: hidden;
+  color: #304b37;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-compare-image {
+  display: grid;
+  height: 64px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 8px;
+  color: #56825e;
+  background: #eaf3e7;
+  font-size: 19px;
+}
+
+.monitoring-compare-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monitoring-compare-card > .plant-health-badge {
+  justify-self: start;
+  max-width: 100%;
+  padding: 4px 6px;
+  font-size: 8px;
+  white-space: normal;
+}
+
+.monitoring-compare-measurements {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.monitoring-compare-measurements div {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.monitoring-compare-measurements span {
+  color: #7a867d;
+  font-size: 7px;
+}
+
+.monitoring-compare-measurements strong {
+  color: #34543d;
+  font-size: 8px;
+  overflow-wrap: anywhere;
+}
+
+.monitoring-compare-arrow {
+  color: #478254;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.plant-comparison-note {
+  margin: 8px 0 0;
+  color: #77847a;
+  font-size: 8px;
+  line-height: 1.45;
+}
+
+.monitoring-tip {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 20px;
+  align-items: start;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #dcebd6;
+  border-radius: 14px;
+  color: #345a3b;
+  background: linear-gradient(115deg, #f0f8e9, #e5f3df);
+}
+
+.monitoring-tip-icon {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 50%;
+  color: #43834d;
+  background: #dcefd3;
+  font-size: 17px;
+}
+
+.monitoring-tip strong {
+  font-size: 11px;
+}
+
+.monitoring-tip p {
+  margin: 3px 0 0;
+  color: #607a61;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.monitoring-tip-leaves {
+  align-self: end;
+  color: #7aaa69;
+  font-size: 18px;
+}
+
+.monitoring-bottom-scan {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 11px;
+  background: #1f5a3b;
+  font-size: 12px;
+}
+
+.monitoring-scan-button:hover,
+.monitoring-bottom-scan:hover {
+  background: #174b31;
+}
+
+.monitoring-scan-button:focus-visible,
+.monitoring-bottom-scan:focus-visible,
+.monitoring-view-all:focus-visible {
+  outline: 2px solid #32774b;
+  outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+  .monitoring-plant-meta {
+    display: none;
+  }
+
+  .monitoring-plant-summary {
+    grid-template-columns: 58px minmax(0, 1fr) 74px;
+    gap: 6px;
+  }
+
+  .monitoring-plant-image-wrap {
+    width: 58px;
+    height: 68px;
+  }
+
+  .monitoring-scan-button {
+    min-height: 29px;
+    padding: 0 4px;
+    font-size: 9px;
+  }
+
+  .monitoring-history-row {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 6px;
+    padding: 5px;
+  }
+
+  .monitoring-history-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .monitoring-history-status {
+    max-width: 76px;
+  }
+
+  .monitoring-history-status .plant-health-badge {
+    padding: 3px 4px;
+    font-size: 7px;
+  }
+
+  .monitoring-measurements {
+    gap: 3px;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+
+  .monitoring-measurement {
+    gap: 2px;
+  }
+
+  .monitoring-measurement > span {
+    font-size: 13px;
+  }
+
+  .monitoring-measurement strong {
+    font-size: 14px;
+  }
+
+  .monitoring-measurement small {
+    font-size: 8px;
+  }
+
+  .monitoring-health-feedback {
+    margin-top: 7px;
+    padding: 6px 7px;
+    font-size: 9px;
+  }
+
+  .monitoring-compare-cards {
+    grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr);
+    gap: 3px;
+  }
+
+  .monitoring-compare-card {
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .monitoring-compare-image {
+    height: 38px;
+  }
+
+  .monitoring-comparison-controls .plant-comparison-select {
+    min-height: 30px;
+    font-size: 8px;
+  }
+
+  .plant-trend {
+    padding: 6px 7px;
+    font-size: 9px;
+  }
+
+  .plant-comparison-note {
+    display: none;
+  }
+
+  .monitoring-tip {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .monitoring-tip p {
+    font-size: 8px;
+  }
+}
+
+body.plant-details-body {
+  margin: 0;
+  color: #263a2d;
+  background: #f0f5ef;
+  font-family: Arial, sans-serif;
+}
+
+.details-page {
+  box-sizing: border-box;
+  width: min(100%, 410px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 12px 14px;
+  background: #f7faf6;
+}
+
+.details-hero {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  margin: 0 -12px 10px;
+  padding: 6px 12px;
+  border-radius: 0 0 15px 15px;
+  color: #fff;
+  background: linear-gradient(110deg, #0b5c3a 0%, #147449 58%, #0c5c3b 100%);
+  box-shadow: 0 4px 12px #174d3026;
+}
+
+.details-back {
+  display: grid;
+  width: 26px;
+  height: 30px;
+  place-items: center;
+  color: #fff;
+}
+
+.details-back svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.details-hero-copy {
+  min-width: 0;
+}
+
+.details-hero-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.details-brand-leaf {
+  flex: 0 0 21px;
+  width: 21px;
+  height: 21px;
+  fill: #e8f7df;
+  stroke: #e8f7df;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+}
+
+.details-hero-title h1 {
+  overflow: hidden;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-hero-copy p {
+  overflow: hidden;
+  margin: 2px 0 0 26px;
+  color: #e8f5e8;
+  font-size: 9px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-card-scan {
+  box-sizing: border-box;
+  display: inline-flex;
+  min-width: 84px;
+  min-height: 29px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 9px;
+  border: 1px solid #ffffff40;
+  border-radius: 999px;
+  color: #fff;
+  background: #126642;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.details-card-scan svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.details-content {
+  display: grid;
+  gap: 9px;
+}
+
+.details-content > .plant-monitoring-feedback {
+  margin: 0;
+  padding: 7px 9px;
+  border-radius: 9px;
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.details-content > .plant-monitoring-feedback:empty {
+  display: none;
+}
+
+.details-content > .plant-monitoring-feedback[data-kind="error"] {
+  border-color: #efcfca;
+  color: #9c3e36;
+  background: #fff5f3;
+}
+
+.details-card {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid #e4ece3;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 9px #183a2110;
+}
+
+.details-overview {
+  padding: 6px;
+  background: linear-gradient(145deg, #f8fcf7, #f1f8f0);
+}
+
+.details-overview-grid {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.details-plant-image-wrap {
+  position: relative;
+  display: grid;
+  width: 110px;
+  height: 132px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 12px;
+  color: #54845a;
+  background: linear-gradient(145deg, #eaf4e7, #f8faf6);
+  font-size: 25px;
+}
+
+.details-plant-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details-plant-image[hidden],
+#latest-image-placeholder[hidden] {
+  display: none;
+}
+
+.details-image-mark {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 7px;
+  color: #fff;
+  background: #155d3dc9;
+}
+
+.details-image-mark svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.details-plant-info {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 6px;
+}
+
+.details-plant-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.details-plant-name {
+  overflow: hidden;
+  min-width: 0;
+  margin: 0;
+  color: #26374a;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-page .plant-health-badge {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 105px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #2a7b45;
+  background: #e3f5e1;
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.details-page .plant-health-badge.is-attention {
+  color: #9a5a18;
+  background: #fff0d3;
+}
+
+.details-page .plant-health-badge.is-uncertain {
+  color: #5e6570;
+  background: #eef0f2;
+}
+
+.details-page .plant-health-badge.is-unavailable {
+  color: #8a4c46;
+  background: #f9eae8;
+}
+
+.details-plant-heading #latest-health:not(.is-attention):not(.is-uncertain):not(.is-unavailable)::before {
+  width: 11px;
+  height: 11px;
+  margin-right: 4px;
+  border-radius: 50%;
+  color: #fff;
+  background: #2fb56d;
+  content: "✓";
+  font-size: 8px;
+  line-height: 11px;
+  text-align: center;
+}
+
+.details-last-scan {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  color: #758179;
+  font-size: 9px;
+  line-height: 1.2;
+}
+
+.details-last-scan > svg {
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: #607767;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.details-last-scan > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-last-scan strong {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  color: #495c50;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.details-last-scan strong span {
+  display: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-measurements {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid #edf1ed;
+}
+
+.details-measurement {
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+  align-content: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.details-measurement + .details-measurement {
+  border-left: 1px solid #e5ece5;
+}
+
+.details-measurement svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: #398452;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.details-measurement strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: #304337;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-measurement small {
+  color: #728078;
+  font-size: 8px;
+  line-height: 1.1;
+}
+
+.details-health-feedback {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 7px 0 0;
+  padding: 4px 7px;
+  border-radius: 9px;
+  color: #33784a;
+  background: #e8f5e8;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.details-health-feedback svg {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.details-section-heading,
+.details-section-title,
+.details-comparison-heading {
+  display: flex;
+  align-items: center;
+}
+
+.details-section-heading {
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 1px 7px;
+}
+
+.details-section-title {
+  min-width: 0;
+  gap: 7px;
+}
+
+.details-section-title svg {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: #37905a;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.details-section-title h2 {
+  margin: 0;
+  color: #26343e;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.details-section-title p {
+  margin: 2px 0 0;
+  color: #7a867d;
+  font-size: 8px;
+  line-height: 1.2;
+}
+
+.details-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0 3px 5px;
+  border: 0;
+  color: #32814b;
+  background: transparent;
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.details-history-list {
+  display: grid;
+}
+
+.details-history-row {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto 12px;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 55px;
+  padding: 4px 5px;
+  border: 1px solid transparent;
+  border-bottom-color: #edf0ed;
+  border-radius: 8px;
+  background: #fff;
+  text-align: left;
+}
+
+.details-history-row:last-child {
+  border-bottom-color: transparent;
+}
+
+.details-history-row.is-latest {
+  border-color: #b7dcb8;
+  background: #f4fbf2;
+}
+
+.details-history-row.is-selected {
+  box-shadow: inset 0 0 0 1px #8fba94;
+}
+
+.details-history-row:focus-visible,
+.details-view-all:focus-visible,
+.details-card-scan:focus-visible,
+.details-bottom-scan:focus-visible,
+.details-bottom-nav button:focus-visible {
+  outline: 2px solid #32814b;
+  outline-offset: 2px;
+}
+
+.details-history-image {
+  display: grid;
+  width: 58px;
+  height: 46px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 9px;
+  color: #56825e;
+  background: #eaf3e7;
+  font-size: 16px;
+}
+
+.details-history-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details-history-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.details-history-copy strong {
+  overflow: hidden;
+  color: #3c4b42;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-history-copy > span {
+  overflow: hidden;
+  color: #758179;
+  font-size: 8px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.details-history-status {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  max-width: 85px;
+}
+
+.details-history-status .plant-health-badge {
+  max-width: 85px;
+  padding: 4px 7px;
+  font-size: 7px;
+}
+
+.details-latest-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: #32814b;
+  background: #dff3df;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.details-latest-label::before {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+
+.details-history-chevron {
+  color: #87958a;
+  font-size: 18px;
+  text-align: center;
+}
+
+.details-scan-card[hidden] {
+  display: none;
+}
+
+.details-scan-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.details-scan-image {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 8px;
+  background: #eaf3e7;
+}
+
+.details-scan-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.details-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.details-analysis-grid h3 {
+  margin: 0 0 3px;
+  color: #315940;
+  font-size: 10px;
+}
+
+.details-analysis-grid p,
+.details-analysis-grid ul {
+  margin: 0;
+  color: #606f64;
+  font-size: 9px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.details-analysis-grid ul {
+  padding-left: 14px;
+}
+
+.details-comparison-heading {
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 1px 8px;
+}
+
+.details-comparison {
+  padding: 7px;
+}
+
+.details-comparison-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.details-comparison-controls label {
+  display: block;
+  min-width: 0;
+}
+
+.details-page .plant-comparison-select {
+  width: 91px;
+  min-width: 0;
+  min-height: 27px;
+  padding: 3px 7px;
+  border: 1px solid #e0e9df;
+  border-radius: 999px;
+  color: #48584d;
+  background: #fff;
+  font: inherit;
+  font-size: 8px;
+}
+
+.monitoring-compare-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 5px;
+}
+
+.monitoring-compare-card {
+  box-sizing: border-box;
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid #e5eee4;
+  border-radius: 10px;
+  background: #f3f8f2;
+}
+
+.monitoring-compare-card-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+}
+
+.monitoring-compare-card-heading span {
+  flex: 0 0 auto;
+  max-width: 88px;
+}
+
+.monitoring-compare-card-heading strong {
+  overflow: hidden;
+  color: #526357;
+  font-size: 8px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-compare-image {
+  display: grid;
+  width: 58px;
+  height: 50px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 8px;
+  color: #56825e;
+  background: #e5f0e2;
+  font-size: 16px;
+}
+
+.monitoring-compare-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monitoring-compare-card .plant-health-badge {
+  max-width: 88px;
+  padding: 4px 6px;
+  font-size: 7px;
+}
+
+.monitoring-compare-measurements {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, auto);
+  align-content: center;
+  gap: 2px;
+}
+
+.monitoring-compare-card {
+  grid-template-columns: 58px minmax(0, 1fr);
+}
+
+.monitoring-compare-card-heading {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.monitoring-compare-image {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.monitoring-compare-measurements {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.monitoring-compare-measurements div {
+  display: contents;
+}
+
+.monitoring-compare-measurements span {
+  display: none;
+}
+
+.monitoring-compare-measurements strong {
+  overflow: hidden;
+  color: #42564a;
+  font-size: 9px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-compare-arrow {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #328553;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.details-page .plant-trend {
+  box-sizing: border-box;
+  display: flex;
+  min-height: 33px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 7px 0 0;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #347b4b;
+  background: #e6f4e5;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.details-page .plant-trend.is-caution {
+  color: #87571e;
+  background: #fff0d8;
+}
+
+.details-page .plant-trend > span {
+  font-size: 14px;
+}
+
+.details-page .plant-comparison-note {
+  display: none;
+}
+
+.details-tip {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 9px;
+  min-height: 58px;
+  padding: 8px 11px;
+  border: 1px solid #e2eee0;
+  border-radius: 12px;
+  color: #3b6847;
+  background: #edf7e9;
+}
+
+.details-tip-icon {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border-radius: 50%;
+  color: #38884f;
+  background: #d7edcf;
+}
+
+.details-tip-icon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.details-tip strong {
+  color: #3e7650;
+  font-size: 10px;
+}
+
+.details-tip p {
+  margin: 2px 0 0;
+  color: #687e6d;
+  font-size: 8px;
+  line-height: 1.25;
+}
+
+.details-tip-leaves {
+  width: 38px;
+  height: 38px;
+  fill: none;
+  stroke: #c5e7be;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.details-bottom-scan {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 43px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(110deg, #1d7147, #17603d);
+  box-shadow: 0 2px 4px #164c3024;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.details-bottom-scan svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.details-bottom-scan:hover,
+.details-card-scan:hover {
+  background: #174b31;
+}
+
+.details-bottom-nav {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: min(100%, 410px);
+  min-height: 58px;
+  margin: 12px auto 0;
+  padding: 4px 5px max(4px, env(safe-area-inset-bottom));
+  border-top: 1px solid #e6ece4;
+  background: #fff;
+  box-shadow: 0 -3px 12px #1937210d;
+}
+
+.details-bottom-nav button {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  border-bottom: 2px solid transparent;
+  color: #78857c;
+  background: transparent;
+  font-size: 7px;
+}
+
+.details-bottom-nav button svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.details-bottom-nav button.active {
+  border-bottom-color: #378753;
+  color: #2e7b49;
+  font-weight: 800;
+}
+
+.details-bottom-nav button.active svg {
+  fill: #e3f2e2;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 350px) {
+  .details-page {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+
+  .details-hero {
+    margin-right: -7px;
+    margin-left: -7px;
+    gap: 5px;
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+
+  .details-overview-grid {
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .details-plant-image-wrap {
+    width: 96px;
+    height: 116px;
+  }
+
+  .details-plant-heading {
+    gap: 4px;
+  }
+
+  .details-plant-name {
+    font-size: 14px;
+  }
+
+  .details-page .plant-health-badge {
+    padding: 3px 5px;
+    font-size: 7px;
+  }
+
+  .details-comparison-controls {
+    gap: 3px;
+  }
+
+  .details-page .plant-comparison-select {
+    width: 78px;
+  }
+}
+
+@media (min-width: 700px) {
+  .details-page {
+    padding-bottom: 14px;
+  }
+}

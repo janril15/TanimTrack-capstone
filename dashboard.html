@@ -19,6 +19,22 @@
         <div class="monitor-brand"><span class="brand-mark"><img src="scannerlogo.jpg" alt="" aria-hidden="true"></span><span><strong>Plant / Crop Scan</strong><small>Camera preview · Gemini-powered plant analysis</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
       </header>
+      <p class="scan-plant-context" id="scan-plant-context" role="status" aria-live="polite" hidden></p>
+      <dialog class="plant-selection-dialog" id="plant-selection-dialog" aria-labelledby="plant-selection-title">
+        <div class="plant-selection-form">
+          <h2 id="plant-selection-title">Choose a plant to scan</h2>
+          <p>Select one of your registered plants. The camera will start after you continue.</p>
+          <label for="plant-selection-select">Registered plant</label>
+          <select id="plant-selection-select" disabled>
+            <option value="">Loading your plants…</option>
+          </select>
+          <p class="plant-selection-feedback" id="plant-selection-feedback" role="status" aria-live="polite"></p>
+          <div class="plant-selection-actions">
+            <button type="button" class="plant-selection-back" id="plant-selection-back">Back to Farm Logs</button>
+            <button type="button" class="plant-selection-continue" id="plant-selection-continue" disabled>Continue to scanner</button>
+          </div>
+        </div>
+      </dialog>
       <div class="monitor-tabs" role="tablist" aria-label="Scan views"><button class="active" id="live-camera-tab"
           type="button" role="tab" aria-selected="true">◉ &nbsp;Live Camera</button><button id="ai-analysis-tab"
           type="button" role="tab" aria-selected="false">✦ &nbsp;AI Analysis</button></div>
@@ -200,6 +216,15 @@
       const liveCameraTab = document.querySelector('#live-camera-tab')
       const aiAnalysisTab = document.querySelector('#ai-analysis-tab')
       const historyButton = document.querySelector('#scan-history-button')
+      const scanQuery = new URLSearchParams(location.search)
+      const selectedPlantId = scanQuery.get('plant_id')
+      const returnToFarmLogs = scanQuery.get('return_to') === 'farm-logs'
+      const selectedPlantContext = document.querySelector('#scan-plant-context')
+      const plantSelectionDialog = document.querySelector('#plant-selection-dialog')
+      const plantSelectionSelect = document.querySelector('#plant-selection-select')
+      const plantSelectionFeedback = document.querySelector('#plant-selection-feedback')
+      const plantSelectionContinue = document.querySelector('#plant-selection-continue')
+      let availablePlants = []
       let stream = null
       let cameraStartPromise = null
       let pageLeaving = false
@@ -219,6 +244,105 @@
       const scanHistoryDate = (value) => {
         const date = new Date(value)
         return Number.isNaN(date.getTime()) ? 'Date unavailable' : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+      }
+      const returnToFarmLogPage = () => {
+        window.location.href = '/TanimTrack%20Dashboard/index%20(1).html#farm-logs'
+      }
+      async function choosePlantBeforeScanning() {
+        if (plantSelectionDialog.open) return
+        selectedPlantContext.hidden = true
+        state.textContent = 'Select plant to scan'
+        tag.textContent = 'Plant required'
+        tag.className = 'paused-tag'
+        capturePhotoButton.disabled = true
+        uploadScanPhotoButton.disabled = true
+        scanPhotoInput.disabled = true
+        toggle.disabled = true
+        plantSelectionFeedback.textContent = 'Loading your registered plants…'
+        plantSelectionFeedback.dataset.kind = ''
+        plantSelectionSelect.disabled = true
+        plantSelectionSelect.innerHTML = '<option value="">Loading your plants…</option>'
+        plantSelectionContinue.disabled = true
+        plantSelectionDialog.showModal()
+        try {
+          const response = await fetch('/api/plants.php', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+            cache: 'no-store'
+          })
+          const result = await response.json()
+          if (response.status === 401) throw new Error('Your session has expired. Sign in again before scanning a plant.')
+          if (!response.ok || !result.success || !Array.isArray(result.plants)) {
+            throw new Error(result.message || 'Unable to load your registered plants.')
+          }
+          availablePlants = result.plants.filter((plant) => typeof plant.id === 'string' && typeof plant.name === 'string')
+          if (availablePlants.length === 0) {
+            plantSelectionSelect.innerHTML = '<option value="">No registered plants</option>'
+            plantSelectionFeedback.textContent = 'Register a plant in Farm Logs before starting a scan.'
+            plantSelectionFeedback.dataset.kind = 'error'
+            return
+          }
+          plantSelectionSelect.innerHTML = `<option value="">Select a registered plant</option>${availablePlants.map((plant) => `<option value="${escapeScanHistoryHtml(plant.id)}">${escapeScanHistoryHtml(plant.name)}</option>`).join('')}`
+          plantSelectionSelect.disabled = false
+          plantSelectionFeedback.textContent = ''
+        } catch (error) {
+          console.error('Unable to load plants for scanning:', error)
+          plantSelectionFeedback.textContent = error.message || 'Unable to load your registered plants. Please try again.'
+          plantSelectionFeedback.dataset.kind = 'error'
+        }
+      }
+      plantSelectionSelect.addEventListener('change', () => {
+        plantSelectionContinue.disabled = !availablePlants.some((plant) => plant.id === plantSelectionSelect.value)
+      })
+      plantSelectionContinue.addEventListener('click', () => {
+        const selectedPlant = availablePlants.find((plant) => plant.id === plantSelectionSelect.value)
+        if (!selectedPlant) return
+        window.location.replace(`/dashboard.html?plant_id=${encodeURIComponent(selectedPlant.id)}&return_to=farm-logs`)
+      })
+      document.querySelector('#plant-selection-back').addEventListener('click', returnToFarmLogPage)
+      plantSelectionDialog.addEventListener('cancel', (event) => {
+        event.preventDefault()
+        returnToFarmLogPage()
+      })
+      async function loadSelectedPlantContext() {
+        if (!selectedPlantId) return true
+        selectedPlantContext.hidden = false
+        selectedPlantContext.textContent = 'Verifying selected plant…'
+        capturePhotoButton.disabled = true
+        uploadScanPhotoButton.disabled = true
+        scanPhotoInput.disabled = true
+        toggle.disabled = true
+        try {
+          const response = await fetch('/api/plants.php', {
+            credentials: 'same-origin',
+            headers: { Accept: 'application/json' },
+            cache: 'no-store'
+          })
+          const result = await response.json()
+          if (!response.ok || !result.success || !Array.isArray(result.plants)) {
+            throw new Error(result.message || 'Unable to verify the selected plant.')
+          }
+          const plant = result.plants.find((item) => item.id === selectedPlantId)
+          if (!plant) throw new Error('This plant could not be found in your account.')
+          selectedPlantContext.textContent = `Currently scanning: ${plant.name}`
+          capturePhotoButton.disabled = false
+          uploadScanPhotoButton.disabled = false
+          scanPhotoInput.disabled = false
+          toggle.disabled = false
+          return true
+        } catch (plantError) {
+          console.error('Unable to verify selected scanner plant:', plantError)
+          selectedPlantContext.textContent = `${plantError.message || 'Unable to verify the selected plant.'} Return to Farm Logs and select a plant again.`
+          selectedPlantContext.dataset.kind = 'error'
+          return false
+        }
+      }
+      const verifyPlantAndStartCamera = async () => {
+        if (returnToFarmLogs && !selectedPlantId) {
+          await choosePlantBeforeScanning()
+          return
+        }
+        if (await loadSelectedPlantContext()) await initializeCamera()
       }
       const makeScanId = () => globalThis.crypto?.randomUUID?.() || `scan-${Date.now()}-${Math.random().toString(36).slice(2)}`
       const setScanHistoryStatus = (message) => {
@@ -256,6 +380,9 @@
         const image = selectedScanPhoto
         const analysisReceived = result?.success === true
         const plantName = typeof result?.plant_name === 'string' ? result.plant_name : null
+        const serverPersistenceWarning = selectedPlantId && analysisReceived && result.scan_saved !== true
+          ? (typeof result.scan_save_error === 'string' ? result.scan_save_error : 'The analysis completed, but this scan could not be saved to the selected plant.')
+          : ''
         setScanHistoryStatus('Saving scan to history...')
         scanSavePromise = (async () => {
           try {
@@ -263,6 +390,9 @@
             await saveScanRecord({
               id: scanId,
               userId,
+              plantId: selectedPlantId || null,
+              serverScanId: analysisReceived && typeof result.scan_id === 'string' ? result.scan_id : null,
+              scanSaved: analysisReceived && result.scan_saved !== false,
               scannedAt: new Date().toISOString(),
               cropName: analysisReceived ? plantName : null,
               fieldName: null,
@@ -283,7 +413,7 @@
             }, image)
             if (scanId === selectedScanId) {
               selectedScanSaved = true
-              setScanHistoryStatus('Scan result saved to history.')
+              setScanHistoryStatus(serverPersistenceWarning || 'Scan result saved to history.')
             }
           } catch (storageError) {
             console.error('[scanner history] Unable to save scan', storageError)
@@ -469,7 +599,7 @@
           list.setAttribute('aria-busy', 'true')
           if (!records.length) list.innerHTML = '<div class="scan-history-state"><span>Loading saved scans...</span></div>'
           try {
-            records = await listScanRecords(await authenticatedUserIdPromise)
+            records = await listScanRecords(await authenticatedUserIdPromise, selectedPlantId)
             if (!closed) renderList()
           } catch (storageError) {
             console.error('[scanner history] Unable to read saved scans', storageError)
@@ -603,6 +733,7 @@
         const image = selectedScanPhoto
         const formData = new FormData()
         formData.append('scan_image', image, image.name || 'crop-image.jpg')
+        if (selectedPlantId) formData.append('plant_id', selectedPlantId)
         analysisUnavailable.hidden = false
         analysisUnavailable.setAttribute('aria-busy', 'true')
         scanResultHealth.hidden = true
@@ -653,6 +784,11 @@
             currentAnalysis = result
             renderGeminiAnalysis(result)
             unavailableReason = result.needs_verification ? 'Gemini marked this result as requiring manual verification.' : ''
+            if (selectedPlantId && result.scan_saved !== true) {
+              unavailableReason = typeof result.scan_save_error === 'string'
+                ? result.scan_save_error
+                : 'The analysis completed, but this scan could not be saved to the selected plant.'
+            }
           } catch (scanError) {
             if (scanId !== selectedScanId) return
             unavailableReason = scanError instanceof Error ? scanError.message : 'The scanner is unavailable. Please try again.'
@@ -664,7 +800,14 @@
             analysisUnavailableTitle.textContent = 'Result unavailable'
             analysisUnavailableCopy.textContent = unavailableReason
           }
-          if (scanId === selectedScanId) await persistSelectedScan(result || null, unavailableReason)
+          if (scanId === selectedScanId) {
+            await persistSelectedScan(result || null, unavailableReason)
+            if (selectedPlantId && result?.scan_saved === true) {
+              window.location.replace(returnToFarmLogs
+                ? '/TanimTrack%20Dashboard/index%20(1).html#farm-logs'
+                : `/plant-monitoring.html?plant_id=${encodeURIComponent(selectedPlantId)}`)
+            }
+          }
         })().finally(() => {
           scanRequestPromise = null
           if (!scanAnalysisView.hidden && selectedScanPhoto && !analysisAttempted) {
@@ -711,7 +854,7 @@
           tag.className = 'paused-tag'
           stopCameraStream(stream || video.srcObject)
         } else if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) {
-          void initializeCamera()
+          void verifyPlantAndStartCamera()
         }
       }
 
@@ -897,18 +1040,18 @@
         return cameraStartPromise
       }
 
-      void initializeCamera()
+      void verifyPlantAndStartCamera()
 
       document.addEventListener('visibilitychange', () => {
         if (scanAnalysisView.hidden && document.visibilityState === 'visible' && (!hasActiveCameraTrack(stream || video.srcObject) || video.paused)) {
-          void initializeCamera()
+          void verifyPlantAndStartCamera()
         }
       })
 
       window.addEventListener('pageshow', (event) => {
         if (!event.persisted) return
         pageLeaving = false
-        if (scanAnalysisView.hidden && (!hasActiveCameraTrack(stream || video.srcObject) || video.paused)) void initializeCamera()
+        if (scanAnalysisView.hidden && (!hasActiveCameraTrack(stream || video.srcObject) || video.paused)) void verifyPlantAndStartCamera()
       })
 
       function setCaptureStatus(message) {
@@ -999,7 +1142,7 @@
         void setScanTab(true)
       })
 
-      toggle.addEventListener('click', () => { monitoring = !monitoring; tag.textContent = monitoring ? 'Camera active' : 'Paused'; tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'; state.textContent = hasActiveCameraTrack(stream || video.srcObject) ? 'Live' : monitoring ? 'Starting...' : 'Paused'; toggle.innerHTML = monitoring ? '<span>Ⅱ</span>Pause Camera' : '<span>▶</span>Resume Camera'; if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) void initializeCamera() })
+      toggle.addEventListener('click', () => { monitoring = !monitoring; tag.textContent = monitoring ? 'Camera active' : 'Paused'; tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'; state.textContent = hasActiveCameraTrack(stream || video.srcObject) ? 'Live' : monitoring ? 'Starting...' : 'Paused'; toggle.innerHTML = monitoring ? '<span>Ⅱ</span>Pause Camera' : '<span>▶</span>Resume Camera'; if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) void verifyPlantAndStartCamera() })
       window.addEventListener('pagehide', () => {
         pageLeaving = true
         stopCameraStream(stream)

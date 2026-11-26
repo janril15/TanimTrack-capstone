@@ -7,9 +7,11 @@ const backendUrl = process.env.TANODBUKID_BACKEND_URL || 'http://127.0.0.1:8001'
 const protectedPages = new Set([
   '/profile-setup.html',
   '/dashboard.html',
+  '/plant-monitoring.html',
   '/TanimTrack Dashboard/index (1).html',
   '/dist/profile-setup.html',
   '/dist/dashboard.html',
+  '/dist/plant-monitoring.html',
   '/dist/TanimTrack Dashboard/index (1).html',
 ])
 
@@ -92,6 +94,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
         profile: resolve(__dirname, 'profile-setup.html'),
+        plantMonitoring: resolve(__dirname, 'plant-monitoring.html'),
         home: resolve(__dirname, 'TanimTrack Dashboard/index (1).html'),
       },
     },
