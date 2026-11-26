@@ -12,6 +12,8 @@ export default function Dashboard() {
   const [isMonitoring, setIsMonitoring] = React.useState(true)
   const [chatOpen, setChatOpen] = React.useState(false)
   const [chatInput, setChatInput] = React.useState('')
+  const [chatBusy, setChatBusy] = React.useState(false)
+  const [chatConversationId, setChatConversationId] = React.useState(null)
   const [messages, setMessages] = React.useState([])
   const [selectedImage, setSelectedImage] = React.useState(null)
   const [imageActionOpen, setImageActionOpen] = React.useState(false)
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const imageInputRef = React.useRef(null)
   const scanVideoRef = React.useRef(null)
   const scanStreamRef = React.useRef(null)
+  const chatBusyRef = React.useRef(false)
   const [analysis, setAnalysis] = React.useState({ confidence: 92, health: 'Healthy', condition: 'Normal', growth: 'Vegetative', disease: 'Low', discoloration: 'None detected' })
   const videoRef = React.useRef(null)
   const streamRef = React.useRef(null)
@@ -81,17 +84,48 @@ export default function Dashboard() {
     setIsMonitoring((current) => !current)
   }
 
-  const askAi = (question) => {
+  const askAi = async (question, isRetry = false) => {
     const prompt = question.trim()
-    if (!prompt) return
-    const lowerPrompt = prompt.toLowerCase()
-    let answer = 'I can help you check plant health, soil conditions, crop recommendations, and common diseases. Tell me what you are seeing in your farm.'
-    if (lowerPrompt.includes('healthy') || lowerPrompt.includes('rice')) answer = 'Based on your latest scan, your rice plant is generally healthy. I noticed a slight increase in leaf discoloration compared with the previous scan. It could be an early sign of nutrient stress or possible rice blast disease.'
-    if (lowerPrompt.includes('soil') || lowerPrompt.includes('pechay')) answer = 'Pechay grows well in slightly acidic to neutral soil, with a pH range of 6.0–7.0. Keep the soil moist but well-drained and add compost before planting.'
-    if (lowerPrompt.includes('crop') || lowerPrompt.includes('plant')) answer = 'Based on your current soil reading, suitable crops include rice, pechay, kangkong, and tomato. Start with crops that match your water supply and sunlight.'
-    if (lowerPrompt.includes('blast') || lowerPrompt.includes('disease')) answer = 'Check for brown or gray spots on the leaves, improve field drainage, avoid overwatering, and monitor the plant again in 2–3 days.'
-    setMessages((current) => [...current, { type: 'user', text: prompt }, { type: 'assistant', text: answer }])
-    setChatInput('')
+    if (!prompt || chatBusyRef.current) return
+    chatBusyRef.current = true
+    setChatBusy(true)
+    if (!isRetry) {
+      setMessages((current) => [...current, { type: 'user', text: prompt }])
+      setChatInput('')
+    }
+
+    try {
+      const response = await fetch('/api/chat.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: prompt, conversation_id: chatConversationId }),
+      })
+      const result = await response.json().catch(() => null)
+      if (
+        !response.ok
+        || result?.success !== true
+        || typeof result?.answer !== 'string'
+        || !result.answer.trim()
+        || typeof result?.conversation?.id !== 'string'
+      ) {
+        const detail = typeof result?.message === 'string' ? result.message : ''
+        throw new Error(detail || 'The chat service returned an invalid response.')
+      }
+
+      setChatConversationId(result.conversation.id)
+      setMessages((current) => [...current, { type: 'assistant', text: result.answer }])
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : ''
+      setMessages((current) => [...current, {
+        type: 'error',
+        text: `TanimTrack AI is temporarily unable to generate a response.${detail ? ` ${detail}` : ''}`,
+        retryQuestion: prompt,
+      }])
+    } finally {
+      chatBusyRef.current = false
+      setChatBusy(false)
+    }
   }
 
   const handleImageSelect = (event) => {
@@ -99,10 +133,10 @@ export default function Dashboard() {
     if (!file || !file.type.startsWith('image/')) return
     const reader = new FileReader()
     reader.onload = () => {
-      const image = { name: file.name, url: reader.result }
+      const image = { name: file.name, url: reader.result, file }
       setSelectedImage(image)
       setImageActionOpen(false)
-      if (imageAction === 'scan') scanSelectedImage(image)
+      if (imageAction === 'scan') void scanSelectedImage(image)
       if (imageAction === 'send') sendImage(image)
     }
     reader.readAsDataURL(file)
@@ -142,26 +176,80 @@ export default function Dashboard() {
   const sendCapturedPhoto = () => {
     if (!capturedPhoto) return
     setLastScanImage(capturedPhoto)
-    sendImage({ url: capturedPhoto, name: 'scanned-plant.jpg' })
-    setMessages((current) => [...current, { type: 'assistant', text: 'I scanned your plant image. The leaves look generally healthy, but I noticed mild discoloration. Check for brown spots, keep the soil well-drained, and scan again in 2–3 days.' }])
+    void scanSelectedImage({ url: capturedPhoto, name: 'scanned-plant.jpg' })
     setCapturedPhoto(null)
     setScanCameraOpen(false)
   }
 
   React.useEffect(() => () => scanStreamRef.current?.getTracks().forEach((track) => track.stop()), [])
 
-  const scanSelectedImage = (image = selectedImage) => {
+  const scanSelectedImage = async (image = selectedImage, isRetry = false) => {
     if (!image) return
+    if (chatBusyRef.current) return
+    chatBusyRef.current = true
+    setChatBusy(true)
     setLastScanImage(image.url)
-    setMessages((current) => [...current, {
-      type: 'image',
-      url: image.url,
-      name: image.name,
-    }, {
-      type: 'assistant',
-      text: 'I scanned your plant image. The leaves look generally healthy, but I noticed mild discoloration. Check for brown spots, keep the soil well-drained, and scan again in 2–3 days to monitor changes.',
-    }])
-    setSelectedImage(null)
+    if (!isRetry) {
+      setMessages((current) => [...current, { type: 'image', url: image.url, name: image.name }])
+      setSelectedImage(null)
+    }
+    try {
+      const file = image.file instanceof File
+        ? image.file
+        : await fetch(image.url).then((response) => {
+          if (!response.ok) throw new Error('The selected plant photo could not be read.')
+          return response.blob()
+        }).then((blob) => new File([blob], image.name || 'plant-scan.jpg', { type: blob.type || 'image/jpeg' }))
+      if (!file.type.startsWith('image/') || file.size === 0 || file.size > 5 * 1024 * 1024) {
+        throw new Error('Choose a valid plant photo smaller than 5 MB.')
+      }
+      const formData = new FormData()
+      formData.append('scan_image', file, file.name || 'plant-scan.jpg')
+      const response = await fetch('/api/scan.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+        body: formData,
+      })
+      const result = await response.json().catch(() => null)
+      if (
+        !response.ok
+        || result?.success !== true
+        || typeof result?.analysis !== 'string'
+        || typeof result?.health_status !== 'string'
+      ) {
+        const detail = typeof result?.message === 'string' ? result.message : ''
+        throw new Error(detail || 'The plant scanner returned an invalid response.')
+      }
+
+      const answer = [
+        `${result.plant_name || 'Plant'} — ${result.health_status}`,
+        result.detected_issue ? `Possible issue: ${result.detected_issue}` : '',
+        result.analysis,
+        Array.isArray(result.visible_symptoms) && result.visible_symptoms.length
+          ? `Visible signs: ${result.visible_symptoms.join('; ')}`
+          : '',
+        Array.isArray(result.recommendations) && result.recommendations.length
+          ? `Suggestions: ${result.recommendations.join('; ')}`
+          : '',
+        Array.isArray(result.prevention_tips) && result.prevention_tips.length
+          ? `Prevention: ${result.prevention_tips.join('; ')}`
+          : '',
+        result.needs_verification ? 'This scan needs manual verification; it is not a confirmed diagnosis.' : '',
+        result.scan_save_error || '',
+      ].filter(Boolean).join('\n\n')
+      setMessages((current) => [...current, { type: 'assistant', text: answer }])
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : ''
+      setMessages((current) => [...current, {
+        type: 'error',
+        text: `TanimTrack AI is temporarily unable to analyze this photo.${detail ? ` ${detail}` : ''}`,
+        retryImage: image,
+      }])
+    } finally {
+      chatBusyRef.current = false
+      setChatBusy(false)
+    }
   }
 
   React.useEffect(() => {
@@ -255,12 +343,21 @@ export default function Dashboard() {
           <div className="chat-welcome"><img className="welcome-avatar" src="TANIMTRACK/images/ai%20profile%20pic.png" alt="TanimTrack AI" /><div><strong>Hi! I’m TanimTrack AI <span>🌱</span></strong><p>I can help you with plant health, soil conditions, crop recommendations, and more. Ask me anything about your farm!</p></div></div>
           <div className="chat-topics"><button type="button" onClick={() => askAi('Is my rice plant healthy?')}>🌿 Plant Health</button><button type="button" onClick={() => askAi('What soil pH is best for pechay?')}>⚗ Soil Advice</button><button type="button" onClick={() => askAi('What crops can I plant in this soil?')}>🌱 Crop Recommend</button></div>
           {messages.length === 0 && <div className="chat-empty"><span>♧</span><strong>Start a conversation</strong><p>Ask about your crops, soil, or any farming concerns. I’m here to help!</p></div>}
-          {messages.map((message, index) => <div className={`chat-message ${message.type}`} key={`${message.type}-${index}`}>{message.type === 'assistant' && <img className="message-avatar" src="TANIMTRACK/images/ai%20profile%20pic.png" alt="TanimTrack AI" />}{message.type === 'image' ? <img className="sent-plant-image" src={message.url} alt={`Uploaded plant: ${message.name}`} /> : <p>{message.text}</p>}</div>)}
+          {messages.map((message, index) => <div className={`chat-message ${message.type}${message.type === 'error' ? ' chat-message-error' : ''}`} key={`${message.type}-${index}`}>
+            {message.type === 'assistant' && <img className="message-avatar" src="TANIMTRACK/images/ai%20profile%20pic.png" alt="TanimTrack AI" />}
+            {message.type === 'image' ? <img className="sent-plant-image" src={message.url} alt={`Uploaded plant: ${message.name}`} /> : <p>{message.text}</p>}
+            {message.type === 'error' && <button className="chat-retry" type="button" disabled={chatBusy} onClick={() => {
+              setMessages((current) => current.filter((item) => item !== message))
+              if (message.retryImage) void scanSelectedImage(message.retryImage, true)
+              else if (typeof message.retryQuestion === 'string') void askAi(message.retryQuestion, true)
+            }}>Retry</button>}
+          </div>)}
+          {chatBusy && <div className="chat-message assistant chat-loading" role="status"><img className="message-avatar" src="TANIMTRACK/images/ai%20profile%20pic.png" alt="TanimTrack AI" /><p>TanimTrack AI is generating a response</p></div>}
           {messages.length === 0 && <div className="suggested-questions"><div><strong>✦ &nbsp;Try asking</strong><span>See all ›</span></div>{['Is my rice plant healthy?', 'What soil pH is best for pechay?', 'What crops can I plant in this soil?', 'How can I prevent rice blast disease?'].map((question) => <button type="button" key={question} onClick={() => askAi(question)}>🌿 <span>{question}</span>›</button>)}</div>}
         </div>}
         {selectedImage && <div className="image-preview"><img src={selectedImage.url} alt="Selected plant preview" /><span>{selectedImage.name}</span><button type="button" onClick={() => setSelectedImage(null)} aria-label="Remove selected image">×</button></div>}
         {imageActionOpen && <div className="image-action-sheet"><strong>What would you like to do?</strong><button type="button" onClick={() => { setImageAction('send'); imageInputRef.current?.click() }}><span>▧</span><b>Send a picture</b><small>Share a plant photo in the chat</small></button><button type="button" onClick={openScanCamera}><span>⌾</span><b>Scan plant</b><small>Open the camera and analyze a photo</small></button></div>}
-        <form className="chat-composer" onSubmit={(event) => { event.preventDefault(); askAi(chatInput) }}><input ref={imageInputRef} className="image-input" type="file" accept="image/*" onChange={handleImageSelect} /><button type="button" aria-label="Attach plant picture" onClick={() => setImageActionOpen((current) => !current)}>+</button><input value={chatInput} onChange={(event) => setChatInput(event.target.value)} placeholder="Type your question..." aria-label="Type your question" /><button type="submit" aria-label="Send question">➤</button></form>
+        <form className="chat-composer" onSubmit={(event) => { event.preventDefault(); void askAi(chatInput) }}><input ref={imageInputRef} className="image-input" type="file" accept="image/*" onChange={handleImageSelect} /><button type="button" aria-label="Attach plant picture" onClick={() => setImageActionOpen((current) => !current)}>+</button><input value={chatInput} onChange={(event) => setChatInput(event.target.value)} placeholder="Type your question..." aria-label="Type your question" disabled={chatBusy} /><button type="submit" aria-label="Send question" disabled={chatBusy}>➤</button></form>
       </section>}
     </main>
   )

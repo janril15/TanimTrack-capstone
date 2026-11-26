@@ -138,7 +138,7 @@ docker compose --env-file $envFile up -d
 
 Use the same `--env-file $envFile` option for `ps`, `logs`, `exec`, `down`, and rebuild commands from this checkout. A fresh WSL clone can instead use its own Git-ignored `./.env` as shown above.
 
-The AI service uses Google's official `google-genai` Python SDK. It sends only the validated image and a fixed analysis prompt to Gemini, and validates the structured response before returning it. The API key is passed only to the private AI container. Check service readiness and key configuration with:
+The AI service uses Google's official `google-genai` Python SDK and reuses the configured `GEMINI_API_KEY` and `GEMINI_MODEL` for the Plant/Crop Scan and TanimTrack AI chat. The key is passed only to the private AI container. Image requests are validated before Gemini analysis; authenticated chat requests go through the PHP API and are stored per user. Relevant plant records are included only when a user's question refers to a selected or matching plant. Check service readiness and key configuration with:
 
 ```sh
 docker compose exec ai python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8080/health').read().decode())"
@@ -160,6 +160,20 @@ docker compose --env-file $envFile up -d --build ai
 ```
 
 The health response's `configured` field is `false` until a key is supplied. Image results report qualitative confidence, not percentages; uncertain and non-plant images require verification or return no diagnosis. Gemini output is visual guidance, not a confirmed agricultural diagnosis.
+
+### TanimTrack AI conversation history
+
+The existing chat widget sends questions to the authenticated `/api/chat.php` endpoint. Conversations and messages are stored in MySQL and scoped to the signed-in user. Users can choose one of their saved plants for relevant context; the backend verifies ownership and sends only bounded, relevant records to the private AI service. Clear a conversation from the widget to delete its saved messages.
+
+On an existing database volume, back up the database and apply this additive migration once before using the chat history:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+Get-Content .\database\migrations\20261127_create_ai_chat_history.sql -Raw |
+  docker compose --env-file $envFile exec -T database sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" tanodbukid_db'
+```
+
+Fresh database volumes apply the migration automatically during initialization.
 
 ## SMS verification and password reset
 

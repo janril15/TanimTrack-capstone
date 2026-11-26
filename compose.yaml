@@ -35,6 +35,7 @@ services:
       TANODBUKID_DB_USER: tanodbukid
       TANODBUKID_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in your private .env file}
       TANODBUKID_AI_URL: http://ai:8080/predict
+      TANODBUKID_AI_CHAT_URL: http://ai:8080/chat
       TANODBUKID_UNISMS_API_KEY: ${TANODBUKID_UNISMS_API_KEY:-}
       TANODBUKID_UNISMS_SENDER_ID: ${TANODBUKID_UNISMS_SENDER_ID:-}
     ports:
