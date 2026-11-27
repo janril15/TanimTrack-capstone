@@ -421,14 +421,4 @@ newerSelect.addEventListener('change', () => {
   compareSelectedScans()
 })
 
-document.querySelectorAll('[data-monitor-route]').forEach((button) => button.addEventListener('click', () => {
-  const route = button.dataset.monitorRoute
-  const homePath = '/TanimTrack%20Dashboard/index%20(1).html'
-  if (route === 'scan') {
-    window.location.href = `/dashboard.html?plant_id=${encodeURIComponent(plantId)}`
-    return
-  }
-  window.location.href = route === 'home' ? homePath : `${homePath}#${route}`
-}))
-
 void loadPlant()

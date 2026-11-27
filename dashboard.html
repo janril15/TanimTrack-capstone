@@ -19,6 +19,7 @@
       <header class="monitor-header">
         <div class="monitor-brand"><span class="brand-mark"><img src="scannerlogo.jpg" alt="" aria-hidden="true"></span><span><strong>Plant / Crop Scan</strong><small>Camera preview · Gemini-powered plant analysis</small></span></div><button class="history-button" type="button"
           id="scan-history-button" aria-haspopup="dialog" aria-controls="scan-history-dialog">History</button>
+        <button class="history-button" id="scanner-return-to-watering" type="button" hidden>Watering Schedule</button>
       </header>
       <p class="scan-plant-context" id="scan-plant-context" role="status" aria-live="polite" hidden></p>
       <dialog class="plant-selection-dialog" id="plant-selection-dialog" aria-labelledby="plant-selection-title">
@@ -248,6 +249,12 @@
       const scanQuery = new URLSearchParams(location.search)
       const selectedPlantId = scanQuery.get('plant_id')
       const returnToFarmLogs = scanQuery.get('return_to') === 'farm-logs'
+      const returnToWatering = scanQuery.get('return_to') === 'watering'
+      const returnToWateringButton = document.querySelector('#scanner-return-to-watering')
+      returnToWateringButton.hidden = !returnToWatering
+      returnToWateringButton.addEventListener('click', () => {
+        window.location.href = '/TanimTrack%20Dashboard/index%20(1).html#watering'
+      })
       const selectedPlantContext = document.querySelector('#scan-plant-context')
       const plantSelectionDialog = document.querySelector('#plant-selection-dialog')
       const plantSelectionSelect = document.querySelector('#plant-selection-select')
@@ -284,7 +291,9 @@
         return Number.isNaN(date.getTime()) ? 'Date unavailable' : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date)
       }
       const returnToFarmLogPage = () => {
-        window.location.href = '/TanimTrack%20Dashboard/index%20(1).html#farm-logs'
+        window.location.href = returnToWatering
+          ? '/TanimTrack%20Dashboard/index%20(1).html#watering'
+          : '/TanimTrack%20Dashboard/index%20(1).html#farm-logs'
       }
       async function choosePlantBeforeScanning() {
         if (plantSelectionDialog.open) return
@@ -950,6 +959,24 @@
             if (result?.scan_saved === true) {
               window.dispatchEvent(new CustomEvent('tanodbukid:scan-history-changed'))
               document.querySelector('#farm-log-copy').textContent = `Latest scan saved to ${selectedPlantContext.textContent.replace('Currently scanning: ', '')} and added to Plant Monitoring history.`
+              if (selectedPlantId) {
+                void fetch('/api/watering.php', {
+                  method: 'POST',
+                  credentials: 'same-origin',
+                  headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'reassess', plant_id: selectedPlantId }),
+                  keepalive: true
+                }).then(async (response) => {
+                  const wateringResult = await response.json()
+                  if (!response.ok || wateringResult?.success !== true) {
+                    console.warn('Watering recommendation will be reassessed when the schedule opens:', wateringResult?.message || response.status)
+                  } else {
+                    window.dispatchEvent(new CustomEvent('tanodbukid:watering-recommendation-updated', { detail: { plantId: selectedPlantId } }))
+                  }
+                }).catch((wateringError) => {
+                  console.warn('Watering recommendation will be reassessed when the schedule opens:', wateringError)
+                })
+              }
             }
           }
         })().finally(() => {

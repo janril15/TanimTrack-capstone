@@ -4190,6 +4190,8 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="../css/watering-schedule.css">
+  <link rel="stylesheet" href="../css/farm-reports.css">
   <link rel="stylesheet" href="../css/chat-widget.css">
 </head>
 
@@ -4265,9 +4267,9 @@
       </section>
       <section class="quick" aria-label="Farm tools"><button id="community-alerts-card" type="button"><span
             class="quick-icon">♧</span><b>Community Alerts</b><small>Stay informed from fellow
-            farmers</small></button><button><span class="quick-icon">💧</span><b>Watering</b><small>Manage watering
+            farmers</small></button><button id="watering-shortcut" type="button"><span class="quick-icon">💧</span><b>Watering</b><small>Manage watering
             schedule</small></button><button><span class="quick-icon">📒</span><b>Farm Logs</b><small>View farm
-            activities</small></button><button><span class="quick-icon">📊</span><b>Reports</b><small>View
+            activities</small></button><button id="reports-shortcut" type="button"><span class="quick-icon">📊</span><b>Reports</b><small>View
             farm<br>reports</small></button></section>
       <section class="home-articles" aria-labelledby="latest-articles-title">
         <div class="home-articles-head">
@@ -4437,6 +4439,147 @@
               class="nav-icon">♧</span><span>Community Alerts</span></button><button type="button"
             data-community-nav="profile"><span class="nav-icon">♙</span><span>Profile</span></button></nav>
       </section>
+      <section class="new-screen watering-screen" id="watering-screen" aria-labelledby="watering-title">
+        <header class="watering-header">
+          <button class="watering-back" id="watering-back" type="button" aria-label="Back to dashboard">‹</button>
+          <svg class="watering-leaf-logo" viewBox="0 0 40 40" aria-hidden="true"><path d="M34 5C19 4 9 10 8 21c-.5 6 3.2 10 8.5 9.5C28 29.5 33 18 34 5Z" fill="#28794b"/><path d="M7 35c4-9 10-15 20-22" fill="none" stroke="#f6fff4" stroke-width="2.5" stroke-linecap="round"/><path d="M7 27C5 17 10 9 22 6c-1 10-6 17-15 21Z" fill="#62a765"/></svg>
+          <div class="watering-header-copy"><h1 id="watering-title">Watering Schedule</h1><p>Keep your plants hydrated.</p></div>
+          <div class="watering-header-actions">
+            <button class="watering-header-icon" id="watering-notifications" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><i aria-hidden="true"></i></button>
+            <button class="screen-avatar" id="watering-profile" type="button" aria-label="Open profile">?</button>
+          </div>
+        </header>
+        <section class="watering-reminder-card" aria-labelledby="watering-reminder-title">
+          <div class="watering-reminder-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5C19 14 12 21 12 29a12 12 0 0 0 24 0c0-8-7-15-12-24Z" fill="#39a9e8"/><path d="M18 30a6 6 0 0 0 6 6" fill="none" stroke="#d9f4ff" stroke-width="3" stroke-linecap="round"/></svg></div>
+          <div class="watering-reminder-copy"><h2 id="watering-reminder-title">Smart Watering Reminder</h2>
+            <p>Water your plants at the right time for healthier and greener growth!</p>
+            <small class="watering-screen-reader" id="watering-reminder-status" role="status" aria-live="polite">Loading schedule…</small></div>
+          <svg class="watering-banner-art" viewBox="0 0 145 100" aria-hidden="true"><path d="M0 91c26-13 51-8 71-2 23 7 47 7 74-8v19H0Z" fill="#d2e8c1"/><path d="M47 86c8-13 17-19 27-22 8 4 15 11 19 22" fill="#7a5637"/><path d="M73 61V39" stroke="#348344" stroke-width="3" stroke-linecap="round"/><path d="M72 48c-15-1-20-9-18-17 11 0 18 6 18 17Zm2-7c2-13 10-18 20-17-1 10-8 17-20 17Z" fill="#58a861"/><path d="M103 20h25a6 6 0 0 1 6 6v19h-35V26a6 6 0 0 1 4-6Z" fill="#2d8151"/><path d="M111 20c0-8 12-10 15-3l-4 3m6 13 12-7 3 5-13 8" fill="none" stroke="#2d8151" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M101 42h35" stroke="#195d3b" stroke-width="3"/><path d="M140 47c-1 7-3 9-5 12m-5-12c-1 6-3 8-5 10" stroke="#39a9e8" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </section>
+        <p class="watering-feedback" id="watering-feedback" role="status" aria-live="polite" hidden></p>
+        <section class="watering-panel watering-calendar-panel" aria-labelledby="watering-calendar-title">
+          <div class="watering-panel-heading"><h2 id="watering-calendar-title"><span class="watering-calendar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4m8-4v4M4 10h16M8 14h2m4 0h2m-8 3h2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>Watering Calendar</h2>
+            <div class="watering-calendar-controls"><button id="watering-month-previous" type="button" aria-label="Previous month">‹</button>
+              <label class="watering-month-picker"><span id="watering-calendar-month">Loading…</span><input id="watering-month-picker" type="month" aria-label="Choose calendar month"><i aria-hidden="true">⌄</i></label>
+              <button id="watering-month-next" type="button" aria-label="Next month">›</button></div></div>
+          <div class="watering-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+          <div class="watering-calendar-grid" id="watering-calendar-grid" role="grid" aria-label="Watering calendar"></div>
+          <div class="watering-calendar-legend"><span><i class="legend-pending"></i>Pending</span><span><i class="legend-completed"></i>Completed</span><span><i class="legend-overdue"></i>Overdue</span></div>
+        </section>
+        <section class="watering-panel watering-tasks-panel" aria-labelledby="watering-today-title">
+          <div class="watering-panel-heading"><h2 id="watering-today-title"><span class="watering-check-icon" aria-hidden="true">✓</span>Tasks Due Today</h2>
+            <span class="watering-pending-badge"><strong id="watering-today-count">0</strong> pending</span></div>
+          <div id="watering-tasks-today"><p class="watering-empty">Loading today’s tasks…</p></div>
+          <details class="watering-overdue-section"><summary>Overdue reminders <span id="watering-overdue-count"></span></summary>
+            <div id="watering-overdue-tasks"><p class="watering-empty">No overdue tasks.</p></div></details>
+        </section>
+        <section class="watering-guide" aria-labelledby="watering-guide-title"><div class="watering-guide-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4m-5-6a6 6 0 1 1 6 0c-.8.6-1 1.2-1 2h-4c0-.8-.2-1.4-1-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="watering-guide-copy"><h2 id="watering-guide-title">Watering Guide</h2>
+            <ul><li>Most vegetables: 1–2 cups per plant</li><li>Water in the morning or late afternoon</li><li>Keep soil moist, not waterlogged</li></ul>
+            <details class="watering-tips"><summary>View Tips <span aria-hidden="true">→</span></summary>
+              <div><p>A visual scan cannot measure soil moisture. Check around the roots and account for recent watering and matched local rainfall. Wilting or yellowing alone does not confirm whether a plant needs more or less water.</p>
+                <button class="watering-reminder-enable" id="watering-reminder-enable" type="button">Enable browser reminders</button>
+                <details class="watering-recommendations">
+                  <summary><span><small>PLANT CONDITION</small><strong>Plant recommendations</strong></span></summary>
+                  <div class="watering-recommendations-tools"><span>Latest scans and watering history</span><button type="button" class="watering-refresh" id="watering-refresh">Refresh</button></div>
+                  <div class="watering-plants-list" id="watering-plants-list"><p class="watering-empty">Loading registered plants…</p></div>
+                </details>
+              </div>
+            </details>
+          </div>
+          <svg class="watering-guide-drop" viewBox="0 0 52 60" aria-hidden="true"><circle cx="26" cy="30" r="25" fill="#e7f6ff"/><path d="M26 10C21 20 14 27 14 35a12 12 0 0 0 24 0c0-8-7-15-12-25Z" fill="#42b6eb"/><path d="M20 36a6 6 0 0 0 6 6" fill="none" stroke="#dff8ff" stroke-width="3" stroke-linecap="round"/></svg>
+        </section>
+        <nav class="screen-bottom-nav watering-bottom-nav" aria-label="Watering navigation">
+          <button type="button" data-screen-route=""><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span>Home</span></button>
+          <button type="button" data-screen-route="farm-logs"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4C11 4 5 7 5 13c0 3 2 5 5 5 6 0 9-6 10-14ZM4 21c3-6 7-10 13-14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Farm Log</span></button>
+          <button type="button" class="screen-add" data-screen-route="add"><span>+</span><small>Add</small></button>
+          <button type="button" class="active" data-screen-route="watering"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C9 8 5 12 5 16a7 7 0 0 0 14 0c0-4-4-8-7-13Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span>Watering</span></button>
+          <button type="button" data-screen-route="profile"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 21a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Profile</span></button>
+        </nav>
+      </section>
+      <section class="new-screen farm-reports-screen" id="reports-screen" aria-labelledby="reports-title">
+        <header class="farm-reports-header">
+          <button class="reports-back" id="reports-back" type="button" aria-label="Back to dashboard">‹</button>
+          <svg class="reports-leaf-logo" viewBox="0 0 40 40" aria-hidden="true"><path d="M34 5C19 4 9 10 8 21c-.5 6 3.2 10 8.5 9.5C28 29.5 33 18 34 5Z" fill="#28794b"/><path d="M7 35c4-9 10-15 20-22" fill="none" stroke="#f6fff4" stroke-width="2.5" stroke-linecap="round"/><path d="M7 27C5 17 10 9 22 6c-1 10-6 17-15 21Z" fill="#62a765"/></svg>
+          <div class="reports-header-copy"><h1 id="reports-title">Reports</h1><p>Track your farm’s progress.</p></div>
+          <div class="reports-header-actions">
+            <button class="reports-header-icon" id="reports-notifications" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><i aria-hidden="true"></i></button>
+            <button class="screen-avatar" id="reports-profile" type="button" aria-label="Open profile">?</button>
+          </div>
+        </header>
+        <form class="reports-filter-panel" id="reports-filters">
+          <select class="reports-visually-hidden" id="reports-range" name="range" aria-label="Report date range">
+            <option value="30d">Last 30 Days</option><option value="3m">Last 3 Months</option><option value="custom">Custom Range</option>
+          </select>
+          <div class="reports-range-buttons" role="group" aria-label="Report date range">
+            <button type="button" data-report-range="30d" class="selected" aria-pressed="true"><span class="reports-range-icon" aria-hidden="true">▦</span><span>Last 30 Days</span></button>
+            <button type="button" data-report-range="3m" aria-pressed="false"><span class="reports-range-icon" aria-hidden="true">▦</span><span>Last 3 Months</span></button>
+            <button type="button" data-report-range="custom" aria-pressed="false"><span class="reports-range-icon" aria-hidden="true">▦</span><span>Custom Range</span></button>
+          </div>
+          <div class="reports-filter-row" id="reports-filter-row" hidden>
+            <div class="reports-custom-dates" id="reports-custom-dates" hidden>
+              <label class="reports-filter-field">From<input id="reports-from" name="from" type="date"></label>
+              <label class="reports-filter-field">To<input id="reports-to" name="to" type="date"></label>
+              <button class="reports-apply" id="reports-apply" type="submit">Apply</button>
+            </div>
+          </div>
+        </form>
+        <p class="reports-feedback" id="reports-feedback" role="status" aria-live="polite" hidden></p>
+        <section class="reports-summary-grid" aria-label="Farm summary">
+          <article class="reports-summary-card"><span class="reports-summary-icon plant"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4C11 4 5 7 5 13c0 3 2 5 5 5 6 0 9-6 10-14ZM4 21c3-6 7-10 13-14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <strong id="reports-total-plants">—</strong><span class="reports-summary-label">Total Plants</span></article>
+          <article class="reports-summary-card"><span class="reports-summary-icon health">✓</span>
+            <strong id="reports-health-percent">—</strong><span class="reports-summary-label">Overall Health</span></article>
+          <article class="reports-summary-card"><span class="reports-summary-icon water"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C9 8 5 12 5 16a7 7 0 0 0 14 0c0-4-4-8-7-13Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+            <strong id="reports-completed-tasks">—</strong><span class="reports-summary-label">Watering Tasks<br>Completed</span></article>
+        </section>
+        <section class="reports-panel reports-health-panel" aria-labelledby="reports-health-title">
+          <div class="reports-panel-heading"><h2 id="reports-health-title"><span class="reports-heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9m7 10V4m7 15v-7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>Plant Health Overview</h2>
+            <button class="reports-view-link" id="reports-view-health" type="button">View Details →</button></div>
+          <div class="reports-health-content" id="reports-health-overview"><p class="reports-empty">Loading plant health…</p></div>
+          <div class="reports-health-details" id="reports-health-details" hidden>
+            <label class="reports-plant-filter">Filter by plant<select id="reports-plant"><option value="">All registered plants</option></select></label>
+            <div class="reports-plant-list" id="reports-plant-list"><p class="reports-empty">Loading plant reports…</p></div>
+          </div>
+        </section>
+        <section class="reports-panel reports-watering-panel" aria-labelledby="reports-watering-title">
+          <div class="reports-panel-heading"><h2 id="reports-watering-title"><span class="reports-heading-icon water"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3C9 8 5 12 5 16a7 7 0 0 0 14 0c0-4-4-8-7-13Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>Watering Activity</h2>
+            <button class="reports-view-link" id="reports-view-watering" type="button">View Details →</button></div>
+          <div class="reports-watering-content"><div id="reports-watering-metrics"><p class="reports-empty">Loading watering records…</p></div>
+            <i class="reports-watering-divider" aria-hidden="true"></i>
+            <div class="reports-watering-next"><span class="reports-heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4m8-4v4M4 10h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><div><small>Next Watering</small><strong id="reports-next-watering">—</strong><span id="reports-next-watering-countdown"></span></div></div></div>
+        </section>
+        <section class="reports-panel reports-trend-panel" aria-labelledby="reports-trend-title">
+          <div class="reports-panel-heading"><h2 id="reports-trend-title"><span class="reports-heading-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17M7 15l4-4 3 2 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Scan Reports</h2>
+            <button class="reports-view-link" id="reports-view-all-scans" type="button">View All →</button></div>
+          <p class="reports-visually-hidden">Healthy scans as a share of scans with a determined status.</p>
+          <div id="reports-trend-chart"><p class="reports-empty">Loading scan history…</p></div>
+          <p class="reports-chart-tooltip" id="reports-scan-tooltip" role="status" aria-live="polite" hidden></p>
+          <div class="reports-scan-history" id="reports-scan-history" hidden><h3>Scan history</h3><div id="reports-scan-list"><p class="reports-empty">Loading scan history…</p></div></div>
+        </section>
+        <section class="reports-insights-panel" aria-labelledby="reports-insights-title">
+          <div class="reports-insights-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4m-5-6a6 6 0 1 1 6 0c-.8.6-1 1.2-1 2h-4c0-.8-.2-1.4-1-2Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="reports-insights-copy"><h2 id="reports-insights-title">Insights &amp; Tips</h2>
+            <p id="reports-insights-preview">Recommendations will appear when saved plant or watering records are available.</p>
+            <details class="reports-insight-more"><summary aria-label="Show more insights and history">More insights &amp; history</summary>
+              <div class="reports-insight-extra">
+              <button class="reports-insights-button" id="reports-insights-button" type="button" disabled>Generate AI insights</button>
+              <div class="reports-insights-list" id="reports-insights-list" hidden></div>
+              <h3>Watering history</h3><div id="reports-watering-history"><p class="reports-empty">Loading watering history…</p></div>
+              <h3 id="reports-farm-log-title">Farm Log activity <span id="reports-farm-log-count">— entries</span></h3><div id="reports-farm-log"><p class="reports-empty">Loading Farm Log entries…</p></div>
+              </div>
+            </details>
+          </div>
+          <svg class="reports-insights-art" viewBox="0 0 100 100" aria-hidden="true"><path d="M45 91V57" fill="none" stroke="#8ac982" stroke-width="4" stroke-linecap="round"/><path d="M45 71C21 70 14 55 18 39c19 0 29 11 27 32Zm2-16c2-25 16-36 37-34-1 22-13 35-37 34Zm-2 30C28 81 20 70 22 59c13 1 22 7 23 17Z" fill="#cdebc5"/></svg>
+        </section>
+        <nav class="screen-bottom-nav reports-bottom-nav" aria-label="Reports navigation">
+          <button type="button" data-screen-route=""><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span><span>Home</span></button>
+          <button type="button" data-screen-route="farm-logs"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4C11 4 5 7 5 13c0 3 2 5 5 5 6 0 9-6 10-14ZM4 21c3-6 7-10 13-14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Farm Log</span></button>
+          <button type="button" class="screen-add" data-screen-route="add"><span>+</span><small>Add</small></button>
+          <button type="button" class="active" data-screen-route="reports"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h17M7 15l4-4 3 2 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Reports</span></button>
+          <button type="button" data-screen-route="profile"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 21a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Profile</span></button>
+        </nav>
+      </section>
       <section class="new-screen farm-logs-screen" id="farm-logs-screen" aria-labelledby="farm-logs-title">
         <div class="farm-logs-header"><button class="farm-logs-back" id="farm-logs-back" type="button"
             aria-label="Back">←</button>
@@ -4541,7 +4684,7 @@
   </div>
   <script>
     (() => {
-      const routes = ['climate', 'scan', 'profile', 'farm-logs', 'community-alerts', 'add'];
+      const routes = ['climate', 'scan', 'profile', 'farm-logs', 'community-alerts', 'add', 'watering', 'reports'];
       const shell = document.querySelector('.app-shell');
       const addedScreens = document.querySelectorAll('.new-screen');
       const addedNav = document.querySelector('.new-bottom-nav');
@@ -4575,24 +4718,93 @@
       ];
       const readNotificationIds = new Set(JSON.parse(localStorage.getItem('tanodbukid_read_notifications') || '[]'));
       const notificationButton = document.getElementById('notifications-button');
-      const notificationMarkup = (notification) => `<button type="button" class="notification-card ${readNotificationIds.has(notification.id) ? '' : 'unread'}" data-notification-id="${notification.id}"><span class="notification-icon" aria-hidden="true">${notification.icon}</span><span class="notification-copy"><strong>${notification.title}</strong><p>${notification.description}</p><time>${notification.time}</time></span><span class="notification-chevron" aria-hidden="true">›</span>${readNotificationIds.has(notification.id) ? '' : '<span class="notification-unread" aria-label="Unread"></span>'}</button>`;
-      const updateNotificationBadge = () => { notificationButton.classList.toggle('is-read', !notifications.some((notification) => !readNotificationIds.has(notification.id))); };
+      let savedNotifications = [];
+      const notificationEscape = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+      const notificationMarkup = (notification, saved = false) => {
+        const isRead = saved ? notification.is_read : readNotificationIds.has(notification.id);
+        const id = String(notification.id);
+        const icon = saved ? (notification.type === 'watering_reminder' ? '💧' : '♧') : notification.icon;
+        const description = saved ? notification.message : notification.description;
+        const time = saved ? new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila' }).format(new Date(`${notification.created_at.replace(' ', 'T')}Z`)) : notification.time;
+        return `<button type="button" class="notification-card ${isRead ? '' : 'unread'}" data-notification-id="${notificationEscape(id)}" data-saved="${saved}" ${saved && notification.module === 'watering' ? 'data-open-watering="true"' : ''}><span class="notification-icon" aria-hidden="true">${notificationEscape(icon)}</span><span class="notification-copy"><strong>${notificationEscape(notification.title)}</strong><p>${notificationEscape(description)}</p><time>${notificationEscape(time)}</time></span><span class="notification-chevron" aria-hidden="true">›</span>${isRead ? '' : '<span class="notification-unread" aria-label="Unread"></span>'}</button>`;
+      };
+      const updateNotificationBadge = () => {
+        const localUnread = notifications.some((notification) => !readNotificationIds.has(notification.id));
+        const savedUnread = savedNotifications.some((notification) => !notification.is_read);
+        const isRead = !localUnread && !savedUnread;
+        notificationButton.classList.toggle('is-read', isRead);
+        document.querySelectorAll('.watering-header-icon, .reports-header-icon')
+          .forEach((button) => button.classList.toggle('is-read', isRead));
+      };
       const saveReadNotifications = () => { localStorage.setItem('tanodbukid_read_notifications', JSON.stringify([...readNotificationIds])); updateNotificationBadge(); };
+      const loadSavedNotifications = async () => {
+        try {
+          const response = await fetch('/api/notifications.php', { credentials: 'same-origin', headers: { Accept: 'application/json' }, cache: 'no-store' });
+          const result = await response.json();
+          if (!response.ok || result?.success !== true || !Array.isArray(result.notifications)) throw new Error(result?.message || 'Unable to load notifications.');
+          savedNotifications = result.notifications;
+          updateNotificationBadge();
+        } catch (error) {
+          console.warn('Unable to load saved notifications:', error);
+        }
+      };
+      const updateSavedNotifications = async (action, id) => {
+        const response = await fetch('/api/notifications.php', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, ...(id === undefined ? {} : { id: Number(id) }) })
+        });
+        const result = await response.json();
+        if (!response.ok || result?.success !== true) throw new Error(result?.message || 'Unable to update notifications.');
+      };
       const closeNotifications = () => { const backdrop = document.querySelector('.notifications-backdrop'); if (!backdrop) return; backdrop.classList.remove('is-open'); notificationButton.setAttribute('aria-expanded', 'false'); setTimeout(() => backdrop.remove(), 200); };
-      const openNotifications = () => {
+      const openNotifications = async () => {
+        await loadSavedNotifications();
         const backdrop = document.createElement('div');
         backdrop.className = 'notifications-backdrop';
-        backdrop.innerHTML = `<section class="notifications-dialog" role="dialog" aria-modal="true" aria-labelledby="notifications-title"><div class="notifications-header"><h2 class="notifications-title" id="notifications-title"><button type="button" class="notifications-back" data-close-notifications aria-label="Close notifications">←</button>Notifications</h2><button type="button" class="notifications-read-all" data-mark-all>Mark all read</button></div><div class="notifications-list">${notifications.map(notificationMarkup).join('')}</div></section>`;
+        const savedMarkup = savedNotifications.map((item) => notificationMarkup(item, true)).join('');
+        const localMarkup = notifications.map((item) => notificationMarkup(item)).join('');
+        backdrop.innerHTML = `<section class="notifications-dialog" role="dialog" aria-modal="true" aria-labelledby="notifications-title"><div class="notifications-header"><h2 class="notifications-title" id="notifications-title"><button type="button" class="notifications-back" data-close-notifications aria-label="Close notifications">←</button>Notifications</h2><button type="button" class="notifications-read-all" data-mark-all>Mark all read</button></div><div class="notifications-list">${savedMarkup}${localMarkup}</div></section>`;
         document.body.appendChild(backdrop);
         notificationButton.setAttribute('aria-expanded', 'true');
         requestAnimationFrame(() => backdrop.classList.add('is-open'));
-        backdrop.querySelectorAll('[data-notification-id]').forEach((card) => card.addEventListener('click', () => { readNotificationIds.add(card.dataset.notificationId); saveReadNotifications(); card.classList.remove('unread'); card.querySelector('.notification-unread')?.remove(); }));
-        backdrop.querySelector('[data-mark-all]').addEventListener('click', () => { notifications.forEach((notification) => readNotificationIds.add(notification.id)); saveReadNotifications(); backdrop.querySelectorAll('.notification-card').forEach((card) => { card.classList.remove('unread'); card.querySelector('.notification-unread')?.remove(); }); });
+        backdrop.querySelectorAll('[data-notification-id]').forEach((card) => card.addEventListener('click', async () => {
+          if (card.dataset.saved === 'true') {
+            try {
+              await updateSavedNotifications('mark-read', card.dataset.notificationId);
+              const record = savedNotifications.find((item) => String(item.id) === card.dataset.notificationId);
+              if (record) record.is_read = true;
+            } catch (error) {
+              console.error('Unable to mark notification as read:', error);
+              return;
+            }
+          } else {
+            readNotificationIds.add(card.dataset.notificationId);
+            saveReadNotifications();
+          }
+          card.classList.remove('unread');
+          card.querySelector('.notification-unread')?.remove();
+          updateNotificationBadge();
+          if (card.dataset.openWatering === 'true') { closeNotifications(); location.hash = 'watering'; }
+        }));
+        backdrop.querySelector('[data-mark-all]').addEventListener('click', async () => {
+          try {
+            await updateSavedNotifications('mark-all-read');
+            savedNotifications.forEach((item) => { item.is_read = true; });
+          } catch (error) {
+            console.error('Unable to mark notifications as read:', error);
+            return;
+          }
+          notifications.forEach((item) => readNotificationIds.add(item.id));
+          saveReadNotifications();
+          backdrop.querySelectorAll('.notification-card').forEach((card) => { card.classList.remove('unread'); card.querySelector('.notification-unread')?.remove(); });
+        });
         backdrop.addEventListener('click', (event) => { if (event.target === backdrop || event.target.closest('[data-close-notifications]')) closeNotifications(); });
       };
       notificationButton.addEventListener('click', openNotifications);
       document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeNotifications(); });
       updateNotificationBadge();
+      void loadSavedNotifications();
       const carousel = document.querySelector('.home-featured');
       const carouselTrack = document.getElementById('home-carousel-track');
       const carouselDots = [...document.querySelectorAll('[data-carousel-slide]')];
@@ -4927,6 +5139,11 @@
       const showRoute = () => { const route = location.hash.slice(1); const active = routes.includes(route) ? route : ''; const isCommunityRoute = active === 'community-alerts'; shell.classList.toggle('new-route', Boolean(active)); shell.classList.toggle('community-route', isCommunityRoute); addedScreens.forEach((screen) => screen.classList.toggle('active', screen.id === `${active}-screen`)); addedNav.style.display = isCommunityRoute ? 'none' : 'grid'; addedNav.querySelectorAll('button[data-route]').forEach((button) => button.classList.toggle('active', button.dataset.route === (active || 'home'))); if (active === 'farm-logs' || !active) { loadFarmActivities(); loadRegisteredPlants(); } if (active === 'climate') loadClimate(); };
       const farmLogsCard = document.querySelector('.quick button:nth-child(3)');
       farmLogsCard.addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'farm-logs'; });
+      document.getElementById('watering-shortcut').addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'watering'; });
+      document.getElementById('watering-back').addEventListener('click', () => { location.hash = previousRoute || ''; previousRoute = ''; });
+      document.getElementById('reports-shortcut').addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'reports'; });
+      document.getElementById('reports-back').addEventListener('click', () => { location.hash = previousRoute || ''; });
+      document.getElementById('reports-view-watering').addEventListener('click', () => { previousRoute = 'reports'; location.hash = 'watering'; });
       document.getElementById('community-alerts-card').addEventListener('click', () => { previousRoute = location.hash.slice(1) || ''; location.hash = 'community-alerts'; });
       document.getElementById('community-back').addEventListener('click', () => { location.hash = previousRoute; });
       document.getElementById('community-notifications-button').addEventListener('click', openNotifications);
@@ -5936,7 +6153,11 @@
             dialog.querySelector('#form-message').textContent = 'Farm information saved.';
           });
         }
-        if (label.includes('Reports')) modal('Farm Reports & History', '<p>Weekly report: Farm health is stable at 80%.</p><p>Recent activity and scan records are available in your farm history.</p>');
+        if (label.includes('Reports')) {
+          previousRoute = location.hash.slice(1) || '';
+          location.hash = 'reports';
+          return;
+        }
         if (label === 'Language') {
           const dialog = modal('Choose language', '<select id="language"><option>Filipino</option><option>English</option></select>', '<button class="primary" id="save-language">Save</button>');
           dialog.querySelector('#language').value = localStorage.getItem('language') || 'Filipino';
@@ -6001,7 +6222,9 @@
   </script>
   <script type="module" src="../js/chat-widget.js"></script>
   <script type="module" src="../js/dashboard-profile.js"></script>
-  <script type="module" src="../js/logout.js"></script>
+  <script type="module" src="../js/logout.js">  </script>
+  <script type="module" src="../js/watering-schedule.js"></script>
+  <script type="module" src="../js/farm-reports.js"></script>
 </body>
 
 </html>

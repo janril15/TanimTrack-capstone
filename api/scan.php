@@ -191,6 +191,15 @@ if ($plantId !== '') {
         $result['scan_id'] = $scanId;
         $result['plant_id'] = $plantId;
         $result['scan_saved'] = true;
+        try {
+            $wateringUpdate = pdo_connection()->prepare(
+                'UPDATE watering_plans SET needs_reassessment = 1
+                 WHERE user_id = :user_id AND plant_id = :plant_id'
+            );
+            $wateringUpdate->execute(['user_id' => $sessionUser['id'], 'plant_id' => $plantId]);
+        } catch (Throwable $error) {
+            error_log('TanimTrack watering plan could not be marked for reassessment: ' . $error->getMessage());
+        }
     } catch (Throwable $error) {
         $imagePath = is_string($filename) ? __DIR__ . '/../uploads/plant-scans/' . $filename : '';
         if ($imagePath !== '' && is_file($imagePath) && !unlink($imagePath)) {

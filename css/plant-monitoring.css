@@ -2062,8 +2062,7 @@ body.plant-details-body {
 .details-history-row:focus-visible,
 .details-view-all:focus-visible,
 .details-card-scan:focus-visible,
-.details-bottom-scan:focus-visible,
-.details-bottom-nav button:focus-visible {
+.details-bottom-scan:focus-visible {
   outline: 2px solid #32814b;
   outline-offset: 2px;
 }
@@ -2474,50 +2473,6 @@ body.plant-details-body {
 .details-bottom-scan:hover,
 .details-card-scan:hover {
   background: #174b31;
-}
-
-.details-bottom-nav {
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  width: min(100%, 410px);
-  min-height: 58px;
-  margin: 12px auto 0;
-  padding: 4px 5px max(4px, env(safe-area-inset-bottom));
-  border-top: 1px solid #e6ece4;
-  background: #fff;
-  box-shadow: 0 -3px 12px #1937210d;
-}
-
-.details-bottom-nav button {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 2px;
-  border-bottom: 2px solid transparent;
-  color: #78857c;
-  background: transparent;
-  font-size: 7px;
-}
-
-.details-bottom-nav button svg {
-  width: 15px;
-  height: 15px;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
-}
-
-.details-bottom-nav button.active {
-  border-bottom-color: #378753;
-  color: #2e7b49;
-  font-weight: 800;
-}
-
-.details-bottom-nav button.active svg {
-  fill: #e3f2e2;
 }
 
 .visually-hidden {

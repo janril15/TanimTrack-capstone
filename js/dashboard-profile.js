@@ -82,6 +82,7 @@
     setAvatar(avatar, initials, path)
     setAvatar(profileAvatar, initials, path)
     setAvatar(communityAvatar, initials, path)
+    document.querySelectorAll('.screen-avatar').forEach(element => setAvatar(element, initials, path))
   }
 
   function registrationYear(createdAt) {

@@ -91,6 +91,18 @@ Get-Content .\database\migrations\20261125_link_farm_activities_to_plants.sql -R
   docker compose --env-file $envFile exec -T database sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" tanodbukid_db'
 ```
 
+The adaptive Watering Schedule reuses registered plants, saved scan history, Gemini, and weather data matched to a plant's location. On existing databases, back up first, then apply `database/migrations/20261127_create_watering_schedule.sql`:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+Get-Content .\database\migrations\20261127_create_watering_schedule.sql -Raw |
+  docker compose --env-file $envFile exec -T database sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" tanodbukid_db'
+```
+
+Fresh database volumes apply the migration automatically. Gemini recommendations require `GEMINI_API_KEY`. Visual scans never count as soil-moisture readings; moisture values are manual and expire for recommendation purposes after 24 hours. Browser notifications require permission and the app to remain open; persistent in-app watering reminders are deduplicated in MySQL.
+
+Farm Reports are generated from the signed-in user's existing registered plants, successful scan history, Farm Log API, and watering task records. The Reports API applies the selected date range to scan and watering activity, while the plant-health overview uses each plant's latest saved scan and the scan trend plots the observed share of determined scans classified healthy. The compact Watering and Reports screens use the shared fixed bottom navigation; calendar selections, month controls, date filters, chart details, task completion, and saved-history views remain data-backed. Gemini insights are requested only when matching scan or watering records exist; no report tables or sample statistics are created.
+
 After startup, confirm all four services show healthy in `docker compose ps`, then use a disposable test account to check registration, login, the dashboard, and one image upload. Do not use real account information for development testing.
 
 ## Smoke test and useful pages
@@ -140,7 +152,7 @@ docker compose --env-file $envFile up -d
 
 Use the same `--env-file $envFile` option for `ps`, `logs`, `exec`, `down`, and rebuild commands from this checkout. A fresh WSL clone can instead use its own Git-ignored `./.env` as shown above.
 
-The AI service uses Google's official `google-genai` Python SDK and reuses the configured `GEMINI_API_KEY` and `GEMINI_MODEL` for the Plant/Crop Scan and TanimTrack AI chat. The key is passed only to the private AI container. Image requests are validated before Gemini analysis; authenticated chat requests go through the PHP API and are stored per user. Relevant plant records are included only when a user's question refers to a selected or matching plant. Check service readiness and key configuration with:
+The AI service uses Google's official `google-genai` Python SDK and reuses the configured `GEMINI_API_KEY` and `GEMINI_MODEL` for Plant/Crop Scan, TanimTrack AI chat, and adaptive watering recommendations. The key is passed only to the private AI container. Image requests are validated before Gemini analysis; authenticated chat requests go through the PHP API and are stored per user. Relevant plant records are included only when a user's question refers to a selected or matching plant. Check service readiness and key configuration with:
 
 ```sh
 docker compose exec ai python -c "import urllib.request; print(urllib.request.urlopen('http://localhost:8080/health').read().decode())"

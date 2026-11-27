@@ -1,0 +1,146 @@
+.app-shell.new-route:has(#watering-screen.active){max-width:390px}
+.app-shell.new-route:has(#watering-screen.active)>.new-bottom-nav{display:none!important}
+.watering-screen{box-sizing:border-box;min-height:100dvh;padding:8px 9px calc(78px + env(safe-area-inset-bottom));background:#f7f9f6;color:#25332a;font-family:Manrope,system-ui,sans-serif}
+.watering-screen *{box-sizing:border-box}
+.watering-header{display:flex;align-items:center;gap:8px;margin:-8px -9px 10px;padding:11px 13px 10px;background:#f7f9f6}
+.watering-back,.reports-back{display:grid;flex:0 0 29px;width:29px;height:29px;place-items:center;border:0;border-radius:50%;color:#335947;background:#fff;box-shadow:0 1px 5px #1e3c2b14;font-size:25px;line-height:1}
+.watering-leaf-logo,.reports-leaf-logo{flex:0 0 31px;width:31px;height:31px}
+.watering-header-copy,.reports-header-copy{flex:1;min-width:0}
+.watering-header-copy h1,.reports-header-copy h1{overflow:hidden;margin:0;color:#25332a;font-size:13px;font-weight:800;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
+.watering-header-copy p,.reports-header-copy p{margin:2px 0 0;color:#647166;font-size:8px;line-height:1.3}
+.watering-header-actions,.reports-header-actions{display:flex;align-items:center;gap:7px}
+.watering-header-icon,.reports-header-icon{position:relative;display:grid;width:27px;height:29px;place-items:center;border:0;color:#273d2e;background:transparent}
+.watering-header-icon svg,.reports-header-icon svg{width:17px;height:17px}
+.watering-header-icon i,.reports-header-icon i{position:absolute;top:3px;right:4px;width:5px;height:5px;border:1px solid #f7f9f6;border-radius:50%;background:#419553}
+.watering-header-icon.is-read i,.reports-header-icon.is-read i{display:none}
+.screen-avatar{display:grid;flex:0 0 22px;width:22px;height:22px;place-items:center;overflow:hidden;padding:0;border:0;border-radius:50%;color:#fff;background:#548e3b;font-size:8px;font-weight:800}
+.screen-avatar img{width:100%;height:100%;object-fit:cover}
+.watering-reminder-card{position:relative;display:flex;min-height:83px;align-items:center;gap:10px;overflow:hidden;margin:0 0 11px;padding:12px;border:1px solid #e4efdf;border-radius:15px;background:linear-gradient(110deg,#eaf5e6,#f2f8ee 65%,#e0efd9);box-shadow:0 3px 11px #2b563311}
+.watering-reminder-icon{z-index:1;display:grid;flex:0 0 45px;width:45px;height:45px;place-items:center;border-radius:50%;background:#dff0dc}
+.watering-reminder-icon svg{width:33px;height:33px}
+.watering-reminder-copy{z-index:1;flex:1;min-width:0}
+.watering-reminder-copy h2{margin:0;color:#24362b;font-size:11px;font-weight:800;line-height:1.3}
+.watering-reminder-copy p{max-width:165px;margin:4px 0 0;color:#4f6254;font-size:8px;line-height:1.4}
+.watering-screen-reader{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;clip-path:inset(50%)}
+.watering-banner-art{position:absolute;right:1px;bottom:0;width:104px;height:74px}
+.watering-feedback{margin:0 0 9px;padding:8px 10px;border:1px solid #e1ad72;border-radius:10px;color:#70491e;background:#fff5e8;font-size:10px;line-height:1.45}
+.watering-feedback[data-kind=success]{border-color:#cfe3c7;color:#25553a;background:#eff8ec}
+.watering-feedback[hidden],.watering-overdue-section[hidden]{display:none}
+.watering-panel{min-width:0;margin:0 0 10px;padding:11px 10px;border:1px solid #e9eee8;border-radius:15px;background:#fff;box-shadow:0 3px 12px #253c2c0d}
+.watering-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px}
+.watering-panel-heading h2{display:flex;align-items:center;gap:7px;margin:0;color:#25352b;font-size:12px;font-weight:800;line-height:1.3}
+.watering-calendar-icon,.watering-check-icon{display:inline-grid;width:19px;height:19px;place-items:center;border-radius:7px;color:#348052;background:#e7f2e5;font-size:13px}
+.watering-calendar-icon svg{width:13px;height:13px}
+.watering-check-icon{border-radius:50%;color:#fff;background:#388253;font-weight:900}
+.watering-calendar-controls{display:flex;align-items:center;gap:3px}
+.watering-calendar-controls button{width:24px;height:25px;border:0;color:#55715e;background:transparent;font-size:20px;line-height:1}
+.watering-month-picker{position:relative;display:flex;min-width:88px;align-items:center;justify-content:center;gap:3px;color:#28392e;font-size:9px;font-weight:800}
+.watering-month-picker input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.watering-month-picker i{font-size:12px;font-style:normal}
+.watering-calendar-weekdays,.watering-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.watering-calendar-weekdays{margin-bottom:4px;color:#68756b;text-align:center;font-size:8px;font-weight:600}
+.watering-calendar-day{display:flex;min-width:0;min-height:28px;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid #f0f3ef;border-radius:8px;color:#303b32;background:#fff;font-size:9px}
+.watering-calendar-day:disabled{color:#c3cbc3;background:#fff;cursor:default}
+.watering-calendar-day.is-today{border-color:#3f8755;color:#22623b;background:#eef7eb;font-weight:800}
+.watering-calendar-day.is-selected{border-color:transparent;color:#254d35;background:transparent}
+.watering-calendar-day.is-selected>span:first-child{display:grid;width:18px;height:18px;place-items:center;border-radius:50%;color:#fff;background:#327f53}
+.watering-calendar-dots{display:flex;min-height:4px;gap:2px}
+.watering-calendar-dots i,.watering-calendar-legend i{display:inline-block;width:4px;height:4px;border-radius:50%;background:#55a767}
+.watering-calendar-dots i.completed,.watering-calendar-legend .legend-completed{background:#267447}
+.watering-calendar-dots i.overdue,.watering-calendar-legend .legend-overdue{background:#c95f4c}
+.watering-calendar-legend{display:flex;justify-content:center;flex-wrap:wrap;gap:13px;margin:8px 0 0;color:#728075;font-size:7px}
+.watering-calendar-legend span{display:inline-flex;align-items:center;gap:5px}
+.watering-calendar-legend i{width:5px;height:5px}
+.watering-tasks-panel .watering-panel-heading{margin-bottom:7px}
+.watering-pending-badge{display:inline-flex;align-items:center;gap:3px;padding:5px 8px;border-radius:14px;color:#fff;background:#328052;font-size:8px;white-space:nowrap}
+.watering-pending-badge strong{font-size:8px}
+.watering-task-card{display:grid;grid-template-columns:48px minmax(60px,1fr) 1px 66px auto;align-items:center;gap:5px;margin-top:6px;padding:6px;border:1px solid #edf1ec;border-radius:11px;background:#fff;box-shadow:0 2px 7px #26372a08}
+.watering-task-image,.watering-plant-image{display:grid;overflow:hidden;place-items:center;border-radius:8px;color:#52835a;background:#eaf3e7;font-size:17px}
+.watering-task-image{width:48px;height:37px}
+.watering-task-image img,.watering-plant-image img{width:100%;height:100%;object-fit:cover}
+.watering-task-main{min-width:0}
+.watering-task-main h4{overflow:hidden;margin:0;color:#26382d;font-size:10px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.watering-task-meta{display:block;overflow:hidden;margin-top:3px;color:#6b786d;font-size:7px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}
+.watering-task-divider{width:1px;height:30px;background:#e6ece7}
+.watering-task-quantity{display:flex;min-width:0;align-items:center;gap:3px}
+.watering-task-quantity>svg{flex:0 0 13px;width:13px;height:15px}
+.watering-task-quantity>span{display:grid;min-width:0;gap:2px}
+.watering-task-quantity strong{overflow:hidden;color:#27382d;font-size:8px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.watering-task-quantity small{overflow:hidden;color:#627167;font-size:6px;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
+.watering-task-status{display:inline-flex;margin-top:4px;padding:2px 6px;border-radius:20px;color:#855b1f;background:#fff3dc;font-size:7px;font-weight:750;text-transform:capitalize}
+.watering-task-status.completed{color:#236043;background:#e7f4e8}
+.watering-task-status.overdue{color:#934737;background:#fff0ec}
+.watering-task-actions{display:flex;align-items:center;gap:2px;margin:0}
+.watering-task-done{min-height:27px;padding:5px 6px;border:0;border-radius:9px;color:#fff;background:#318052;font-size:7px;font-weight:750;white-space:nowrap}
+.watering-reschedule{position:relative;display:block}
+.watering-reschedule summary{display:grid;width:16px;min-height:24px;place-items:center;padding:1px;border:0;border-radius:7px;color:#52705a;background:transparent;font-size:9px;letter-spacing:0;cursor:pointer;list-style:none}
+.watering-reschedule summary::-webkit-details-marker,.watering-manual-task summary::-webkit-details-marker{display:none}
+.watering-reschedule-form{position:absolute;z-index:4;right:0;top:calc(100% + 4px);display:flex;width:190px;flex-wrap:wrap;gap:6px;padding:7px;border:1px solid #e3ebe1;border-radius:9px;background:#fff;box-shadow:0 4px 12px #203b291c}
+.watering-reschedule-form input,.watering-manual-form input{min-width:0;min-height:30px;padding:5px 6px;border:1px solid #dfe7dd;border-radius:7px;color:#26392b;background:#fff;font:inherit;font-size:9px}
+.watering-reschedule-form button,.watering-manual-submit{min-height:30px;padding:5px 9px;border:0;border-radius:7px;color:#fff;background:#397454;font-size:9px}
+.watering-overdue-section{margin-top:7px;padding-top:7px;border-top:1px solid #edf1ec}
+.watering-overdue-section summary{color:#6e786f;font-size:9px;font-weight:700;cursor:pointer;list-style:none}
+.watering-overdue-section summary::-webkit-details-marker{display:none}
+.watering-overdue-section summary::after{content:"⌄";float:right}
+.watering-empty{margin:0;padding:10px;border-radius:9px;color:#76847a;background:#f6f9f5;font-size:9px;line-height:1.45}
+.watering-guide{display:grid;grid-template-columns:45px minmax(0,1fr);grid-template-rows:14px auto;align-items:start;gap:5px 8px;margin:0;padding:10px 11px 9px;border:1px solid #e9eee8;border-radius:15px;background:#fff;box-shadow:0 3px 12px #253c2c0d}
+.watering-guide-icon{display:grid;width:19px;height:19px;place-items:center;color:#478c53}
+.watering-guide-icon svg{width:17px;height:17px}
+.watering-guide-copy{display:grid;min-width:0;grid-column:2;grid-row:1/3;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"heading heading" "list tips";align-items:center;gap:0 6px}
+.watering-guide h2{margin:0;color:#29392e;font-size:11px;font-weight:800}
+.watering-guide-copy h2{grid-area:heading}
+.watering-guide ul{grid-area:list;margin:4px 0 0;padding-left:13px;color:#5d6c61;font-size:8px;line-height:1.5}
+.watering-guide li::marker{color:#4b9b61}
+.watering-guide-drop{grid-column:1;grid-row:2;justify-self:center;align-self:center;width:44px;height:49px}
+.watering-tips{position:relative;grid-area:tips;justify-self:end;margin:0;color:#28734b;font-size:8px;font-weight:800}
+.watering-tips summary{display:flex;min-height:23px;align-items:center;padding:5px 8px;border-radius:13px;color:#327b52;background:#eaf5e7;cursor:pointer;list-style:none;white-space:nowrap}
+.watering-recommendations>summary{cursor:pointer;list-style:none}
+.watering-tips summary::-webkit-details-marker,.watering-recommendations>summary::-webkit-details-marker{display:none}
+.watering-tips summary span{margin-left:3px}
+.watering-tips>div{position:absolute;z-index:5;top:calc(100% + 5px);right:0;width:min(300px,calc(100vw - 42px));max-height:58dvh;overflow:auto;padding:8px;border:1px solid #e4ece2;border-radius:10px;background:#fff;box-shadow:0 5px 16px #203b291c}
+.watering-tips p{margin:0;color:#536456;font-size:8px;font-weight:400;line-height:1.45}
+.watering-reminder-enable,.watering-refresh{min-height:25px;margin-top:6px;padding:5px 8px;border:0;border-radius:8px;color:#fff;background:#327d53;font-size:8px;font-weight:750}
+.watering-recommendations{margin-top:8px;padding-top:7px;border-top:1px solid #edf1ec}
+.watering-recommendations>summary{display:flex;align-items:center;justify-content:space-between;padding:8px 0 0;color:#31543b}
+.watering-recommendations>summary::after{content:"⌄";color:#718276}
+.watering-recommendations>summary span{display:grid;gap:2px}
+.watering-recommendations>summary small{color:#7a8a7b;font-size:7px;letter-spacing:.08em}
+.watering-recommendations>summary strong{font-size:9px}
+.watering-recommendations-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;color:#7a887c;font-size:8px}
+.watering-recommendations .watering-refresh{min-height:25px;margin:0;padding:5px 8px}
+.watering-plants-list{display:grid;gap:8px}
+.watering-plant-card{min-width:0;padding:9px;border:1px solid #e6ece5;border-radius:11px;background:#fff}
+.watering-plant-head{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:8px}
+.watering-plant-image{width:42px;height:42px;border-radius:9px}
+.watering-plant-title{min-width:0}
+.watering-plant-title h3{overflow-wrap:anywhere;margin:0;color:#203c2b;font-size:11px}
+.watering-plant-title p{margin:3px 0 0;color:#748075;font-size:8px}
+.watering-health-badge{max-width:110px;padding:4px 6px;border-radius:14px;color:#285d3d;background:#e9f4e5;font-size:7px;font-weight:750;text-align:center}
+.watering-health-badge.uncertain{color:#805c26;background:#fff3dc}
+.watering-plant-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:8px 0}
+.watering-plant-summary div{min-width:0;padding:6px;border-radius:8px;background:#f6f9f5}
+.watering-plant-summary span{display:block;color:#829084;font-size:7px;text-transform:uppercase}
+.watering-plant-summary strong{display:block;overflow-wrap:anywhere;margin-top:3px;color:#31523a;font-size:8px;line-height:1.3}
+.watering-recommendation,.watering-no-scan{padding:8px;border:1px solid #dcead8;border-radius:9px;background:#f4f9f1}
+.watering-recommendation[data-decision=check_soil]{border-color:#f0dfb9;background:#fff9ec}
+.watering-recommendation h4{margin:0;color:#28593b;font-size:9px}
+.watering-recommendation p,.watering-no-scan{margin:4px 0 0;color:#56665a;font-size:8px;line-height:1.45}
+.watering-recommendation ul{margin:6px 0 0;padding-left:15px;color:#805a25;font-size:8px;line-height:1.45}
+.watering-evidence{display:inline-flex;margin-top:5px;padding:3px 6px;border-radius:20px;color:#536a56;background:#e8f0e5;font-size:7px;font-weight:700}
+.watering-plant-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px;padding-top:8px;border-top:1px solid #edf0ec}
+.watering-field{display:grid;min-width:0;gap:4px;color:#68756a;font-size:8px;font-weight:700}
+.watering-field input{width:100%;min-width:0;min-height:30px;padding:5px 7px;border:1px solid #dfe7dd;border-radius:7px;color:#26392b;background:#fff;font:inherit;font-size:9px;font-weight:500}
+.watering-settings-footer{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;gap:8px}
+.watering-settings-footer small{color:#778277;font-size:8px;line-height:1.4}
+.watering-manual-task{grid-column:1/-1}
+.watering-manual-task summary{color:#315b3d;font-size:8px;font-weight:700;cursor:pointer}
+.watering-manual-form{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.screen-bottom-nav{position:fixed;z-index:20;bottom:0;left:50%;display:grid;width:min(100%,390px);height:calc(64px + env(safe-area-inset-bottom));grid-template-columns:repeat(5,minmax(0,1fr));align-items:end;transform:translateX(-50%);padding:5px 10px calc(6px + env(safe-area-inset-bottom));border-top:1px solid #e8eee8;background:#fff;box-shadow:0 -3px 12px #203b2908}
+.screen-bottom-nav button{display:grid;min-width:0;justify-items:center;gap:2px;padding:0 2px 3px;border:0;color:#78837a;background:transparent;font-size:8px}
+.screen-bottom-nav .nav-icon{display:grid;height:19px;place-items:center;font-size:16px}
+.screen-bottom-nav .nav-icon svg{width:17px;height:17px}
+.screen-bottom-nav button.active{border-bottom:2px solid #378455;color:#2c8050;font-weight:800}
+.screen-bottom-nav .screen-add{align-self:start;margin-top:-7px;color:#69806f}
+.screen-bottom-nav .screen-add>span{display:grid;width:32px;height:32px;place-items:center;border-radius:50%;color:#fff;background:#358455;box-shadow:0 3px 7px #30774833;font-size:24px;font-weight:300}
+.screen-bottom-nav .screen-add small{padding-top:1px;color:#69806f;font-size:8px}
+@media(max-width:350px){.watering-screen{padding-right:7px;padding-left:7px}.watering-header{margin-right:-7px;margin-left:-7px;padding-right:10px;padding-left:10px}.watering-task-card{grid-template-columns:38px minmax(48px,1fr) 1px 58px auto;gap:4px;padding:5px}.watering-task-image{width:37px;height:34px}.watering-task-done{padding-right:5px;padding-left:5px}.watering-calendar-weekdays,.watering-calendar-grid{gap:2px}}
