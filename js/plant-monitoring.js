@@ -150,6 +150,7 @@ function renderScanDetails() {
 
   const result = scan.analysis_result || {}
   const symptoms = Array.isArray(result.visible_symptoms) ? result.visible_symptoms : []
+  const possibleCauses = Array.isArray(result.possible_causes) ? result.possible_causes : []
   const recommendations = Array.isArray(result.recommendations) ? result.recommendations : []
   const preventionTips = Array.isArray(result.prevention_tips) ? result.prevention_tips : []
   const listMarkup = (items, emptyText) => items.length
@@ -163,8 +164,14 @@ function renderScanDetails() {
     </div>
     <div class="details-analysis-grid">
       <div><h3>Detected issue</h3><p>${escapeHtml(result.detected_issue || scan.detected_issue || 'No specific issue recorded.')}</p></div>
+      <div><h3>Plant health</h3><p>${escapeHtml(result.plant_health || 'Not recorded')}</p></div>
+      <div><h3>Leaf condition</h3><p>${escapeHtml(result.leaf_condition || 'Not recorded')}</p></div>
+      <div><h3>Growth stage</h3><p>${escapeHtml(result.growth_stage || 'Not recorded')}</p></div>
+      <div><h3>Disease risk</h3><p>${escapeHtml(result.disease_risk || 'Not recorded')}</p></div>
+      <div><h3>Discoloration</h3><p>${escapeHtml(result.discoloration || 'Not recorded')}</p></div>
       <div><h3>AI analysis</h3><p>${escapeHtml(result.analysis || 'No AI analysis was saved for this scan.')}</p></div>
       <div><h3>Visible symptoms</h3>${listMarkup(symptoms, 'No clear symptoms were recorded.')}</div>
+      <div><h3>Possible causes</h3>${listMarkup(possibleCauses, 'No possible causes were recorded.')}</div>
       <div><h3>Recommendations</h3>${listMarkup(recommendations, 'No recommendations were recorded.')}</div>
       <div><h3>Prevention tips</h3>${listMarkup(preventionTips, 'No prevention tips were recorded.')}</div>
     </div>

@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard - TanimTrack</title>
   <meta name="application-name" content="TanimTrack">
+  <meta name="live-analysis-interval-ms" content="%VITE_LIVE_ANALYSIS_INTERVAL_MS%">
   <link rel="icon" href="TANIMTRACK/images/LOGO.png">
   <link rel="stylesheet" href="css/responsive-tokens.css">
   <link rel="stylesheet" href="src/styles.css">
@@ -31,6 +32,7 @@
           <p class="plant-selection-feedback" id="plant-selection-feedback" role="status" aria-live="polite"></p>
           <div class="plant-selection-actions">
             <button type="button" class="plant-selection-back" id="plant-selection-back">Back to Farm Logs</button>
+            <button type="button" class="plant-selection-back" id="plant-selection-skip">Continue without a registered plant</button>
             <button type="button" class="plant-selection-continue" id="plant-selection-continue" disabled>Continue to scanner</button>
           </div>
         </div>
@@ -43,7 +45,7 @@
         <section class="camera-card"><video id="camera-live" autoplay playsinline muted
             aria-label="Live plant camera"></video>
           <div class="camera-shade"></div>
-          <div class="live-pill"><span></span><span id="live-state">Starting...</span></div>
+          <div class="live-pill"><span></span><span id="live-state">Camera Paused</span></div>
           <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span></span></div>
           <div class="detection-pill">Camera preview only</div>
           <p id="camera-error" class="camera-error" hidden></p>
@@ -57,7 +59,7 @@
               <span aria-hidden="true">▧</span>Upload Photo
             </button>
           </div>
-          <input id="scan-photo-input" type="file" accept="image/*" hidden>
+          <input id="scan-photo-input" type="file" accept="image/jpeg,image/png,image/webp" hidden>
           <p id="capture-photo-status" class="capture-photo-status" role="status" aria-live="polite" hidden></p>
           <div id="captured-photo-preview" class="captured-photo-preview" hidden>
             <img id="captured-live-photo" alt="Captured plant preview">
@@ -70,8 +72,11 @@
         <section class="analysis-card">
           <div class="section-heading">
             <h2><span class="leaf-icon">✦</span> AI Health Analysis</h2><span id="monitoring-tag"
-              class="monitoring-tag">Starting...</span>
+              class="paused-tag">Camera Paused</span>
           </div>
+          <p class="live-analysis-updated" id="live-analysis-updated">Latest successful analysis: Not available</p>
+          <p class="live-analysis-summary" id="live-analysis-summary">Start the camera or analyze a photo to see Gemini findings.</p>
+          <p class="live-analysis-error" id="live-analysis-error" role="alert" hidden></p>
           <div class="metric-list">
             <div><span class="metric-icon">✦</span><span>Plant Health</span><strong>Not analyzed</strong><b>›</b></div>
             <div><span class="metric-icon">◈</span><span>Leaf Condition</span><strong>Not analyzed</strong><b>›</b></div>
@@ -79,25 +84,27 @@
             <div><span class="metric-icon">◒</span><span>Disease Risk</span><strong>Not analyzed</strong><b>›</b></div>
             <div><span class="metric-icon">◌</span><span>Discoloration</span><strong>Not analyzed</strong><b>›</b>
             </div>
-          </div><button id="monitor-toggle" class="pause-button" type="button"><span>Ⅱ</span>Pause Camera</button>
+          </div>
+          <button id="monitor-toggle" class="pause-button" type="button"><span>◉</span>Start Live Camera</button>
+          <button id="analysis-toggle" class="pause-button analysis-pause-button" type="button" disabled><span>Ⅱ</span>Pause Analysis</button>
         </section>
         <section class="dashboard-section">
           <div class="section-heading">
             <h2>⟳ &nbsp;Recent Changes</h2><button type="button">View all</button>
           </div>
-          <p>No scan comparisons are available yet.</p>
+          <p id="recent-change-copy">No scan comparisons are available yet.</p>
         </section>
         <section class="dashboard-section farm-log">
           <div class="section-heading">
             <h2>▣ &nbsp;Farm Log</h2><button type="button">View all</button>
           </div>
-          <p>Submitted scans will appear in your scan history.</p>
+          <p id="farm-log-copy">Submitted scans will appear in your scan history.</p>
         </section>
         <section class="dashboard-section alert-section">
           <div class="section-heading">
             <h2>△ &nbsp;Alerts</h2><button type="button">View all</button>
           </div>
-          <p>No AI-generated crop alerts are available.</p>
+          <p id="alerts-copy">No AI-generated crop alerts are available.</p>
         </section>
         <section class="recommendation"><span>♧</span>
           <div><strong>About model results</strong>
@@ -130,6 +137,7 @@
             </div>
             <p class="analysis-unavailable-copy" id="analysis-unavailable-copy"></p>
           </div>
+          <p class="live-analysis-updated result-analysis-updated" id="result-analysis-updated">Latest successful analysis: Not available</p>
           <div class="gemini-result-fields" id="gemini-result-fields" hidden>
             <div class="gemini-result-grid">
               <div class="gemini-result-field">
@@ -138,7 +146,23 @@
               </div>
               <div class="gemini-result-field">
                 <span class="gemini-result-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.2 8.8c0 5-8.2 10.1-8.2 10.1S3.8 13.8 3.8 8.8A4.6 4.6 0 0 1 12 6.4a4.6 4.6 0 0 1 8.2 2.4Z"/><path d="M3 12h4l2-3 3.1 6 2.1-4H21"/></svg></span>
-                <div><span>Health status</span><strong id="result-health-status"></strong></div>
+                <div><span>Plant health</span><strong id="result-health-status"></strong></div>
+              </div>
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true">❧</span>
+                <div><span>Leaf condition</span><strong id="result-leaf-condition"></strong></div>
+              </div>
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true">♣</span>
+                <div><span>Growth stage</span><strong id="result-growth-stage"></strong></div>
+              </div>
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true">✿</span>
+                <div><span>Disease risk</span><strong id="result-disease-risk"></strong></div>
+              </div>
+              <div class="gemini-result-field">
+                <span class="gemini-result-field-icon" aria-hidden="true">◈</span>
+                <div><span>Discoloration</span><strong id="result-discoloration"></strong></div>
               </div>
               <div class="gemini-result-field">
                 <span class="gemini-result-field-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v5"/><path d="M12 17.5h.01"/></svg></span>
@@ -158,7 +182,7 @@
               <section class="gemini-result-section gemini-analysis-section">
                 <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20v-6h4v6M10 20V9h4v11M16 20V4h4v16"/></svg> Analysis</h3>
                 <p id="result-analysis"></p>
-                <div class="gemini-visible-symptoms"><h4>Visible symptoms</h4><ul id="result-symptoms"></ul></div>
+                <div class="gemini-visible-symptoms"><h4>Visible symptoms</h4><ul id="result-symptoms"></ul><h4>Possible causes (not confirmed)</h4><ul id="result-causes"></ul></div>
               </section>
               <section class="gemini-result-section gemini-recommendations-section">
                 <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M8.5 14.5a7 7 0 1 1 7 0c-.8.6-1.2 1.4-1.3 2.5H9.8c-.1-1.1-.5-1.9-1.3-2.5Z"/><path d="M12 1v2M4.2 4.2l1.4 1.4M1 12h2M19.8 4.2l-1.4 1.4M21 12h2"/></svg> Recommendations</h3>
@@ -198,8 +222,13 @@
       const retakeLivePhotoButton = document.querySelector('#retake-live-photo')
       const useLivePhotoButton = document.querySelector('#use-live-photo')
       const toggle = document.querySelector('#monitor-toggle')
+      const analysisToggle = document.querySelector('#analysis-toggle')
       const tag = document.querySelector('#monitoring-tag')
       const state = document.querySelector('#live-state')
+      const liveAnalysisUpdated = document.querySelector('#live-analysis-updated')
+      const liveAnalysisSummary = document.querySelector('#live-analysis-summary')
+      const liveAnalysisError = document.querySelector('#live-analysis-error')
+      const liveMetricRows = [...document.querySelectorAll('#live-scan-view .metric-list>div')]
       const dashboardNav = document.querySelector('.new-bottom-nav')
       const dashboardPage = document.querySelector('.dashboard-page')
       const scanShell = document.querySelector('.monitor-shell')
@@ -224,11 +253,19 @@
       const plantSelectionSelect = document.querySelector('#plant-selection-select')
       const plantSelectionFeedback = document.querySelector('#plant-selection-feedback')
       const plantSelectionContinue = document.querySelector('#plant-selection-continue')
+      const plantSelectionSkip = document.querySelector('#plant-selection-skip')
       let availablePlants = []
       let stream = null
       let cameraStartPromise = null
       let pageLeaving = false
-      let monitoring = true
+      let monitoring = false
+      let analysisPaused = false
+      let skipPlantSelection = false
+      let liveAnalysisTimer = null
+      let analysisRequestPromise = null
+      let analysisRequestController = null
+      let lastFrameSignature = null
+      let latestAnalysisAt = null
       let capturedPhotoBlob = null
       let selectedScanPhoto = null
       let capturedPhotoUrl = ''
@@ -239,6 +276,7 @@
       let currentAnalysis = null
       let analysisAttempted = false
       let analysisError = ''
+      const liveAnalysisIntervalMs = Math.max(5000, Number(document.querySelector('meta[name="live-analysis-interval-ms"]')?.content) || 7000)
 
       const escapeScanHistoryHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])
       const scanHistoryDate = (value) => {
@@ -299,13 +337,43 @@
         if (!selectedPlant) return
         window.location.replace(`/dashboard.html?plant_id=${encodeURIComponent(selectedPlant.id)}&return_to=farm-logs`)
       })
+      plantSelectionSkip.addEventListener('click', () => {
+        skipPlantSelection = true
+        plantSelectionDialog.close()
+        selectedPlantContext.hidden = false
+        selectedPlantContext.textContent = 'No registered plant selected. Scans are analyzed but are not attached to a plant.'
+        selectedPlantContext.dataset.kind = ''
+        capturePhotoButton.disabled = !hasActiveCameraTrack(stream || video.srcObject)
+        uploadScanPhotoButton.disabled = false
+        scanPhotoInput.disabled = false
+        toggle.disabled = true
+        toggle.innerHTML = '<span>◉</span>Initializing Camera'
+        monitoring = true
+        analysisPaused = false
+        void initializeCamera().finally(() => {
+          toggle.disabled = false
+          if (!hasActiveCameraTrack(stream || video.srcObject)) {
+            monitoring = false
+            toggle.innerHTML = '<span>◉</span>Start Live Camera'
+          }
+        })
+      })
       document.querySelector('#plant-selection-back').addEventListener('click', returnToFarmLogPage)
       plantSelectionDialog.addEventListener('cancel', (event) => {
         event.preventDefault()
         returnToFarmLogPage()
       })
       async function loadSelectedPlantContext() {
-        if (!selectedPlantId) return true
+        if (!selectedPlantId) {
+          selectedPlantContext.hidden = false
+          selectedPlantContext.textContent = 'No registered plant selected. Scans are analyzed but are not attached to a plant.'
+          selectedPlantContext.dataset.kind = ''
+          capturePhotoButton.disabled = !hasActiveCameraTrack(stream || video.srcObject)
+          uploadScanPhotoButton.disabled = false
+          scanPhotoInput.disabled = false
+          toggle.disabled = false
+          return true
+        }
         selectedPlantContext.hidden = false
         selectedPlantContext.textContent = 'Verifying selected plant…'
         capturePhotoButton.disabled = true
@@ -325,7 +393,8 @@
           const plant = result.plants.find((item) => item.id === selectedPlantId)
           if (!plant) throw new Error('This plant could not be found in your account.')
           selectedPlantContext.textContent = `Currently scanning: ${plant.name}`
-          capturePhotoButton.disabled = false
+          selectedPlantContext.dataset.kind = ''
+          capturePhotoButton.disabled = !hasActiveCameraTrack(stream || video.srcObject)
           uploadScanPhotoButton.disabled = false
           scanPhotoInput.disabled = false
           toggle.disabled = false
@@ -338,11 +407,17 @@
         }
       }
       const verifyPlantAndStartCamera = async () => {
-        if (returnToFarmLogs && !selectedPlantId) {
+        if (returnToFarmLogs && !selectedPlantId && !skipPlantSelection) {
           await choosePlantBeforeScanning()
           return
         }
-        if (await loadSelectedPlantContext()) await initializeCamera()
+        if (await loadSelectedPlantContext()) {
+          monitoring = true
+          analysisPaused = false
+          analysisToggle.disabled = true
+          toggle.innerHTML = '<span>■</span>Stop Camera'
+          await initializeCamera()
+        }
       }
       const makeScanId = () => globalThis.crypto?.randomUUID?.() || `scan-${Date.now()}-${Math.random().toString(36).slice(2)}`
       const setScanHistoryStatus = (message) => {
@@ -398,10 +473,16 @@
               fieldName: null,
               analysisStatus: analysisReceived ? 'complete' : 'unavailable',
               analysisResult: analysisReceived ? {
-                summary: plantName ? `${plantName}: ${result.health_status}` : result.health_status,
+                summary: plantName ? `${plantName}: ${result.plant_health}` : result.plant_health,
                 healthStatus: result.health_status,
+                plantHealth: result.plant_health,
+                leafCondition: result.leaf_condition,
+                growthStage: result.growth_stage,
+                diseaseRisk: result.disease_risk,
+                discoloration: result.discoloration,
                 detectedIssue: result.detected_issue,
                 visibleSymptoms: result.visible_symptoms,
+                possibleCauses: result.possible_causes,
                 severity: result.severity,
                 confidence: result.confidence,
                 analysis: result.analysis,
@@ -680,35 +761,97 @@
         })
       }
 
+      function isGeminiAnalysisResult(result) {
+        return result?.success === true
+          && ['Healthy', 'Diseased', 'Pest-Affected', 'Nutrient Deficiency', 'Uncertain'].includes(result.health_status)
+          && ['Healthy', 'Showing Possible Stress', 'Unhealthy', 'Unable to Determine'].includes(result.plant_health)
+          && ['Healthy-looking leaves', 'Yellowing', 'Wilting', 'Browning', 'Visible spots', 'Holes or damage', 'Other visible abnormalities', 'Unable to Determine'].includes(result.leaf_condition)
+          && ['Seedling', 'Vegetative Growth', 'Mature Plant', 'Ready for Harvest', 'Unable to Determine'].includes(result.growth_stage)
+          && ['No obvious visible symptoms', 'Possible disease symptoms', 'Possible pest damage', 'Requires further inspection'].includes(result.disease_risk)
+          && ['No obvious discoloration', 'Yellowing', 'Browning', 'Other visible changes', 'Unable to Determine'].includes(result.discoloration)
+          && ['None', 'Low', 'Moderate', 'High', 'Unknown'].includes(result.severity)
+          && ['Low', 'Medium', 'High', 'Unknown'].includes(result.confidence)
+          && typeof result.analysis === 'string'
+          && Boolean(result.analysis.trim())
+          && ['visible_symptoms', 'possible_causes', 'recommendations', 'prevention_tips']
+            .every((field) => Array.isArray(result[field]) && result[field].every((item) => typeof item === 'string'))
+          && typeof result.needs_verification === 'boolean'
+          && (result.plant_name === null || typeof result.plant_name === 'string')
+          && (result.detected_issue === null || typeof result.detected_issue === 'string')
+      }
+
+      function setLiveMetric(index, value, attention = false) {
+        const output = liveMetricRows[index]?.querySelector('strong')
+        if (!output) return
+        output.textContent = value
+        output.classList.toggle('analysis-attention', attention)
+      }
+
+      function renderLiveAnalysis(result) {
+        currentAnalysis = result
+        latestAnalysisAt = new Date()
+        const timestamp = latestAnalysisAt.toLocaleString()
+        liveAnalysisUpdated.textContent = `Latest successful analysis: ${timestamp}`
+        document.querySelector('#result-analysis-updated').textContent = `Latest successful analysis: ${timestamp}`
+        liveAnalysisSummary.textContent = result.analysis
+        liveAnalysisError.hidden = true
+        setLiveMetric(0, result.plant_health, result.plant_health !== 'Healthy')
+        setLiveMetric(1, result.leaf_condition)
+        setLiveMetric(2, result.growth_stage)
+        setLiveMetric(3, result.disease_risk, result.disease_risk !== 'No obvious visible symptoms')
+        setLiveMetric(4, result.discoloration)
+        const observation = result.visible_symptoms.length
+          ? `Latest visible observations: ${result.visible_symptoms.join('; ')}.`
+          : 'Latest Gemini analysis reported no visible symptoms.'
+        document.querySelector('#recent-change-copy').textContent = observation
+        document.querySelector('#alerts-copy').textContent = result.disease_risk === 'No obvious visible symptoms'
+          ? 'Gemini reported no obvious visible symptoms in the latest frame.'
+          : `${result.disease_risk}${result.detected_issue ? ` · ${result.detected_issue}` : ''}. Further inspection may be required.`
+        renderGeminiAnalysis(result)
+        tag.textContent = 'Analysis Updated'
+        tag.className = monitoring && !analysisPaused ? 'monitoring-tag' : 'paused-tag'
+        liveAnalysisError.hidden = true
+      }
+
       function renderGeminiAnalysis(result) {
         const uncertain = result.health_status === 'Uncertain' || result.needs_verification
         const plantName = result.plant_name || 'The plant'
         const healthy = result.health_status === 'Healthy'
         const statusIcon = healthy ? '✓' : uncertain ? '!' : '△'
-        const summaryParts = [`${plantName} was assessed as ${result.health_status.toLowerCase()}.`]
+        const summaryParts = [`${plantName} appears ${result.plant_health.toLowerCase()}.`]
         summaryParts.push(result.detected_issue
           ? `Possible issue: ${result.detected_issue}.`
           : 'No specific issue was identified.')
+        summaryParts.push(`Leaf condition: ${result.leaf_condition}.`)
+        summaryParts.push(`Apparent growth stage: ${result.growth_stage}.`)
+        summaryParts.push(`Disease risk: ${result.disease_risk}.`)
+        summaryParts.push(`Discoloration: ${result.discoloration}.`)
         if (result.visible_symptoms.length) {
           summaryParts.push(`Visible symptoms: ${result.visible_symptoms.slice(0, 3).join(', ')}.`)
         }
-        summaryParts.push(`Severity: ${result.severity}.`)
+        if (result.possible_causes.length) {
+          summaryParts.push(`Possible causes, not confirmed: ${result.possible_causes.slice(0, 3).join(', ')}.`)
+        }
         analysisUnavailableTitle.textContent = result.plant_name || 'No recognizable plant identified'
         analysisUnavailableCopy.textContent = uncertain
           ? 'This visual assessment is uncertain and requires manual verification.'
           : 'Gemini visual assessment, not a confirmed diagnosis. Confidence is qualitative, not calibrated.'
         analysisUnavailable.dataset.healthState = healthy ? 'healthy' : uncertain ? 'uncertain' : 'attention'
         document.querySelector('#result-status-icon').textContent = statusIcon
-        document.querySelector('#result-health-status-label').textContent = result.health_status
+        document.querySelector('#result-health-status-label').textContent = result.plant_health
         document.querySelector('#result-status-description').textContent = uncertain
           ? 'The visual assessment is uncertain. Verify the plant and symptoms before taking action.'
           : healthy
             ? 'Your plant appears healthy based on this visual scan.'
-            : `${result.detected_issue || 'A plant health concern was detected'}. Severity: ${result.severity}.`
+            : `${result.detected_issue || 'A possible plant health concern was observed'}. This is not a confirmed diagnosis.`
         document.querySelector('#result-summary-icon').textContent = statusIcon
         document.querySelector('#result-health-summary').textContent = summaryParts.join(' ')
         document.querySelector('#result-plant-name').textContent = result.plant_name || 'Not identified'
-        document.querySelector('#result-health-status').textContent = result.health_status
+        document.querySelector('#result-health-status').textContent = result.plant_health
+        document.querySelector('#result-leaf-condition').textContent = result.leaf_condition
+        document.querySelector('#result-growth-stage').textContent = result.growth_stage
+        document.querySelector('#result-disease-risk').textContent = result.disease_risk
+        document.querySelector('#result-discoloration').textContent = result.discoloration
         document.querySelector('#result-detected-issue').textContent = result.detected_issue || 'No specific issue identified'
         document.querySelector('#result-severity').textContent = result.severity
         document.querySelector('.gemini-severity-field').dataset.severityTone =
@@ -719,6 +862,7 @@
         document.querySelector('#result-analysis').textContent = result.analysis
         document.querySelector('#result-verification').hidden = !uncertain
         renderGeminiList('#result-symptoms', result.visible_symptoms, 'No clear symptoms reported.')
+        renderGeminiList('#result-causes', result.possible_causes, 'No possible causes identified.')
         renderGeminiList('#result-recommendations', result.recommendations, 'No recommendation provided.')
         renderGeminiList('#result-prevention-tips', result.prevention_tips, 'No prevention tips provided.')
         scanResultHealth.hidden = false
@@ -731,6 +875,11 @@
         analysisAttempted = true
         const scanId = selectedScanId
         const image = selectedScanPhoto
+        if (analysisRequestPromise) {
+          analysisRequestController?.abort()
+          await analysisRequestPromise.catch(() => {})
+        }
+        if (scanId !== selectedScanId) return
         const formData = new FormData()
         formData.append('scan_image', image, image.name || 'crop-image.jpg')
         if (selectedPlantId) formData.append('plant_id', selectedPlantId)
@@ -744,6 +893,12 @@
         analysisUnavailablePlaceholder.hidden = Boolean(capturedPhotoUrl)
         if (capturedPhotoUrl) analysisUnavailablePhoto.src = capturedPhotoUrl
         setScanHistoryStatus('Submitting image for analysis...')
+        const controller = new AbortController()
+        analysisRequestController = controller
+        const requestTimeout = window.setTimeout(() => controller.abort(), 115000)
+        tag.textContent = 'Analyzing Plant'
+        tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'
+        liveAnalysisError.hidden = true
         scanRequestPromise = (async () => {
           let result
           let unavailableReason = ''
@@ -752,7 +907,8 @@
               method: 'POST',
               credentials: 'same-origin',
               headers: { Accept: 'application/json' },
-              body: formData
+              body: formData,
+              signal: controller.signal
             })
             try {
               result = await response.json()
@@ -763,26 +919,10 @@
               throw new Error(typeof result?.message === 'string' ? result.message : 'The scanner could not analyze this image.')
             }
             if (scanId !== selectedScanId) return
-            const supportedHealthStatuses = ['Healthy', 'Diseased', 'Pest-Affected', 'Nutrient Deficiency', 'Uncertain']
-            const supportedSeverities = ['None', 'Low', 'Moderate', 'High', 'Unknown']
-            const supportedConfidence = ['Low', 'Medium', 'High', 'Unknown']
-            if (
-              !supportedHealthStatuses.includes(result.health_status)
-              || !supportedSeverities.includes(result.severity)
-              || !supportedConfidence.includes(result.confidence)
-              || !Array.isArray(result.visible_symptoms) || !result.visible_symptoms.every((value) => typeof value === 'string')
-              || !Array.isArray(result.recommendations) || !result.recommendations.every((value) => typeof value === 'string')
-              || !Array.isArray(result.prevention_tips) || !result.prevention_tips.every((value) => typeof value === 'string')
-              || typeof result.analysis !== 'string'
-              || !result.analysis.trim()
-              || typeof result.needs_verification !== 'boolean'
-              || (result.plant_name !== null && typeof result.plant_name !== 'string')
-              || (result.detected_issue !== null && typeof result.detected_issue !== 'string')
-            ) {
+            if (!isGeminiAnalysisResult(result)) {
               throw new Error('The scanner returned an invalid analysis result.')
             }
-            currentAnalysis = result
-            renderGeminiAnalysis(result)
+            renderLiveAnalysis(result)
             unavailableReason = result.needs_verification ? 'Gemini marked this result as requiring manual verification.' : ''
             if (selectedPlantId && result.scan_saved !== true) {
               unavailableReason = typeof result.scan_save_error === 'string'
@@ -792,9 +932,14 @@
           } catch (scanError) {
             if (scanId !== selectedScanId) return
             unavailableReason = scanError instanceof Error ? scanError.message : 'The scanner is unavailable. Please try again.'
+            if (controller.signal.aborted && !pageLeaving) unavailableReason = 'The analysis request was cancelled.'
             currentAnalysis = null
             result = null
             analysisError = unavailableReason
+            liveAnalysisError.textContent = unavailableReason
+            liveAnalysisError.hidden = false
+            tag.textContent = 'Analysis Failed'
+            tag.className = 'paused-tag'
             analysisUnavailable.setAttribute('aria-busy', 'false')
             geminiResultFields.hidden = true
             analysisUnavailableTitle.textContent = 'Result unavailable'
@@ -802,22 +947,27 @@
           }
           if (scanId === selectedScanId) {
             await persistSelectedScan(result || null, unavailableReason)
-            if (selectedPlantId && result?.scan_saved === true) {
-              window.location.replace(returnToFarmLogs
-                ? '/TanimTrack%20Dashboard/index%20(1).html#farm-logs'
-                : `/plant-monitoring.html?plant_id=${encodeURIComponent(selectedPlantId)}`)
+            if (result?.scan_saved === true) {
+              window.dispatchEvent(new CustomEvent('tanodbukid:scan-history-changed'))
+              document.querySelector('#farm-log-copy').textContent = `Latest scan saved to ${selectedPlantContext.textContent.replace('Currently scanning: ', '')} and added to Plant Monitoring history.`
             }
           }
         })().finally(() => {
+          window.clearTimeout(requestTimeout)
+          if (analysisRequestController === controller) {
+            analysisRequestController = null
+            analysisRequestPromise = null
+          }
           scanRequestPromise = null
           if (!scanAnalysisView.hidden && selectedScanPhoto && !analysisAttempted) {
             void analyzeSelectedScan()
           }
         })
+        analysisRequestPromise = scanRequestPromise
         return scanRequestPromise
       }
 
-      function setScanTab(showAnalysis) {
+      function setScanTab(showAnalysis, stopCameraForScan = false) {
         liveScanView.hidden = showAnalysis
         scanAnalysisView.hidden = !showAnalysis
         dashboardPage.classList.toggle('showing-analysis', showAnalysis)
@@ -829,19 +979,26 @@
 
         if (showAnalysis) {
           const hasSubmittedPhoto = Boolean(selectedScanPhoto)
+          const hasCurrentAnalysis = Boolean(currentAnalysis)
           analysisUnavailable.hidden = false
           scanResultHealth.hidden = true
-          analysisUnavailableTitle.textContent = hasSubmittedPhoto ? 'Analyzing image...' : 'No scan result yet'
+          analysisUnavailableTitle.textContent = hasSubmittedPhoto
+            ? 'Analyzing image...'
+            : hasCurrentAnalysis
+              ? currentAnalysis.plant_name || 'No recognizable plant identified'
+              : 'No scan result yet'
           analysisUnavailableCopy.textContent = hasSubmittedPhoto
             ? 'Submitting the selected image to Gemini for visual analysis.'
-            : 'Capture or upload a crop photo, then choose Use Photo to request an analysis.'
-          geminiResultFields.hidden = !currentAnalysis
-          analysisUnavailable.setAttribute('aria-busy', String(hasSubmittedPhoto && !currentAnalysis && !analysisError))
+            : hasCurrentAnalysis
+              ? currentAnalysis.analysis
+              : 'Start Live Camera for periodic analysis, or capture/upload a photo for a complete scan.'
+          geminiResultFields.hidden = !hasCurrentAnalysis
+          analysisUnavailable.setAttribute('aria-busy', String(hasSubmittedPhoto && !hasCurrentAnalysis && !analysisError))
           const hasPreview = Boolean(hasSubmittedPhoto && capturedPhotoUrl)
           analysisUnavailablePhoto.hidden = !hasPreview
           analysisUnavailablePlaceholder.hidden = hasPreview
           if (hasPreview) analysisUnavailablePhoto.src = capturedPhotoUrl
-          if (hasSubmittedPhoto && currentAnalysis) {
+          if (currentAnalysis) {
             renderGeminiAnalysis(currentAnalysis)
           } else if (hasSubmittedPhoto && analysisError) {
             analysisUnavailableTitle.textContent = 'Result unavailable'
@@ -849,17 +1006,28 @@
           } else if (hasSubmittedPhoto) {
             void analyzeSelectedScan()
           }
-          state.textContent = 'Paused'
-          tag.textContent = 'Paused'
-          tag.className = 'paused-tag'
-          stopCameraStream(stream || video.srcObject)
-        } else if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) {
-          void verifyPlantAndStartCamera()
+          if (stopCameraForScan) stopCamera()
+        } else if (!monitoring) {
+          setCameraStatus('Camera Paused', false)
         }
       }
 
       liveCameraTab.addEventListener('click', () => setScanTab(false))
       aiAnalysisTab.addEventListener('click', () => setScanTab(true))
+      analysisToggle.addEventListener('click', () => {
+        if (!monitoring) return
+        analysisPaused = !analysisPaused
+        if (analysisPaused) {
+          stopLiveAnalysisTimer()
+          analysisRequestController?.abort()
+          analysisToggle.innerHTML = '<span>▶</span>Resume Analysis'
+          setCameraStatus('Camera Paused')
+        } else {
+          analysisToggle.innerHTML = '<span>Ⅱ</span>Pause Analysis'
+          setCameraStatus('Camera Active')
+          scheduleLiveAnalysis(0)
+        }
+      })
 
       function hasActiveCameraTrack(cameraStream) {
         return Boolean(cameraStream?.getVideoTracks?.().some((track) => track.readyState === 'live'))
@@ -886,19 +1054,20 @@
 
       function setCameraStarting() {
         error.hidden = true
-        state.textContent = 'Starting...'
-        tag.textContent = 'Camera starting...'
+        state.textContent = 'Initializing Camera'
+        tag.textContent = 'Initializing Camera'
         tag.className = 'monitoring-tag'
+        document.querySelector('.live-pill').classList.remove('camera-on')
       }
 
       function showCameraError(cameraError, stage) {
         const name = cameraError?.name || 'Error'
         const messages = {
-          NotAllowedError: ['Permission denied', 'Camera permission is blocked. Please allow camera access in browser settings.'],
+          NotAllowedError: ['Camera permission denied', 'Allow camera access for this site in its browser settings, then retry.'],
           NotFoundError: ['Camera unavailable', 'No camera was found on this device.'],
           NotReadableError: ['Camera unavailable', 'The camera is currently being used by another application.'],
           OverconstrainedError: ['Camera unavailable', 'Camera settings are not supported.'],
-          SecurityError: ['Camera unavailable', 'Camera access is unavailable in this browser context.'],
+          SecurityError: ['Camera unavailable', 'Camera access requires HTTPS or localhost. Open this site securely and allow camera access.'],
           AbortError: ['Camera unavailable', 'Camera startup was interrupted. Please try again.'],
           NotSupportedError: ['Camera unavailable', 'Camera access is not supported in this browser.']
         }
@@ -907,11 +1076,14 @@
         error.textContent = stage === 'playback' && name === 'NotAllowedError'
           ? 'The camera started, but browser playback was blocked. Check browser playback settings and try again.'
           : message
-        state.textContent = status
-        tag.textContent = 'Paused'
+        state.textContent = 'Analysis Failed'
+        tag.textContent = 'Analysis Failed'
         tag.className = 'paused-tag'
         monitoring = false
-        toggle.innerHTML = '<span>▶</span>Resume Camera'
+        toggle.innerHTML = '<span>◉</span>Start Live Camera'
+        toggle.disabled = false
+        analysisToggle.disabled = true
+        document.querySelector('.live-pill').classList.remove('camera-on')
         console.error('[scanner camera] Initialization failed', {
           stage,
           name,
@@ -965,18 +1137,186 @@
         if (stream === cameraStream) stream = null
       }
 
+      function setCameraStatus(message, cameraIsActive = monitoring) {
+        tag.textContent = message
+        tag.className = cameraIsActive && !analysisPaused ? 'monitoring-tag' : 'paused-tag'
+        state.textContent = cameraIsActive ? 'Live' : message
+        document.querySelector('.live-pill').classList.toggle('camera-on', cameraIsActive)
+      }
+
+      function stopLiveAnalysisTimer() {
+        if (liveAnalysisTimer !== null) window.clearTimeout(liveAnalysisTimer)
+        liveAnalysisTimer = null
+      }
+
+      function scheduleLiveAnalysis(delay = liveAnalysisIntervalMs) {
+        stopLiveAnalysisTimer()
+        if (!pageLeaving && monitoring && !analysisPaused && !document.hidden) {
+          liveAnalysisTimer = window.setTimeout(() => {
+            liveAnalysisTimer = null
+            void analyzeLiveFrame()
+          }, delay)
+        }
+      }
+
+      function createLiveFrame() {
+        if (video.readyState < 2 || !video.videoWidth || !video.videoHeight) {
+          throw new Error('The live camera has not produced a frame yet.')
+        }
+        const scale = Math.min(1, 1024 / Math.max(video.videoWidth, video.videoHeight))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.max(1, Math.round(video.videoWidth * scale))
+        canvas.height = Math.max(1, Math.round(video.videoHeight * scale))
+        const context = canvas.getContext('2d', { willReadFrequently: true })
+        if (!context) throw new Error('This browser could not prepare a camera frame.')
+        context.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+        const preview = document.createElement('canvas')
+        preview.width = 32
+        preview.height = 32
+        const previewContext = preview.getContext('2d', { willReadFrequently: true })
+        if (!previewContext) throw new Error('This browser could not compare camera frames.')
+        previewContext.drawImage(video, 0, 0, preview.width, preview.height)
+        const pixels = previewContext.getImageData(0, 0, preview.width, preview.height).data
+        const signature = new Uint8Array(preview.width * preview.height)
+        for (let source = 0, target = 0; target < signature.length; source += 4, target += 1) {
+          signature[target] = Math.round((pixels[source] * 3 + pixels[source + 1] * 6 + pixels[source + 2]) / 10)
+        }
+        return new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => blob
+            ? resolve({ blob, signature })
+            : reject(new Error('The camera frame could not be prepared for analysis.')), 'image/jpeg', 0.72)
+        })
+      }
+
+      function frameHasChanged(previous, next) {
+        if (!previous || previous.length !== next.length) return true
+        let difference = 0
+        for (let index = 0; index < next.length; index += 1) {
+          difference += Math.abs(previous[index] - next[index])
+        }
+        return difference / next.length >= 5
+      }
+
+      async function analyzeLiveFrame() {
+        if (pageLeaving || !monitoring || analysisPaused || document.hidden) return
+        if (!hasActiveCameraTrack(stream || video.srcObject)) {
+          setCameraStatus('Analysis Failed', false)
+          liveAnalysisError.textContent = 'The camera stream is no longer active. Start the camera again.'
+          liveAnalysisError.hidden = false
+          return
+        }
+        if (analysisRequestPromise) {
+          scheduleLiveAnalysis(1000)
+          return
+        }
+
+        let frame
+        try {
+          frame = await createLiveFrame()
+          if (!frameHasChanged(lastFrameSignature, frame.signature)) {
+            setCameraStatus('Waiting for Next Analysis')
+            scheduleLiveAnalysis()
+            return
+          }
+          lastFrameSignature = frame.signature
+          setCameraStatus('Analyzing Plant')
+          liveAnalysisError.hidden = true
+          const formData = new FormData()
+          formData.append('scan_image', frame.blob, 'live-plant-frame.jpg')
+          const controller = new AbortController()
+          analysisRequestController = controller
+          let timedOut = false
+          const requestTimeout = window.setTimeout(() => {
+            timedOut = true
+            controller.abort()
+          }, 115000)
+          const request = (async () => {
+            const response = await fetch('/api/scan.php', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: { Accept: 'application/json' },
+              body: formData,
+              signal: controller.signal
+            })
+            let result
+            try {
+              result = await response.json()
+            } catch {
+              throw new Error('The scanner returned an invalid response.')
+            }
+            if (!response.ok || !isGeminiAnalysisResult(result)) {
+              throw new Error(typeof result?.message === 'string' ? result.message : 'The scanner could not analyze this camera frame.')
+            }
+            return result
+          })()
+          analysisRequestPromise = request
+          try {
+            const result = await request
+            if (pageLeaving || !monitoring || analysisPaused) return
+            renderLiveAnalysis(result)
+            setCameraStatus('Analysis Updated')
+            window.setTimeout(() => {
+              if (!pageLeaving && monitoring && !analysisPaused && !document.hidden) {
+                setCameraStatus('Waiting for Next Analysis')
+              }
+            }, 1800)
+          } catch (analysisFailure) {
+            if (monitoring && !analysisPaused && !document.hidden) {
+              lastFrameSignature = null
+              const message = timedOut
+                ? 'The Gemini analysis timed out. The scanner will retry after the next interval.'
+                : analysisFailure instanceof Error
+                  ? analysisFailure.message
+                  : 'The live analysis failed. Please try again.'
+              liveAnalysisError.textContent = message
+              liveAnalysisError.hidden = false
+              setCameraStatus('Analysis Failed')
+            }
+          } finally {
+            window.clearTimeout(requestTimeout)
+            if (analysisRequestPromise === request) {
+              analysisRequestPromise = null
+              analysisRequestController = null
+            }
+          }
+        } catch (frameError) {
+          if (monitoring && !analysisPaused && !document.hidden) {
+            liveAnalysisError.textContent = frameError instanceof Error ? frameError.message : 'Unable to prepare a camera frame.'
+            liveAnalysisError.hidden = false
+            setCameraStatus('Analysis Failed')
+          }
+        }
+        scheduleLiveAnalysis()
+      }
+
+      function stopCamera() {
+        monitoring = false
+        analysisPaused = false
+        stopLiveAnalysisTimer()
+        analysisRequestController?.abort()
+        stopCameraStream(stream || video.srcObject)
+        lastFrameSignature = null
+        toggle.innerHTML = '<span>◉</span>Start Live Camera'
+        capturePhotoButton.disabled = true
+        analysisToggle.disabled = true
+        analysisToggle.innerHTML = '<span>Ⅱ</span>Pause Analysis'
+        setCameraStatus('Camera Paused', false)
+      }
+
       async function requestCameraStream() {
         try {
-          return await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
+          return await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } }, audio: false })
         } catch (cameraError) {
-          if (!['OverconstrainedError', 'NotFoundError'].includes(cameraError?.name)) throw cameraError
-          error.hidden = false
-          error.textContent = 'Camera settings are not supported. Retrying with compatible settings...'
-          console.warn('[scanner camera] Retrying with default video constraints', {
-            name: cameraError.name,
-            message: cameraError.message
-          })
-          return navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+          if (['NotAllowedError', 'SecurityError'].includes(cameraError?.name)) throw cameraError
+          try {
+            return await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'user' } }, audio: false })
+          } catch (fallbackError) {
+            if (['NotFoundError', 'OverconstrainedError'].includes(fallbackError?.name)) {
+              return navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            }
+            throw fallbackError
+          }
         }
       }
 
@@ -990,11 +1330,15 @@
 
       async function initializeCamera() {
         if (cameraStartPromise) return cameraStartPromise
+        if (!window.isSecureContext) {
+          const cameraError = new Error('Camera access requires HTTPS or localhost. Open this site securely and allow camera access.')
+          cameraError.name = 'SecurityError'
+          showCameraError(cameraError, 'support')
+          return null
+        }
         if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
-          const cameraError = new Error(isSecureContext
-            ? 'Camera access is not supported in this browser.'
-            : 'Camera access is unavailable in this browser context.')
-          cameraError.name = isSecureContext ? 'NotSupportedError' : 'SecurityError'
+          const cameraError = new Error('Camera access is not supported in this browser.')
+          cameraError.name = 'NotSupportedError'
           showCameraError(cameraError, 'support')
           return null
         }
@@ -1025,14 +1369,19 @@
             await playCameraVideo()
             await waitForVideoReady()
             state.textContent = 'Live'
-            tag.textContent = monitoring ? 'Camera active' : 'Paused'
-            tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'
+            tag.textContent = 'Camera Active'
+            tag.className = 'monitoring-tag'
+            document.querySelector('.live-pill').classList.add('camera-on')
+            capturePhotoButton.disabled = false
+            analysisToggle.disabled = false
+            toggle.innerHTML = '<span>■</span>Stop Camera'
             error.hidden = true
             setCaptureStatus('')
             console.debug('[scanner camera] Live', cameraDiagnostics())
+            scheduleLiveAnalysis(0)
             return stream
           } catch (cameraError) {
-            if (stream && !hasActiveCameraTrack(stream)) stopCameraStream(stream)
+            if (stream) stopCameraStream(stream)
             showCameraError(cameraError, stage)
             return null
           }
@@ -1040,18 +1389,21 @@
         return cameraStartPromise
       }
 
-      void verifyPlantAndStartCamera()
+      void loadSelectedPlantContext()
 
       document.addEventListener('visibilitychange', () => {
-        if (scanAnalysisView.hidden && document.visibilityState === 'visible' && (!hasActiveCameraTrack(stream || video.srcObject) || video.paused)) {
-          void verifyPlantAndStartCamera()
+        if (document.hidden) {
+          stopLiveAnalysisTimer()
+          analysisRequestController?.abort()
+        } else if (monitoring && hasActiveCameraTrack(stream || video.srcObject)) {
+          scheduleLiveAnalysis(0)
         }
       })
 
       window.addEventListener('pageshow', (event) => {
         if (!event.persisted) return
         pageLeaving = false
-        if (scanAnalysisView.hidden && (!hasActiveCameraTrack(stream || video.srcObject) || video.paused)) void verifyPlantAndStartCamera()
+        if (!hasActiveCameraTrack(stream || video.srcObject)) stopCamera()
       })
 
       function setCaptureStatus(message) {
@@ -1067,20 +1419,11 @@
 
         capturePhotoButton.disabled = true
         try {
-          const canvas = document.createElement('canvas')
-          canvas.width = video.videoWidth
-          canvas.height = video.videoHeight
-          const context = canvas.getContext('2d')
-          if (!context) throw new Error('Canvas is unavailable')
-          context.translate(canvas.width, 0)
-          context.scale(-1, 1)
-          context.drawImage(video, 0, 0, canvas.width, canvas.height)
-          const photo = await new Promise((resolve, reject) => {
-            canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Photo capture failed')), 'image/jpeg', 0.92)
-          })
+          const frame = await createLiveFrame()
+          const photo = new File([frame.blob], 'captured-plant.jpg', { type: 'image/jpeg' })
           if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl)
           capturedPhotoBlob = photo
-          selectedScanPhoto = null
+          selectedScanPhoto = photo
           selectedScanId = makeScanId()
           selectedScanSaved = false
           currentAnalysis = null
@@ -1090,6 +1433,7 @@
           capturedLivePhoto.src = capturedPhotoUrl
           capturedPhotoPreview.hidden = false
           setCaptureStatus('')
+          void setScanTab(true, true)
         } catch {
           setCaptureStatus('Unable to capture photo. Please try again.')
         } finally {
@@ -1102,13 +1446,13 @@
         const photo = event.target.files?.[0]
         event.target.value = ''
         if (!photo) return
-        if (!photo.type.startsWith('image/')) {
-          setCaptureStatus('Choose an image file to continue.')
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(photo.type) || photo.size === 0 || photo.size > 5 * 1024 * 1024) {
+          setCaptureStatus('Choose a JPG, PNG, or WebP image smaller than 5 MB.')
           return
         }
         if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl)
         capturedPhotoBlob = photo
-        selectedScanPhoto = null
+        selectedScanPhoto = photo
         selectedScanId = makeScanId()
         selectedScanSaved = false
         currentAnalysis = null
@@ -1117,7 +1461,8 @@
         capturedPhotoUrl = URL.createObjectURL(photo)
         capturedLivePhoto.src = capturedPhotoUrl
         capturedPhotoPreview.hidden = false
-        setCaptureStatus('Image ready. Choose Use Photo to submit it to AI Analysis.')
+        setCaptureStatus('')
+        void setScanTab(true, true)
       })
 
       retakeLivePhotoButton.addEventListener('click', () => {
@@ -1139,12 +1484,33 @@
         if (!capturedPhotoBlob) return
         selectedScanPhoto = capturedPhotoBlob
         selectedScanId ||= makeScanId()
-        void setScanTab(true)
+        void setScanTab(true, true)
       })
 
-      toggle.addEventListener('click', () => { monitoring = !monitoring; tag.textContent = monitoring ? 'Camera active' : 'Paused'; tag.className = monitoring ? 'monitoring-tag' : 'paused-tag'; state.textContent = hasActiveCameraTrack(stream || video.srcObject) ? 'Live' : monitoring ? 'Starting...' : 'Paused'; toggle.innerHTML = monitoring ? '<span>Ⅱ</span>Pause Camera' : '<span>▶</span>Resume Camera'; if (monitoring && !hasActiveCameraTrack(stream || video.srcObject)) void verifyPlantAndStartCamera() })
+      toggle.addEventListener('click', () => {
+        if (monitoring) {
+          stopCamera()
+          return
+        }
+        monitoring = true
+        analysisPaused = false
+        analysisToggle.disabled = true
+        toggle.disabled = true
+        toggle.innerHTML = '<span>◉</span>Initializing Camera'
+        setCameraStatus('Initializing Camera', false)
+        void verifyPlantAndStartCamera().finally(() => {
+          if (!hasActiveCameraTrack(stream || video.srcObject)) {
+            monitoring = false
+            toggle.disabled = false
+            toggle.innerHTML = '<span>◉</span>Start Live Camera'
+            analysisToggle.disabled = true
+          }
+        })
+      })
       window.addEventListener('pagehide', () => {
         pageLeaving = true
+        stopLiveAnalysisTimer()
+        analysisRequestController?.abort()
         stopCameraStream(stream)
         if (capturedPhotoUrl) URL.revokeObjectURL(capturedPhotoUrl)
       }, { once: true })

@@ -23,7 +23,7 @@ if ($requestMethod === 'GET') {
             'SELECT p.id, p.name, p.species, p.location, p.planted_on, p.created_at,
                     latest_scan.id AS latest_scan_id, latest_scan.created_at AS latest_scanned_at,
                     latest_scan.health_status AS latest_health_status, latest_scan.image_path AS latest_image_path,
-                    latest_stage.growth_stage AS growth_stage,
+                    COALESCE(latest_scan_growth.growth_stage, latest_stage.growth_stage) AS growth_stage,
                     (SELECT h.leaf_count
                      FROM plant_analysis_history AS h
                      WHERE h.user_id = p.user_id AND h.plant_id = p.id AND h.leaf_count IS NOT NULL
@@ -50,6 +50,23 @@ if ($requestMethod === 'GET') {
                 AND latest_scan.plant_id = p.id
                 AND latest_scan.scan_rank = 1
              LEFT JOIN (
+                 SELECT h.user_id, h.plant_id,
+                        JSON_UNQUOTE(JSON_EXTRACT(h.analysis_result, \'$.growth_stage\')) AS growth_stage,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY h.user_id, h.plant_id
+                            ORDER BY h.created_at DESC, h.id DESC
+                        ) AS growth_rank
+                 FROM plant_analysis_history AS h
+                 WHERE h.user_id = :growth_user_id
+                   AND h.plant_id IS NOT NULL
+                   AND JSON_UNQUOTE(JSON_EXTRACT(h.analysis_result, \'$.growth_stage\')) IS NOT NULL
+                   AND JSON_UNQUOTE(JSON_EXTRACT(h.analysis_result, \'$.growth_stage\')) <> \'\'
+                   AND JSON_UNQUOTE(JSON_EXTRACT(h.analysis_result, \'$.growth_stage\')) <> \'Unable to Determine\'
+             ) AS latest_scan_growth
+                 ON latest_scan_growth.user_id = p.user_id
+                AND latest_scan_growth.plant_id = p.id
+                AND latest_scan_growth.growth_rank = 1
+             LEFT JOIN (
                  SELECT a.user_id, a.plant_id, a.growth_stage,
                         ROW_NUMBER() OVER (
                             PARTITION BY a.user_id, a.plant_id
@@ -70,6 +87,7 @@ if ($requestMethod === 'GET') {
         );
         $statement->execute([
             'scan_user_id' => $sessionUser['id'],
+            'growth_user_id' => $sessionUser['id'],
             'stage_user_id' => $sessionUser['id'],
             'user_id' => $sessionUser['id'],
         ]);

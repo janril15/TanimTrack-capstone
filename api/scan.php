@@ -105,6 +105,11 @@ if (
     || (!is_string($result['plant_name'] ?? null) && ($result['plant_name'] ?? null) !== null)
     || !array_key_exists('detected_issue', $result)
     || !in_array($result['health_status'] ?? null, ['Healthy', 'Diseased', 'Pest-Affected', 'Nutrient Deficiency', 'Uncertain'], true)
+    || !in_array($result['plant_health'] ?? null, ['Healthy', 'Showing Possible Stress', 'Unhealthy', 'Unable to Determine'], true)
+    || !in_array($result['leaf_condition'] ?? null, ['Healthy-looking leaves', 'Yellowing', 'Wilting', 'Browning', 'Visible spots', 'Holes or damage', 'Other visible abnormalities', 'Unable to Determine'], true)
+    || !in_array($result['growth_stage'] ?? null, ['Seedling', 'Vegetative Growth', 'Mature Plant', 'Ready for Harvest', 'Unable to Determine'], true)
+    || !in_array($result['disease_risk'] ?? null, ['No obvious visible symptoms', 'Possible disease symptoms', 'Possible pest damage', 'Requires further inspection'], true)
+    || !in_array($result['discoloration'] ?? null, ['No obvious discoloration', 'Yellowing', 'Browning', 'Other visible changes', 'Unable to Determine'], true)
     || (!is_string($result['detected_issue'] ?? null) && ($result['detected_issue'] ?? null) !== null)
     || !in_array($result['severity'] ?? null, ['None', 'Low', 'Moderate', 'High', 'Unknown'], true)
     || !in_array($result['confidence'] ?? null, ['Low', 'Medium', 'High', 'Unknown'], true)
@@ -119,15 +124,20 @@ if (
         || ($result['confidence'] ?? null) !== 'Unknown'
     ))
     || (($result['health_status'] ?? null) === 'Healthy' && (
-        ($result['detected_issue'] ?? null) !== null
+        ($result['plant_health'] ?? null) !== 'Healthy'
+        || ($result['detected_issue'] ?? null) !== null
         || ($result['severity'] ?? null) !== 'None'
+    ))
+    || (($result['plant_health'] ?? null) === 'Healthy' && (
+        ($result['health_status'] ?? null) !== 'Healthy'
+        || ($result['detected_issue'] ?? null) !== null
     ))
 ) {
     error_log('TanimTrack AI returned an invalid analysis response.');
     json_response(['success' => false, 'message' => 'The AI scanner returned an invalid result. Please try again.'], 502);
 }
 
-foreach (['visible_symptoms', 'recommendations', 'prevention_tips'] as $listField) {
+foreach (['visible_symptoms', 'possible_causes', 'recommendations', 'prevention_tips'] as $listField) {
     if (!is_array($result[$listField] ?? null) || !array_is_list($result[$listField])) {
         error_log('TanimTrack AI returned an invalid analysis response.');
         json_response(['success' => false, 'message' => 'The AI scanner returned an invalid result. Please try again.'], 502);

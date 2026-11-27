@@ -110,6 +110,8 @@ After startup, confirm all four services show healthy in `docker compose ps`, th
 
    Before login, a session response with `authenticated: false` is expected. To validate a frontend production build from the container, run `docker compose exec frontend npm run build`.
 
+The Plant/Crop Scan camera requests access only after **Start Live Camera** is selected. Camera access requires HTTPS or localhost and browser permission. Live Gemini analysis uses resized JPEG frames at a default 7-second interval; configure `VITE_LIVE_ANALYSIS_INTERVAL_MS` in the private environment file (minimum 5 seconds) and recreate the frontend service to apply a different interval. Continuous frames update the live view only; **Capture Photo** or **Upload Photo** saves a scan to the selected registered plant's history.
+
 ## Daily commands
 
 ```sh
