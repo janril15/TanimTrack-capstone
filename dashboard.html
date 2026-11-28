@@ -976,6 +976,22 @@
                 }).catch((wateringError) => {
                   console.warn('Watering recommendation will be reassessed when the schedule opens:', wateringError)
                 })
+                void fetch('/api/care.php', {
+                  method: 'POST',
+                  credentials: 'same-origin',
+                  headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'assess', plant_id: selectedPlantId }),
+                  keepalive: true
+                }).then(async (response) => {
+                  const careResult = await response.json()
+                  if (!response.ok || careResult?.success !== true) {
+                    console.warn('Fertilizer care assessment is unavailable:', careResult?.message || response.status)
+                  } else {
+                    window.dispatchEvent(new CustomEvent('tanodbukid:care-recommendation-updated', { detail: { plantId: selectedPlantId } }))
+                  }
+                }).catch((careError) => {
+                  console.warn('Fertilizer care assessment is unavailable:', careError)
+                })
               }
             }
           }

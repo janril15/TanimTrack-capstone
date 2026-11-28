@@ -101,9 +101,20 @@ Get-Content .\database\migrations\20261127_create_watering_schedule.sql -Raw |
 
 Fresh database volumes apply the migration automatically. Gemini recommendations require `GEMINI_API_KEY`. Visual scans never count as soil-moisture readings; moisture values are manual and expire for recommendation purposes after 24 hours. Browser notifications require permission and the app to remain open; persistent in-app watering reminders are deduplicated in MySQL.
 
+Smart Farm Care adds cached Gemini fertilizer guidance, grower-approved fertilizer schedule tasks, application history, notification metadata, and Farm Log entries. On an existing database, back up first and apply `database/migrations/20261128_create_smart_farm_care.sql` once:
+
+```powershell
+$envFile = Join-Path $env:LOCALAPPDATA 'TanodBukid\.env'
+Get-Content .\database\migrations\20261128_create_smart_farm_care.sql -Raw |
+  docker compose --env-file $envFile exec -T database sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" tanodbukid_db'
+docker compose --env-file $envFile up -d --build backend reminders ai frontend
+```
+
+Fresh database volumes apply the migration automatically. The `reminders` service writes due and overdue care notifications to MySQL once per minute, including while users are logged out or the browser is closed. Browser notifications remain optional and require permission while the app is open. Fertilizer recommendations are tied to the latest saved plant scan and actual care records; growers approve recommendations before they become schedule tasks. Product labels control application rates; the app does not infer a deficiency from leaf color or invent dosage amounts.
+
 Farm Reports are generated from the signed-in user's existing registered plants, successful scan history, Farm Log API, and watering task records. The Reports API applies the selected date range to scan and watering activity, while the plant-health overview uses each plant's latest saved scan and the scan trend plots the observed share of determined scans classified healthy. The compact Watering and Reports screens use the shared fixed bottom navigation; calendar selections, month controls, date filters, chart details, task completion, and saved-history views remain data-backed. Gemini insights are requested only when matching scan or watering records exist; no report tables or sample statistics are created.
 
-After startup, confirm all four services show healthy in `docker compose ps`, then use a disposable test account to check registration, login, the dashboard, and one image upload. Do not use real account information for development testing.
+After startup, confirm the frontend, backend, database, and AI services are healthy and `reminders` is running in `docker compose ps`, then use a disposable test account to check registration, login, the dashboard, and one image upload. Do not use real account information for development testing.
 
 ## Smoke test and useful pages
 
@@ -123,6 +134,8 @@ After startup, confirm all four services show healthy in `docker compose ps`, th
    Before login, a session response with `authenticated: false` is expected. To validate a frontend production build from the container, run `docker compose exec frontend npm run build`.
 
 The Plant/Crop Scan camera requests access only after **Start Live Camera** is selected. Camera access requires HTTPS or localhost and browser permission. Live Gemini analysis uses resized JPEG frames at a default 7-second interval; configure `VITE_LIVE_ANALYSIS_INTERVAL_MS` in the private environment file (minimum 5 seconds) and recreate the frontend service to apply a different interval. Continuous frames update the live view only; **Capture Photo** or **Upload Photo** saves a scan to the selected registered plant's history.
+
+Permanent scans also request Gemini plant identification, a qualitative-confidence visual age range, and a crop-specific four-week growth projection. The scan request includes the selected plant's saved identity, planting date, recent scan summaries and image, and available care/watering history. Live camera frames do not generate or save future projections. Users must explicitly confirm an AI or manually entered crop name before the registered plant's species changes; Plant Monitoring also lets users update the planting date. Actual elapsed age from that date is shown separately from the approximate visual estimate. Projections are uncertain text timelines, not generated scan images or guaranteed outcomes. Each saved result remains attached to its `plant_id` in the existing scan history; no additional database migration is required.
 
 ## Daily commands
 

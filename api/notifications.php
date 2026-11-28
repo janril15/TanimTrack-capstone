@@ -16,8 +16,11 @@ try {
     $pdo = pdo_connection();
     if ($method === 'GET') {
         $statement = $pdo->prepare(
-            'SELECT id, notification_type, title, message, related_module, related_record_id, is_read, created_at
-             FROM notifications WHERE user_id = :user_id ORDER BY created_at DESC, id DESC LIMIT 50'
+            'SELECT id, notification_type, title, message, related_module, related_record_id,
+                    related_plant_id, scheduled_at, is_read, is_completed, created_at
+             FROM notifications
+             WHERE user_id = :user_id AND dismissed_at IS NULL
+             ORDER BY created_at DESC, id DESC LIMIT 50'
         );
         $statement->execute(['user_id' => $user['id']]);
         $rows = array_map(static fn (array $row): array => [
@@ -25,7 +28,10 @@ try {
             'title' => (string) $row['title'], 'message' => (string) $row['message'],
             'module' => (string) $row['related_module'],
             'related_record_id' => $row['related_record_id'] !== null ? (string) $row['related_record_id'] : null,
+            'plant_id' => $row['related_plant_id'] !== null ? (string) $row['related_plant_id'] : null,
+            'scheduled_at' => $row['scheduled_at'] !== null ? (string) $row['scheduled_at'] : null,
             'is_read' => (bool) $row['is_read'], 'created_at' => (string) $row['created_at'],
+            'is_completed' => (bool) $row['is_completed'],
         ], $statement->fetchAll());
         json_response(['success' => true, 'notifications' => $rows]);
     }
@@ -46,6 +52,24 @@ try {
     if (($data['action'] ?? '') === 'mark-all-read') {
         $update = $pdo->prepare('UPDATE notifications SET is_read = 1 WHERE user_id = :user_id AND is_read = 0');
         $update->execute(['user_id' => $user['id']]);
+        json_response(['success' => true]);
+    }
+    if (($data['action'] ?? '') === 'dismiss') {
+        $id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
+        if ($id === false || $id < 1) json_response(['success' => false, 'message' => 'Select a valid notification.'], 422);
+        $update = $pdo->prepare(
+            'UPDATE notifications SET dismissed_at = :dismissed_at
+             WHERE id = :id AND user_id = :user_id AND dismissed_at IS NULL'
+        );
+        $update->execute([
+            'dismissed_at' => (new DateTimeImmutable('now', new DateTimeZone('Asia/Manila')))->format('Y-m-d H:i:s'),
+            'id' => $id, 'user_id' => $user['id'],
+        ]);
+        if ($update->rowCount() === 0) {
+            $check = $pdo->prepare('SELECT id FROM notifications WHERE id = :id AND user_id = :user_id');
+            $check->execute(['id' => $id, 'user_id' => $user['id']]);
+            if ($check->fetchColumn() === false) json_response(['success' => false, 'message' => 'Notification not found.'], 404);
+        }
         json_response(['success' => true]);
     }
     json_response(['success' => false, 'message' => 'Unknown notification action.'], 400);

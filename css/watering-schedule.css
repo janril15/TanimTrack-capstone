@@ -12,6 +12,8 @@
 .watering-header-icon,.reports-header-icon{position:relative;display:grid;width:27px;height:29px;place-items:center;border:0;color:#273d2e;background:transparent}
 .watering-header-icon svg,.reports-header-icon svg{width:17px;height:17px}
 .watering-header-icon i,.reports-header-icon i{position:absolute;top:3px;right:4px;width:5px;height:5px;border:1px solid #f7f9f6;border-radius:50%;background:#419553}
+.watering-header-icon:after,.reports-header-icon:after{content:attr(data-unread-count);position:absolute;top:0;right:0;min-width:8px;height:13px;padding:0 3px;border:1px solid #f7f9f6;border-radius:9px;color:#fff;background:#419553;font-size:8px;font-weight:800;line-height:11px;text-align:center}
+.watering-header-icon[data-unread-count="0"]:after,.reports-header-icon[data-unread-count="0"]:after{display:none}
 .watering-header-icon.is-read i,.reports-header-icon.is-read i{display:none}
 .screen-avatar{display:grid;flex:0 0 22px;width:22px;height:22px;place-items:center;overflow:hidden;padding:0;border:0;border-radius:50%;color:#fff;background:#548e3b;font-size:8px;font-weight:800}
 .screen-avatar img{width:100%;height:100%;object-fit:cover}
@@ -144,3 +146,24 @@
 .screen-bottom-nav .screen-add>span{display:grid;width:32px;height:32px;place-items:center;border-radius:50%;color:#fff;background:#358455;box-shadow:0 3px 7px #30774833;font-size:24px;font-weight:300}
 .screen-bottom-nav .screen-add small{padding-top:1px;color:#69806f;font-size:8px}
 @media(max-width:350px){.watering-screen{padding-right:7px;padding-left:7px}.watering-header{margin-right:-7px;margin-left:-7px;padding-right:10px;padding-left:10px}.watering-task-card{grid-template-columns:38px minmax(48px,1fr) 1px 58px auto;gap:4px;padding:5px}.watering-task-image{width:37px;height:34px}.watering-task-done{padding-right:5px;padding-left:5px}.watering-calendar-weekdays,.watering-calendar-grid{gap:2px}}
+.watering-calendar-dots i.fertilizer,.watering-calendar-legend .legend-fertilizer{background:#d7a232}
+.fertilizer-task-card{grid-template-columns:48px minmax(0,1fr)}
+.fertilizer-task-card .watering-task-divider,.fertilizer-task-card .watering-task-quantity{display:none}
+.fertilizer-task-card .watering-task-main{padding:2px 3px}
+.care-task-guidance{display:block;margin-top:3px;color:#66746a;font-size:8px;line-height:1.4}
+.care-task-complete{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px}
+.care-task-complete input,.care-record-application input,.care-record-application select{width:100%;min-width:0;min-height:28px;padding:5px 6px;border:1px solid #dfe7dd;border-radius:7px;color:#26392b;background:#fff;font:inherit;font-size:8px}
+.care-task-complete button,.care-record-application form>button{min-height:25px;padding:4px 7px;border:0;border-radius:7px;color:#fff;background:#318052;font-size:8px;font-weight:750}
+.care-task-complete .care-task-dismiss{color:#75513a;background:#f8eee5}
+.fertilizer-recommendation{display:grid;gap:5px;margin-top:8px;padding:8px;border:1px solid #ebdfbd;border-radius:9px;background:#fffaf0;color:#536456;font-size:8px;line-height:1.45}
+.fertilizer-recommendation h4,.fertilizer-recommendation p{margin:0}
+.fertilizer-recommendation h4{color:#4d5b31;font-size:9px}
+.fertilizer-recommendation ul{margin:0;padding-left:15px}
+.fertilizer-recommendation .watering-primary-button{justify-self:start;margin:0}
+.fertilizer-recommendation .care-caution{color:#8a5a25}
+.care-record-application{padding-top:4px;border-top:1px solid #eee6d4}
+.care-record-application summary{color:#315b3d;font-weight:700;cursor:pointer}
+.care-record-application form{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.care-record-application label{display:grid;gap:3px;color:#68756a;font-size:8px}
+.care-record-application form>button{justify-self:start}
+.watering-overdue-section .fertilizer-task-card{background:#fffaf0}

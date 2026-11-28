@@ -192,19 +192,22 @@
     }
 
     .bell:after {
-      content: '';
+      content: attr(data-unread-count);
       position: absolute;
-      top: 0;
-      right: 2px;
       top: 1px;
-      width: 7px;
-      height: 7px;
+      right: 2px;
+      min-width: 7px;
+      height: 12px;
+      padding: 0 3px;
       border: 2px solid var(--paper);
       background: #4d9b3b;
       border-radius: 50%;
+      color: #fff;
+      font: 700 8px/12px Arial, sans-serif;
+      text-align: center;
     }
 
-    .bell.is-read:after {
+    .bell[data-unread-count="0"]:after {
       display: none;
     }
 
@@ -3668,6 +3671,10 @@
       scrollbar-color: #c8dbc7 transparent;
     }
 
+    .notification-entry {
+      position: relative;
+    }
+
     .notification-card {
       position: relative;
       display: grid;
@@ -3684,6 +3691,33 @@
       text-align: left;
       cursor: pointer;
       transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+
+    .notification-entry .notification-card {
+      padding-bottom: 30px;
+    }
+
+    .notification-dismiss,
+    .notification-task-status {
+      position: absolute;
+      right: 12px;
+      bottom: 8px;
+      padding: 0;
+      border: 0;
+      color: #647166;
+      background: transparent;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .notification-dismiss {
+      cursor: pointer;
+    }
+
+    .notification-empty {
+      padding: 18px 10px;
+      color: #647166;
+      text-align: center;
     }
 
     .notification-card:hover {
@@ -4200,7 +4234,7 @@
     <main class="app-shell">
       <header><span class="menu-placeholder" aria-hidden="true"></span>
         <div><button class="bell" id="notifications-button" type="button" aria-label="Notifications"
-            aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true">
+          aria-haspopup="dialog" aria-expanded="false" data-unread-count="0"><svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path>
               <path d="M10 21h4"></path>
             </svg></button><span class="avatar"></span></div>
@@ -4443,7 +4477,7 @@
         <header class="watering-header">
           <button class="watering-back" id="watering-back" type="button" aria-label="Back to dashboard">‹</button>
           <svg class="watering-leaf-logo" viewBox="0 0 40 40" aria-hidden="true"><path d="M34 5C19 4 9 10 8 21c-.5 6 3.2 10 8.5 9.5C28 29.5 33 18 34 5Z" fill="#28794b"/><path d="M7 35c4-9 10-15 20-22" fill="none" stroke="#f6fff4" stroke-width="2.5" stroke-linecap="round"/><path d="M7 27C5 17 10 9 22 6c-1 10-6 17-15 21Z" fill="#62a765"/></svg>
-          <div class="watering-header-copy"><h1 id="watering-title">Watering Schedule</h1><p>Keep your plants hydrated.</p></div>
+          <div class="watering-header-copy"><h1 id="watering-title">Farm Care Schedule</h1><p>Watering and fertilizer tasks for your plants.</p></div>
           <div class="watering-header-actions">
             <button class="watering-header-icon" id="watering-notifications" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><i aria-hidden="true"></i></button>
             <button class="screen-avatar" id="watering-profile" type="button" aria-label="Open profile">?</button>
@@ -4451,23 +4485,23 @@
         </header>
         <section class="watering-reminder-card" aria-labelledby="watering-reminder-title">
           <div class="watering-reminder-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5C19 14 12 21 12 29a12 12 0 0 0 24 0c0-8-7-15-12-24Z" fill="#39a9e8"/><path d="M18 30a6 6 0 0 0 6 6" fill="none" stroke="#d9f4ff" stroke-width="3" stroke-linecap="round"/></svg></div>
-          <div class="watering-reminder-copy"><h2 id="watering-reminder-title">Smart Watering Reminder</h2>
-            <p>Water your plants at the right time for healthier and greener growth!</p>
+          <div class="watering-reminder-copy"><h2 id="watering-reminder-title">Smart Plant Care Reminders</h2>
+            <p>Plant-specific watering and fertilizer care, based on saved scans and farm history.</p>
             <small class="watering-screen-reader" id="watering-reminder-status" role="status" aria-live="polite">Loading schedule…</small></div>
           <svg class="watering-banner-art" viewBox="0 0 145 100" aria-hidden="true"><path d="M0 91c26-13 51-8 71-2 23 7 47 7 74-8v19H0Z" fill="#d2e8c1"/><path d="M47 86c8-13 17-19 27-22 8 4 15 11 19 22" fill="#7a5637"/><path d="M73 61V39" stroke="#348344" stroke-width="3" stroke-linecap="round"/><path d="M72 48c-15-1-20-9-18-17 11 0 18 6 18 17Zm2-7c2-13 10-18 20-17-1 10-8 17-20 17Z" fill="#58a861"/><path d="M103 20h25a6 6 0 0 1 6 6v19h-35V26a6 6 0 0 1 4-6Z" fill="#2d8151"/><path d="M111 20c0-8 12-10 15-3l-4 3m6 13 12-7 3 5-13 8" fill="none" stroke="#2d8151" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M101 42h35" stroke="#195d3b" stroke-width="3"/><path d="M140 47c-1 7-3 9-5 12m-5-12c-1 6-3 8-5 10" stroke="#39a9e8" stroke-width="2.5" stroke-linecap="round"/></svg>
         </section>
         <p class="watering-feedback" id="watering-feedback" role="status" aria-live="polite" hidden></p>
         <section class="watering-panel watering-calendar-panel" aria-labelledby="watering-calendar-title">
-          <div class="watering-panel-heading"><h2 id="watering-calendar-title"><span class="watering-calendar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4m8-4v4M4 10h16M8 14h2m4 0h2m-8 3h2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>Watering Calendar</h2>
+          <div class="watering-panel-heading"><h2 id="watering-calendar-title"><span class="watering-calendar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4m8-4v4M4 10h16M8 14h2m4 0h2m-8 3h2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>Farm Care Calendar</h2>
             <div class="watering-calendar-controls"><button id="watering-month-previous" type="button" aria-label="Previous month">‹</button>
               <label class="watering-month-picker"><span id="watering-calendar-month">Loading…</span><input id="watering-month-picker" type="month" aria-label="Choose calendar month"><i aria-hidden="true">⌄</i></label>
               <button id="watering-month-next" type="button" aria-label="Next month">›</button></div></div>
           <div class="watering-calendar-weekdays" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
-          <div class="watering-calendar-grid" id="watering-calendar-grid" role="grid" aria-label="Watering calendar"></div>
-          <div class="watering-calendar-legend"><span><i class="legend-pending"></i>Pending</span><span><i class="legend-completed"></i>Completed</span><span><i class="legend-overdue"></i>Overdue</span></div>
+          <div class="watering-calendar-grid" id="watering-calendar-grid" role="grid" aria-label="Farm care calendar"></div>
+          <div class="watering-calendar-legend"><span><i class="legend-pending"></i>Watering</span><span><i class="legend-fertilizer"></i>Fertilizer</span><span><i class="legend-completed"></i>Completed</span><span><i class="legend-overdue"></i>Overdue</span></div>
         </section>
         <section class="watering-panel watering-tasks-panel" aria-labelledby="watering-today-title">
-          <div class="watering-panel-heading"><h2 id="watering-today-title"><span class="watering-check-icon" aria-hidden="true">✓</span>Tasks Due Today</h2>
+          <div class="watering-panel-heading"><h2 id="watering-today-title"><span class="watering-check-icon" aria-hidden="true">✓</span>Care Tasks Due Today</h2>
             <span class="watering-pending-badge"><strong id="watering-today-count">0</strong> pending</span></div>
           <div id="watering-tasks-today"><p class="watering-empty">Loading today’s tasks…</p></div>
           <details class="watering-overdue-section"><summary>Overdue reminders <span id="watering-overdue-count"></span></summary>
@@ -4623,6 +4657,8 @@
             data-log-filter="climate-risk">Climate Risk</button>
           <button class="farm-log-filter" type="button" role="tab" aria-selected="false"
             data-log-filter="harvest">Harvest</button>
+          <button class="farm-log-filter" type="button" role="tab" aria-selected="false"
+            data-log-filter="plant-care">Plant Care</button>
         </div>
         <p class="farm-log-feedback" id="farm-log-feedback" role="status"></p>
         <div class="farm-log-list" id="farm-log-list"></div>
@@ -4709,34 +4745,42 @@
       let plantRegistrationSaving = false;
       let previousRoute = '';
       const modal = (title, body, actions = '') => { const backdrop = document.createElement('div'); backdrop.className = 'modal-backdrop'; backdrop.innerHTML = `<div class="modal" role="dialog" aria-modal="true"><h2>${title}</h2>${body}<div class="modal-actions">${actions || '<button class="secondary" data-close>Close</button>'}</div></div>`; document.body.appendChild(backdrop); backdrop.addEventListener('click', (event) => { if (event.target === backdrop || event.target.closest('[data-close]')) backdrop.remove(); }); return backdrop; };
-      const notifications = [
-        { id: 'scan-result', icon: '✣', title: 'Crop scanner available', description: 'Submit a clear crop photo to run the experimental classifier.', time: 'Today' },
-        { id: 'price-update', icon: '↗', title: 'Price update: palay +2.2%', description: 'Irrigated palay now ₱23.50/kg in Central Luzon.', time: '2h ago' },
-        { id: 'community', icon: '♧', title: 'Community post near you', description: 'Armyworm infestation reported 2km from your farm.', time: '2h ago' },
-        { id: 'article', icon: '▤', title: 'New article: flood-proofing your farm', description: 'A seasonal advisory on typhoon season prep.', time: '5h ago' },
-        { id: 'farm-reminder', icon: '◷', title: 'Farm log reminder', description: "You haven't logged activity in 3 days.", time: 'Yesterday' }
-      ];
-      const readNotificationIds = new Set(JSON.parse(localStorage.getItem('tanodbukid_read_notifications') || '[]'));
+      const notifications = [];
       const notificationButton = document.getElementById('notifications-button');
       let savedNotifications = [];
       const notificationEscape = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
-      const notificationMarkup = (notification, saved = false) => {
-        const isRead = saved ? notification.is_read : readNotificationIds.has(notification.id);
+      const notificationMarkup = (notification) => {
+        const isRead = notification.is_read;
         const id = String(notification.id);
-        const icon = saved ? (notification.type === 'watering_reminder' ? '💧' : '♧') : notification.icon;
-        const description = saved ? notification.message : notification.description;
-        const time = saved ? new Intl.DateTimeFormat('en-PH', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila' }).format(new Date(`${notification.created_at.replace(' ', 'T')}Z`)) : notification.time;
-        return `<button type="button" class="notification-card ${isRead ? '' : 'unread'}" data-notification-id="${notificationEscape(id)}" data-saved="${saved}" ${saved && notification.module === 'watering' ? 'data-open-watering="true"' : ''}><span class="notification-icon" aria-hidden="true">${notificationEscape(icon)}</span><span class="notification-copy"><strong>${notificationEscape(notification.title)}</strong><p>${notificationEscape(description)}</p><time>${notificationEscape(time)}</time></span><span class="notification-chevron" aria-hidden="true">›</span>${isRead ? '' : '<span class="notification-unread" aria-label="Unread"></span>'}</button>`;
+        const icon = notification.type.startsWith('watering') ? '💧'
+          : notification.type.startsWith('fertilizer') ? '🪴' : '🌱';
+        const time = new Intl.DateTimeFormat('en-PH', {
+          dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Manila',
+        }).format(new Date(`${notification.created_at.replace(' ', 'T')}Z`));
+        const route = notification.module === 'watering'
+          ? 'data-open-watering="true"'
+          : notification.plant_id
+            ? `data-open-plant="${notificationEscape(notification.plant_id)}"`
+            : '';
+        return `<div class="notification-entry">
+          <button type="button" class="notification-card ${isRead ? '' : 'unread'}" data-notification-id="${notificationEscape(id)}" ${route}>
+            <span class="notification-icon" aria-hidden="true">${icon}</span><span class="notification-copy">
+              <strong>${notificationEscape(notification.title)}</strong><p>${notificationEscape(notification.message)}</p>
+              <time>${notificationEscape(time)}</time></span><span class="notification-chevron" aria-hidden="true">›</span>
+              ${isRead ? '' : '<span class="notification-unread" aria-label="Unread"></span>'}
+          </button>
+          ${notification.is_completed ? '<small class="notification-task-status">Task completed</small>' : `<button class="notification-dismiss" type="button" data-dismiss-notification="${notificationEscape(id)}">Dismiss</button>`}
+        </div>`;
       };
       const updateNotificationBadge = () => {
-        const localUnread = notifications.some((notification) => !readNotificationIds.has(notification.id));
-        const savedUnread = savedNotifications.some((notification) => !notification.is_read);
-        const isRead = !localUnread && !savedUnread;
-        notificationButton.classList.toggle('is-read', isRead);
-        document.querySelectorAll('.watering-header-icon, .reports-header-icon')
-          .forEach((button) => button.classList.toggle('is-read', isRead));
+        const unreadCount = savedNotifications.filter((notification) => !notification.is_read).length;
+        const label = unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications';
+        [notificationButton, ...document.querySelectorAll('.watering-header-icon, .reports-header-icon')].forEach((button) => {
+          button.dataset.unreadCount = String(unreadCount);
+          button.setAttribute('aria-label', label);
+          button.classList.toggle('is-read', unreadCount === 0);
+        });
       };
-      const saveReadNotifications = () => { localStorage.setItem('tanodbukid_read_notifications', JSON.stringify([...readNotificationIds])); updateNotificationBadge(); };
       const loadSavedNotifications = async () => {
         try {
           const response = await fetch('/api/notifications.php', { credentials: 'same-origin', headers: { Accept: 'application/json' }, cache: 'no-store' });
@@ -4762,30 +4806,41 @@
         await loadSavedNotifications();
         const backdrop = document.createElement('div');
         backdrop.className = 'notifications-backdrop';
-        const savedMarkup = savedNotifications.map((item) => notificationMarkup(item, true)).join('');
-        const localMarkup = notifications.map((item) => notificationMarkup(item)).join('');
-        backdrop.innerHTML = `<section class="notifications-dialog" role="dialog" aria-modal="true" aria-labelledby="notifications-title"><div class="notifications-header"><h2 class="notifications-title" id="notifications-title"><button type="button" class="notifications-back" data-close-notifications aria-label="Close notifications">←</button>Notifications</h2><button type="button" class="notifications-read-all" data-mark-all>Mark all read</button></div><div class="notifications-list">${savedMarkup}${localMarkup}</div></section>`;
+        const savedMarkup = savedNotifications.map(notificationMarkup).join('');
+        backdrop.innerHTML = `<section class="notifications-dialog" role="dialog" aria-modal="true" aria-labelledby="notifications-title"><div class="notifications-header"><h2 class="notifications-title" id="notifications-title"><button type="button" class="notifications-back" data-close-notifications aria-label="Close notifications">←</button>Notifications</h2><button type="button" class="notifications-read-all" data-mark-all>Mark all read</button></div><div class="notifications-list">${savedMarkup || '<p class="notification-empty">No care notifications yet.</p>'}</div></section>`;
         document.body.appendChild(backdrop);
         notificationButton.setAttribute('aria-expanded', 'true');
         requestAnimationFrame(() => backdrop.classList.add('is-open'));
-        backdrop.querySelectorAll('[data-notification-id]').forEach((card) => card.addEventListener('click', async () => {
-          if (card.dataset.saved === 'true') {
-            try {
-              await updateSavedNotifications('mark-read', card.dataset.notificationId);
-              const record = savedNotifications.find((item) => String(item.id) === card.dataset.notificationId);
-              if (record) record.is_read = true;
-            } catch (error) {
-              console.error('Unable to mark notification as read:', error);
-              return;
-            }
-          } else {
-            readNotificationIds.add(card.dataset.notificationId);
-            saveReadNotifications();
+        backdrop.querySelectorAll('.notification-card[data-notification-id]').forEach((card) => card.addEventListener('click', async () => {
+          try {
+            await updateSavedNotifications('mark-read', card.dataset.notificationId);
+            const record = savedNotifications.find((item) => String(item.id) === card.dataset.notificationId);
+            if (record) record.is_read = true;
+          } catch (error) {
+            console.error('Unable to mark notification as read:', error);
+            return;
           }
           card.classList.remove('unread');
           card.querySelector('.notification-unread')?.remove();
           updateNotificationBadge();
           if (card.dataset.openWatering === 'true') { closeNotifications(); location.hash = 'watering'; }
+          else if (card.dataset.openPlant) {
+            closeNotifications();
+            window.location.href = `/plant-monitoring.html?plant_id=${encodeURIComponent(card.dataset.openPlant)}`;
+          }
+        }));
+        backdrop.querySelectorAll('[data-dismiss-notification]').forEach((button) => button.addEventListener('click', async () => {
+          button.disabled = true;
+          try {
+            await updateSavedNotifications('dismiss', button.dataset.dismissNotification);
+            savedNotifications = savedNotifications.filter((item) => String(item.id) !== button.dataset.dismissNotification);
+            button.closest('.notification-entry').remove();
+            if (!savedNotifications.length) backdrop.querySelector('.notifications-list').innerHTML = '<p class="notification-empty">No care notifications yet.</p>';
+            updateNotificationBadge();
+          } catch (error) {
+            console.error('Unable to dismiss notification:', error);
+            button.disabled = false;
+          }
         }));
         backdrop.querySelector('[data-mark-all]').addEventListener('click', async () => {
           try {
@@ -4795,9 +4850,8 @@
             console.error('Unable to mark notifications as read:', error);
             return;
           }
-          notifications.forEach((item) => readNotificationIds.add(item.id));
-          saveReadNotifications();
           backdrop.querySelectorAll('.notification-card').forEach((card) => { card.classList.remove('unread'); card.querySelector('.notification-unread')?.remove(); });
+          updateNotificationBadge();
         });
         backdrop.addEventListener('click', (event) => { if (event.target === backdrop || event.target.closest('[data-close-notifications]')) closeNotifications(); });
       };
@@ -4805,6 +4859,7 @@
       document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeNotifications(); });
       updateNotificationBadge();
       void loadSavedNotifications();
+      window.setInterval(() => { void loadSavedNotifications(); }, 60000);
       const carousel = document.querySelector('.home-featured');
       const carouselTrack = document.getElementById('home-carousel-track');
       const carouselDots = [...document.querySelectorAll('[data-carousel-slide]')];
@@ -5496,17 +5551,21 @@
         'Garden Log': 'garden-log',
         'Climate Risk': 'climate-risk',
         Harvest: 'harvest',
+        Watering: 'plant-care',
+        Fertilizer: 'plant-care',
       };
       const categoryForType = (type) => activityCategories[type] || '';
       const categoryLabelForType = (type) => type === 'Climate Risk'
         ? 'Climate Risk Alert'
         : type === 'Harvest'
           ? 'Harvest Record'
+          : type === 'Watering' || type === 'Fertilizer'
+            ? `${type} Activity`
           : categoryForType(type) ? type : '';
       const activityDisplayLabel = (activity) => activity.type === 'Plant Growth' && activity.title === 'Plant Growth Scan'
         ? 'Plant Growth Scan'
         : categoryLabelForType(activity.type);
-      const activityIconForType = (type) => type === 'Garden Log' ? '🌿' : type === 'Climate Risk' ? '🌦️' : type === 'Harvest' ? '🌾' : '🌱';
+      const activityIconForType = (type) => type === 'Watering' ? '💧' : type === 'Fertilizer' ? '🪴' : type === 'Garden Log' ? '🌿' : type === 'Climate Risk' ? '🌦️' : type === 'Harvest' ? '🌾' : '🌱';
       const formatDateParts = (dateValue) => { const date = new Date(`${dateValue}T00:00:00`); return { day: date.getDate(), month: date.toLocaleString('en-US', { month: 'short' }).toUpperCase() }; };
       const activityDescription = (activity) => [
         activity.details,

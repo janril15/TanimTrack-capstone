@@ -14,6 +14,8 @@ const scanDetailsCard = document.querySelector('#scan-details-card')
 const olderSelect = document.querySelector('#comparison-older')
 const newerSelect = document.querySelector('#comparison-newer')
 const comparisonResult = document.querySelector('#comparison-result')
+const plantCareSummary = document.querySelector('#plant-care-summary')
+const plantCareHistory = document.querySelector('#plant-care-history')
 const scanIdPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i
 const historyPreviewCount = 2
 let plant = null
@@ -21,6 +23,7 @@ let scans = []
 let selectedScanId = null
 let historyExpanded = false
 let scanDetailsExpanded = false
+let plantCare = null
 
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
   '&': '&amp;',
@@ -66,6 +69,22 @@ function scanStatus(scan) {
   if (status === 'Uncertain') return { text: 'Needs verification', className: 'is-uncertain' }
   if (status === 'Nutrient Deficiency') return { text: 'Nutrient Stress', className: 'is-attention' }
   return { text: status, className: 'is-attention' }
+}
+
+function elapsedPlantAge(plantedOn, at = new Date()) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(plantedOn || ''))
+  if (!match) return null
+  const year = Number(match[1])
+  const month = Number(match[2]) - 1
+  const day = Number(match[3])
+  const plantedDate = Date.UTC(year, month, day)
+  if (new Date(plantedDate).getUTCFullYear() !== year
+    || new Date(plantedDate).getUTCMonth() !== month
+    || new Date(plantedDate).getUTCDate() !== day) return null
+  const todayDate = Date.UTC(at.getFullYear(), at.getMonth(), at.getDate())
+  if (plantedDate > todayDate) return null
+  const days = Math.floor((todayDate - plantedDate) / 86_400_000)
+  return { days, weeks: Math.floor(days / 7), remainingDays: days % 7 }
 }
 
 function scanImageMarkup(scan, className, alt = '') {
@@ -211,6 +230,84 @@ function renderPage() {
   renderHistory()
   renderScanDetails()
   populateComparisonSelects()
+  renderCareHistory()
+}
+
+function careDate(value) {
+  const date = String(value || '').slice(0, 10)
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? scanDateOnly(`${date}T12:00:00`) : 'Date not recorded'
+}
+
+function renderCareHistory() {
+  if (!plantCare) {
+    plantCareSummary.innerHTML = '<p class="plant-history-empty">Care schedule and history are not available yet.</p>'
+    plantCareHistory.replaceChildren()
+    return
+  }
+  const record = plantCare.plants?.[0]
+  if (!record) {
+    plantCareSummary.innerHTML = '<p class="plant-history-empty">No care records are linked to this plant yet.</p>'
+    plantCareHistory.replaceChildren()
+    return
+  }
+  const watering = (plantCare.watering_history || []).map((task) => ({ ...task, care_type: 'Watering' }))
+  const fertilizer = (plantCare.care_history || []).map((task) => ({ ...task, care_type: 'Fertilizer' }))
+  const pending = [
+    ...watering.filter((task) => task.status === 'pending'),
+    ...fertilizer.filter((task) => task.status === 'pending'),
+  ].sort((a, b) => `${a.scheduled_on} ${a.scheduled_time || ''}`.localeCompare(`${b.scheduled_on} ${b.scheduled_time || ''}`))
+  const completed = [
+    ...watering.filter((task) => task.status === 'completed'),
+    ...fertilizer.filter((task) => task.status === 'completed'),
+  ].sort((a, b) => String(b.completed_at || b.scheduled_on).localeCompare(String(a.completed_at || a.scheduled_on)))
+  const nextWatering = pending.find((task) => task.care_type === 'Watering')
+  const nextFertilizer = pending.find((task) => task.care_type === 'Fertilizer')
+  const health = scans[0]?.analysis_result?.health_status || scans[0]?.health_status || 'Not scanned'
+  const actualAge = elapsedPlantAge(record.planted_on)
+  const ageText = actualAge ? `${actualAge.weeks} weeks, ${actualAge.remainingDays} days` : 'Not recorded'
+  const recommendation = record.recommendation
+  const recommendationText = recommendation
+    ? `${recommendation.decision === 'apply' ? `${recommendation.fertilizer_category.replaceAll('_', ' ')} may be appropriate` : 'No application currently indicated'}: ${recommendation.reason}`
+    : record.needs_assessment
+      ? 'A new scan or care record is ready for reassessment in the Care Schedule.'
+      : 'No AI fertilizer recommendation is available; complete a scan to assess care.'
+  plantCareSummary.innerHTML = `<div class="plant-care-summary-grid">
+      <p><strong>Latest AI health status</strong><span>${escapeHtml(health)}</span></p>
+      <p><strong>Growth stage</strong><span>${escapeHtml(record.growth_stage || 'Not recorded')}</span></p>
+      <p><strong>Actual age</strong><span>${escapeHtml(ageText)}</span></p>
+      <p><strong>Next watering</strong><span>${escapeHtml(nextWatering ? `${careDate(nextWatering.scheduled_on)}${nextWatering.scheduled_time ? ` · ${nextWatering.scheduled_time}` : ''}` : 'Not scheduled')}</span></p>
+      <p><strong>Next fertilizer</strong><span>${escapeHtml(nextFertilizer ? `${careDate(nextFertilizer.scheduled_on)} · ${nextFertilizer.fertilizer_category.replaceAll('_', ' ')}` : 'Not scheduled')}</span></p>
+      <p><strong>Pending care tasks</strong><span>${pending.length}</span></p>
+    </div><p class="plant-care-recommendation"><strong>AI care recommendation:</strong> ${escapeHtml(recommendationText)}</p>
+    <p class="plant-care-caution">Photos do not measure soil moisture. Check soil before watering; possible symptoms are not a confirmed diagnosis. Follow fertilizer product labels.</p>`
+  plantCareHistory.innerHTML = completed.length
+    ? completed.map((task) => {
+      const date = careDate(task.completed_at || task.scheduled_on)
+      const detail = task.care_type === 'Watering'
+        ? `${task.amount_ml ? `${Number(task.amount_ml).toLocaleString()} mL` : 'Amount not recorded'} · ${task.status}`
+        : `${escapeHtml(task.product_name || task.fertilizer_category.replaceAll('_', ' '))}${task.applied_amount ? ` · ${escapeHtml(task.applied_amount)}` : ''}`
+      return `<article class="plant-history-row"><span class="plant-history-icon" aria-hidden="true">${task.care_type === 'Watering' ? '💧' : '🪴'}</span><span><strong>${escapeHtml(task.care_type)} · ${escapeHtml(date)}</strong><small>${detail}</small></span></article>`
+    }).join('')
+    : '<p class="plant-history-empty">No completed watering or fertilizer applications recorded for this plant.</p>'
+}
+
+async function loadCareDetails() {
+  try {
+    const response = await fetch(`/api/care.php?plant_id=${encodeURIComponent(plantId)}`, {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+      cache: 'no-store',
+    })
+    const result = await response.json()
+    if (response.status === 401) throw new Error('Your session has expired. Sign in again to view plant care history.')
+    if (!response.ok || result?.success !== true) throw new Error(result?.message || 'Unable to load care history.')
+    plantCare = result
+    renderCareHistory()
+  } catch (error) {
+    console.error('Unable to load plant care history:', error)
+    plantCare = null
+    plantCareSummary.innerHTML = `<p class="plant-history-empty">${escapeHtml(error.message || 'Plant care history is unavailable.')}</p>`
+  }
 }
 
 function comparisonTrend(earlier, later) {
@@ -323,6 +420,7 @@ async function loadPlant() {
     selectedScanId = scans[0]?.id || null
     showFeedback('')
     renderPage()
+    await loadCareDetails()
   } catch (error) {
     console.error('Unable to load plant monitoring:', error)
     plantName.textContent = 'Plant monitoring unavailable'
@@ -393,6 +491,7 @@ selectedScanDetails.addEventListener('submit', async (event) => {
     if (!response.ok || !result.success || !result.scan) throw new Error(result.message || 'Unable to save these measurements.')
     scans = scans.map((scan) => scan.id === result.scan.id ? result.scan : scan)
     renderPage()
+    await loadCareDetails()
     const updatedFeedback = document.querySelector('#measurement-feedback')
     if (updatedFeedback) updatedFeedback.textContent = 'Measurements saved for this scan.'
     showFeedback('')

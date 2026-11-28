@@ -2030,6 +2030,75 @@ body.plant-details-body {
   display: grid;
 }
 
+.plant-care-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.plant-care-summary-grid p {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 9px;
+  border-radius: 9px;
+  background: #f5f8f3;
+  font-size: 12px;
+}
+
+.plant-care-summary-grid strong {
+  color: #647166;
+  font-size: 10px;
+}
+
+.plant-care-summary-grid span,
+.plant-care-recommendation {
+  color: #294d37;
+  line-height: 1.45;
+}
+
+.plant-care-recommendation {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+.plant-care-caution {
+  margin: 8px 0;
+  color: #7a6133;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.plant-history-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 7px 4px;
+  border-bottom: 1px solid #edf0ed;
+}
+
+.plant-history-row>span:last-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.plant-history-row small {
+  color: #718075;
+}
+
+.plant-history-icon {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 9px;
+  background: #edf5e9;
+}
+
 .details-history-row {
   box-sizing: border-box;
   display: grid;

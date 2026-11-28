@@ -120,6 +120,7 @@ if (wateringScreen) {
   }
 
   function taskMarkup(task) {
+    if (task.fertilizer_category) return fertilizerTaskMarkup(task)
     const pending = task.status === 'pending'
     const amount = amountLabel(task)
     const cups = cupLabel(task)
@@ -155,6 +156,29 @@ if (wateringScreen) {
     </article>`
   }
 
+  function fertilizerTaskMarkup(task) {
+    const pending = task.status === 'pending'
+    const actions = pending
+      ? `<form class="care-task-complete" data-complete-fertilizer data-task-id="${escapeHtml(task.id)}">
+          <input name="product_name" maxlength="160" placeholder="Product used (optional)" aria-label="Fertilizer product used">
+          <input name="applied_amount" maxlength="100" placeholder="Amount applied (optional)" aria-label="Fertilizer amount applied">
+          <button type="submit">✓ Mark Applied</button>
+          <button type="button" class="care-task-dismiss" data-action="dismiss-fertilizer" data-task-id="${escapeHtml(task.id)}">Dismiss</button>
+        </form>`
+      : `<span class="watering-task-status ${escapeHtml(task.display_status)}">${task.status === 'completed' ? 'Completed' : escapeHtml(task.display_status)}</span>`
+    return `<article class="watering-task-card fertilizer-task-card">
+      ${image(task.plant_image_url, 'watering-task-image')}
+      <div class="watering-task-main">
+        <h4>${escapeHtml(task.plant_name)}</h4>
+        <span class="watering-task-meta">🪴 ${escapeHtml(task.fertilizer_category.replaceAll('_', ' '))} · ${escapeHtml(timeLabel(task.scheduled_time))}</span>
+        <small class="care-task-guidance">${escapeHtml(task.guidance)}</small>
+        ${actions}
+      </div>
+      <span class="watering-task-divider" aria-hidden="true"></span>
+      <span class="watering-task-quantity"><span><strong>Fertilizer</strong><small>${escapeHtml(dateLabel(task.scheduled_on))}</small></span></span>
+    </article>`
+  }
+
   function renderTaskList(container, tasks, emptyText) {
     container.innerHTML = tasks.length ? tasks.map(taskMarkup).join('') : `<p class="watering-empty">${escapeHtml(emptyText)}</p>`
   }
@@ -170,7 +194,8 @@ if (wateringScreen) {
     const offset = new Date(Date.UTC(year, month - 1, 1)).getUTCDay()
     const days = new Date(Date.UTC(year, month, 0)).getUTCDate()
     const map = new Map()
-    state.data.tasks.forEach((task) => {
+    const allTasks = [...state.data.tasks, ...(state.data.care?.tasks || [])]
+    allTasks.forEach((task) => {
       if (!map.has(task.scheduled_on)) map.set(task.scheduled_on, [])
       map.get(task.scheduled_on).push(task)
     })
@@ -180,13 +205,14 @@ if (wateringScreen) {
       const dayTasks = map.get(date) || []
       const dots = dayTasks.slice(0, 4).map((task) => {
         const status = task.display_status === 'overdue' ? 'overdue' : task.status
-        return `<i class="${escapeHtml(status)}" aria-hidden="true"></i>`
+        return `<i class="${escapeHtml(status)}${task.fertilizer_category ? ' fertilizer' : ''}" aria-hidden="true"></i>`
       }).join('')
       cells.push(`<button class="watering-calendar-day${date === state.data.today ? ' is-today' : ''}${date === state.selectedDate ? ' is-selected' : ''}" type="button" role="gridcell" data-calendar-date="${date}" aria-selected="${date === state.selectedDate}">
         <span>${day}</span><span class="watering-calendar-dots">${dots}</span></button>`)
     }
     $('#watering-calendar-grid').innerHTML = cells.join('')
-    const selected = state.data.tasks.filter((task) => task.scheduled_on === state.selectedDate)
+    const selected = [...state.data.tasks, ...(state.data.care?.tasks || [])]
+      .filter((task) => task.scheduled_on === state.selectedDate)
     const selectedPending = selected.filter((task) => task.status === 'pending').length
     const isToday = state.selectedDate === state.data.today
     $('#watering-today-title').textContent = isToday
@@ -196,7 +222,7 @@ if (wateringScreen) {
     renderTaskList(
       $('#watering-tasks-today'),
       selected,
-      isToday ? 'No incomplete watering tasks due today.' : 'No watering tasks scheduled for this date.',
+      isToday ? 'No incomplete plant-care tasks due today.' : 'No care tasks scheduled for this date.',
     )
   }
 
@@ -265,6 +291,47 @@ if (wateringScreen) {
     </div>`
   }
 
+  function fertilizerRecommendationMarkup(plant) {
+    const recommendation = plant.fertilizer_recommendation
+    const today = state.data.today
+    const recordForm = `<details class="care-record-application"><summary>Record fertilizer applied</summary>
+      <form data-record-application data-plant-id="${escapeHtml(plant.id)}">
+        <label>Product<input name="product_name" maxlength="160" required placeholder="Product name"></label>
+        <label>Category<select name="fertilizer_category"><option value="other">Other / label-specific</option><option value="organic">Organic</option><option value="compost">Compost</option><option value="balanced_npk">Balanced NPK</option><option value="nitrogen_rich">Nitrogen-rich</option><option value="crop_specific">Crop-specific</option></select></label>
+        <label>Amount (optional)<input name="applied_amount" maxlength="100" placeholder="As written on product label"></label>
+        <label>Application date<input name="applied_on" type="date" max="${escapeHtml(today)}" value="${escapeHtml(today)}" required></label>
+        <button type="submit">Save application</button>
+      </form></details>`
+    if (!plant.latest_scan) {
+      return `<section class="fertilizer-recommendation"><h4>Fertilizer care</h4><p>Save a scan with Plant/Crop Scan before requesting a plant-specific fertilizer recommendation.</p>${recordForm}</section>`
+    }
+    if (!recommendation) {
+      return `<section class="fertilizer-recommendation"><h4>Fertilizer care</h4>
+        <p>No current fertilizer recommendation is available for this scan and care history.</p>
+        <button class="watering-primary-button" type="button" data-action="assess-fertilizer" data-plant-id="${escapeHtml(plant.id)}">Assess fertilizer care</button>
+        ${recordForm}</section>`
+    }
+    const decisionLabel = {
+      apply: `Application may be appropriate${recommendation.recommended_on ? ` on ${dateLabel(recommendation.recommended_on)}` : ''}`,
+      review: 'Review plant and soil before applying',
+      not_needed: 'No fertilizer application indicated now',
+    }[recommendation.decision]
+    const category = recommendation.fertilizer_category === 'none'
+      ? 'No category selected'
+      : recommendation.fertilizer_category.replaceAll('_', ' ')
+    const scheduled = recommendation.decision === 'apply'
+      ? `<button class="watering-primary-button" type="button" data-action="schedule-fertilizer" data-plant-id="${escapeHtml(plant.id)}" data-recommendation-id="${escapeHtml(recommendation.id)}">Add approved recommendation to schedule</button>`
+      : ''
+    return `<section class="fertilizer-recommendation">
+      <h4>${escapeHtml(decisionLabel)} · ${escapeHtml(recommendation.confidence)} confidence</h4>
+      <p><strong>${escapeHtml(category)}</strong> · ${escapeHtml(recommendation.reason)}</p>
+      <p>${escapeHtml(recommendation.guidance)}</p>
+      ${recommendation.nutrient_stress === 'possible' ? '<p class="care-caution">Possible nutrient stress only; this is not a confirmed deficiency. Leaf color alone is not diagnostic.</p>' : ''}
+      ${recommendation.warnings.length ? `<ul>${recommendation.warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul>` : ''}
+      ${scheduled}<button class="watering-primary-button" type="button" data-action="assess-fertilizer" data-plant-id="${escapeHtml(plant.id)}">Reassess care</button>
+      ${recordForm}</section>`
+  }
+
   function plantCard(plant) {
     const latest = plant.latest_scan
     const settings = plant.plan.settings
@@ -289,7 +356,7 @@ if (wateringScreen) {
         <div><span>Last watered</span><strong>${escapeHtml(plant.last_watering ? dateLabel(plant.last_watering.completed_at) : 'No record')}</strong></div>
         <div><span>Next task</span><strong>${escapeHtml(plant.next_watering ? dateLabel(plant.next_watering.scheduled_on) : 'Not scheduled')}</strong></div></div>
       <div class="watering-findings"><p class="watering-kicker">LATEST AI FINDINGS</p>${findings}</div>
-      ${recommendationMarkup(plant)}${settingsForm}</article>`
+      ${recommendationMarkup(plant)}${fertilizerRecommendationMarkup(plant)}${settingsForm}</article>`
   }
 
   async function post(data) {
@@ -300,10 +367,18 @@ if (wateringScreen) {
     })
   }
 
+  async function postCare(data) {
+    return request('/api/care.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+  }
+
   async function pollNotifications() {
     if (!state.data || !('Notification' in window) || Notification.permission !== 'granted') return
-    const due = [...state.data.tasks_due_today, ...state.data.overdue_tasks]
-    for (const task of new Map(due.map((item) => [item.id, item])).values()) {
+    const waterTasks = [...state.data.tasks_due_today, ...state.data.overdue_tasks]
+    for (const task of new Map(waterTasks.map((item) => [item.id, item])).values()) {
       if (!task.reminder_time || task.reminder_sent_at) continue
       try {
         const claimed = await post({ action: 'claim-reminder', task_id: task.id })
@@ -315,6 +390,22 @@ if (wateringScreen) {
         console.error('Unable to create browser watering reminder:', error)
       }
     }
+    const fertilizerTasks = [
+      ...(state.data.care?.tasks_due_today || []),
+      ...(state.data.care?.overdue_tasks || []),
+    ]
+    for (const task of new Map(fertilizerTasks.map((item) => [item.id, item])).values()) {
+      if (task.reminder_sent_at) continue
+      try {
+        const claimed = await postCare({ action: 'claim-reminder', task_id: task.id })
+        if (claimed.claimed) new Notification(`Fertilizer reminder: ${task.plant_name}`, {
+          body: `${task.fertilizer_category.replaceAll('_', ' ')} · ${dateLabel(task.scheduled_on)}. Follow the product label.`,
+          tag: `fertilizer-${task.id}`,
+        })
+      } catch (error) {
+        console.error('Unable to create browser fertilizer reminder:', error)
+      }
+    }
   }
 
   async function loadSchedule({ auto = true } = {}) {
@@ -323,23 +414,35 @@ if (wateringScreen) {
     let shouldReassess = false
     try {
       const query = new URLSearchParams({ month: state.month, date: state.selectedDate })
-      state.data = await request(`/api/watering.php?${query}`)
+      const [wateringData, careData] = await Promise.all([
+        request(`/api/watering.php?${query}`),
+        request(`/api/care.php?month=${encodeURIComponent(state.month)}`),
+      ])
+      state.data = { ...wateringData, care: careData }
       state.month = state.data.month
       state.selectedDate = state.data.selected_date
       updateCount(state.data.today_count)
       renderCalendar()
-      renderTaskList($('#watering-overdue-tasks'), state.data.overdue_tasks, 'No overdue watering tasks.')
-      $('#watering-overdue-count').textContent = state.data.overdue_tasks.length
-        ? `(${state.data.overdue_tasks.length})`
+      const overdue = [...state.data.overdue_tasks, ...careData.overdue_tasks]
+      const dueToday = [...state.data.tasks_due_today, ...careData.tasks_due_today]
+      renderTaskList($('#watering-overdue-tasks'), overdue, 'No overdue care tasks.')
+      $('#watering-overdue-count').textContent = overdue.length
+        ? `(${overdue.length})`
         : ''
-      $('.watering-overdue-section').hidden = state.data.overdue_tasks.length === 0
-      $('#watering-plants-list').innerHTML = state.data.plants.length
-        ? state.data.plants.map(plantCard).join('')
+      $('.watering-overdue-section').hidden = overdue.length === 0
+      const carePlants = new Map(careData.plants.map((plant) => [plant.id, plant]))
+      const plants = state.data.plants.map((plant) => ({
+        ...plant,
+        fertilizer_recommendation: carePlants.get(plant.id)?.recommendation || null,
+        fertilizer_assessment_pending: carePlants.get(plant.id)?.needs_assessment || false,
+      }))
+      $('#watering-plants-list').innerHTML = plants.length
+        ? plants.map(plantCard).join('')
         : '<p class="watering-empty">No registered plants yet. Add one through Farm Logs.</p>'
-      const due = state.data.tasks_due_today.length
-      const overdue = state.data.overdue_tasks.length
-      $('#watering-reminder-status').textContent = `${due} task${due === 1 ? '' : 's'} due today · ${overdue} overdue. Browser notifications require permission and this page to remain open.`
+      const count = dueToday.filter((task) => task.status === 'pending').length
+      $('#watering-reminder-status').textContent = `${count} care task${count === 1 ? '' : 's'} due today · ${overdue.length} overdue. In-app reminders are processed by the backend; browser reminders require permission and this page to remain open.`
       shouldReassess = auto && state.data.plants.some((plant) => plant.latest_scan && plant.plan.needs_reassessment)
+        || auto && careData.plants.some((plant) => plant.needs_assessment)
       await pollNotifications()
     } catch (error) {
       console.error('Unable to load the watering schedule:', error)
@@ -368,11 +471,68 @@ if (wateringScreen) {
         state.reassessing.delete(plant.id)
       }
     }
+    for (const plant of state.data.care.plants.filter((item) => item.needs_assessment)) {
+      if (state.reassessing.has(`care:${plant.id}`)) continue
+      state.reassessing.add(`care:${plant.id}`)
+      setFeedback(`Reviewing ${plant.name}'s saved scan and care history for fertilizer guidance…`)
+      try {
+        await postCare({ action: 'assess', plant_id: plant.id })
+      } catch (error) {
+        console.error('Unable to assess plant fertilizer care:', error)
+        setFeedback(`${plant.name}: ${error.message}`)
+      } finally {
+        state.reassessing.delete(`care:${plant.id}`)
+      }
+    }
     await loadSchedule({ auto: false })
   }
 
   async function action(button) {
     const actionName = button.dataset.action
+    if (actionName === 'assess-fertilizer') {
+      button.disabled = true
+      setFeedback('Gemini is reviewing this plant’s stored scan findings, growth stage, soil data, and care history.')
+      try {
+        const result = await postCare({ action: 'assess', plant_id: button.dataset.plantId })
+        setFeedback(result.cached ? 'The current saved recommendation is unchanged.' : 'Plant-care recommendation updated.', 'success')
+        await loadSchedule({ auto: false })
+      } catch (error) {
+        console.error('Unable to assess fertilizer care:', error)
+        setFeedback(error.message)
+        button.disabled = false
+      }
+      return
+    }
+    if (actionName === 'schedule-fertilizer') {
+      button.disabled = true
+      try {
+        const result = await postCare({
+          action: 'schedule-recommendation',
+          plant_id: button.dataset.plantId,
+          recommendation_id: button.dataset.recommendationId,
+        })
+        setFeedback(result.message, 'success')
+        await loadSchedule({ auto: false })
+      } catch (error) {
+        console.error('Unable to schedule fertilizer recommendation:', error)
+        setFeedback(error.message)
+        button.disabled = false
+      }
+      return
+    }
+    if (actionName === 'dismiss-fertilizer') {
+      button.disabled = true
+      try {
+        const result = await postCare({ action: 'dismiss', task_id: button.dataset.taskId })
+        setFeedback(result.message, 'success')
+        await loadSchedule({ auto: false })
+      } catch (error) {
+        console.error('Unable to dismiss fertilizer reminder:', error)
+        setFeedback(error.message)
+        button.disabled = false
+      }
+      return
+    }
     if (actionName === 'reassess') {
       const id = button.dataset.plantId
       button.disabled = true
@@ -395,7 +555,7 @@ if (wateringScreen) {
       const result = await post({ action: 'complete', task_id: button.dataset.taskId })
       updateCount(result.today_count)
       setFeedback(result.message, 'success')
-      await loadSchedule({ auto: false })
+      await loadSchedule()
     } catch (error) {
       console.error('Unable to complete watering task:', error)
       setFeedback(error.message)
@@ -450,6 +610,26 @@ if (wateringScreen) {
     try {
       if (form.matches('[data-settings]')) {
         await submitSettings(form)
+      } else if (form.matches('[data-complete-fertilizer]')) {
+        const result = await postCare({
+          action: 'complete',
+          task_id: form.dataset.taskId,
+          product_name: values.get('product_name'),
+          applied_amount: values.get('applied_amount'),
+        })
+        setFeedback(result.message, 'success')
+        await loadSchedule()
+      } else if (form.matches('[data-record-application]')) {
+        const result = await postCare({
+          action: 'record-application',
+          plant_id: form.dataset.plantId,
+          product_name: values.get('product_name'),
+          fertilizer_category: values.get('fertilizer_category'),
+          applied_amount: values.get('applied_amount'),
+          applied_on: values.get('applied_on'),
+        })
+        setFeedback(result.message, 'success')
+        await loadSchedule()
       } else if (form.matches('[data-reschedule]')) {
         const result = await post({
           action: 'reschedule', task_id: button.dataset.taskId,

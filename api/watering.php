@@ -46,7 +46,7 @@ function watering_date_valid(string $date): bool
 function watering_owned_plant(PDO $pdo, int $userId, string $plantId): ?array
 {
     $statement = $pdo->prepare(
-        'SELECT p.id, p.name, p.species, p.location,
+        'SELECT p.id, p.name, p.species, p.location, p.planted_on,
                 (SELECT a.growth_stage FROM farm_activities a
                  WHERE a.user_id = p.user_id AND a.plant_id = p.id
                    AND a.activity_type = :activity_type AND a.growth_stage IS NOT NULL AND a.growth_stage <> \'\'
@@ -197,8 +197,15 @@ function watering_format_task(array $row, DateTimeImmutable $now): array
 
 function watering_count(PDO $pdo, int $userId, string $today): int
 {
-    $statement = $pdo->prepare('SELECT COUNT(*) FROM watering_tasks WHERE user_id = :user_id AND status = :status AND scheduled_on = :today');
-    $statement->execute(['user_id' => $userId, 'status' => 'pending', 'today' => $today]);
+    $statement = $pdo->prepare(
+        'SELECT
+           (SELECT COUNT(*) FROM watering_tasks WHERE user_id = :water_user_id AND status = :water_status AND scheduled_on = :water_today)
+           + (SELECT COUNT(*) FROM fertilizer_tasks WHERE user_id = :fertilizer_user_id AND status = :fertilizer_status AND scheduled_on = :fertilizer_today)'
+    );
+    $statement->execute([
+        'water_user_id' => $userId, 'water_status' => 'pending', 'water_today' => $today,
+        'fertilizer_user_id' => $userId, 'fertilizer_status' => 'pending', 'fertilizer_today' => $today,
+    ]);
     return (int) $statement->fetchColumn();
 }
 
@@ -242,12 +249,12 @@ function watering_sync_notifications(PDO $pdo, int $userId): void
     $now = watering_now();
     $statement = $pdo->prepare(
         'INSERT IGNORE INTO notifications
-            (user_id, notification_type, title, message, related_module, related_record_id, event_key)
+            (user_id, notification_type, title, message, related_module, related_record_id, related_plant_id, scheduled_at, event_key)
          SELECT t.user_id, :type, CONCAT(:title, p.name),
                 CONCAT(:message, DATE_FORMAT(t.scheduled_on, :date_format), :at_text, TIME_FORMAT(t.scheduled_time, :time_format)),
-                :module, t.id,
-                CONCAT(:event_prefix, t.plant_id, :sep1, DATE_FORMAT(t.scheduled_on, :key_date),
-                       :sep2, TIME_FORMAT(t.scheduled_time, :key_time), :sep3, TIME_FORMAT(t.reminder_time, :key_reminder))
+                :module, t.id, t.plant_id,
+                CONCAT(t.scheduled_on, :scheduled_separator, COALESCE(t.reminder_time, t.scheduled_time)),
+                CONCAT(:event_prefix, t.id)
          FROM watering_tasks t
          JOIN plants p ON p.user_id = t.user_id AND p.id = t.plant_id
          WHERE t.user_id = :user_id AND t.status = :status AND t.reminder_time IS NOT NULL
@@ -257,8 +264,7 @@ function watering_sync_notifications(PDO $pdo, int $userId): void
         'type' => 'watering_reminder', 'title' => 'Watering reminder: ',
         'message' => 'Watering task scheduled for ', 'date_format' => '%b %e, %Y',
         'at_text' => ' at ', 'time_format' => '%H:%i', 'module' => 'watering',
-        'event_prefix' => 'watering-slot:', 'sep1' => ':', 'key_date' => '%Y-%m-%d',
-        'sep2' => ':', 'key_time' => '%H:%i', 'sep3' => ':', 'key_reminder' => '%H:%i',
+        'scheduled_separator' => ' ', 'event_prefix' => 'care-task:watering:',
         'user_id' => $userId, 'status' => 'pending',
         'before_today' => $now->format('Y-m-d'), 'on_today' => $now->format('Y-m-d'),
         'now_time' => $now->format('H:i:s'),
@@ -455,12 +461,19 @@ function watering_reassess(PDO $pdo, int $userId, string $plantId): array
         'amount_ml' => $row['amount_ml'] !== null ? (int) $row['amount_ml'] : null,
     ], $historyStatement->fetchAll());
     $weather = watering_weather($pdo, $plant['location'] !== null ? (string) $plant['location'] : null);
+    $plantAgeDays = null;
+    if ($plant['planted_on'] !== null) {
+        $plantedOn = new DateTimeImmutable((string) $plant['planted_on'], new DateTimeZone(WATERING_TZ));
+        if ($plantedOn <= $now) $plantAgeDays = $plantedOn->diff($now)->days;
+    }
     $soilForAi = $settings;
     if (!$soilRecent) {
         $soilForAi['soil_moisture_percent'] = null;
     }
     $context = [
         'plant_name' => (string) $plant['name'], 'species' => $plant['species'],
+        'planted_on' => $plant['planted_on'] !== null ? (string) $plant['planted_on'] : null,
+        'plant_age_days' => $plantAgeDays,
         'growth_stage' => $scans[0]['growth_stage'] ?? $plant['logged_growth_stage'],
         'scan_history' => $scans, 'watering_history' => $history,
         'soil' => $soilForAi, 'weather' => $weather['available'] ? $weather['data'] : null,
@@ -515,7 +528,39 @@ function watering_reassess(PDO $pdo, int $userId, string $plantId): array
             'soil_instruction' => mb_substr(trim($result['soil_check_instruction']), 0, 500),
             'warnings' => json_encode($result['warnings'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
         ]);
+        $visibleSymptoms = $scans[0]['visible_symptoms'] ?? [];
+        $possibleWaterStress = count(array_filter(
+            $visibleSymptoms,
+            static fn (string $symptom): bool => preg_match('/wilt|droop/i', $symptom) === 1
+        )) > 0;
+        $notice = $pdo->prepare(
+            'INSERT IGNORE INTO notifications
+             (user_id, notification_type, title, message, related_module, related_record_id, related_plant_id, event_key)
+             VALUES (:user_id, :type, :title, :message, :module, :record_id, :plant_id, :event_key)'
+        );
+        $notice->execute([
+            'user_id' => $userId,
+            'type' => $possibleWaterStress ? 'possible_dehydration' : 'watering_recommendation',
+            'title' => $possibleWaterStress
+                ? 'Possible water-stress symptoms — check soil moisture'
+                : 'Watering recommendation updated',
+            'message' => $result['reason'] . ' ' . $result['soil_check_instruction']
+                . ($possibleWaterStress ? ' Wilting can have causes other than dry soil; verify moisture first.' : ''),
+            'module' => 'watering', 'record_id' => $recommendationId,
+            'plant_id' => $plantId, 'event_key' => 'watering-recommendation:' . $recommendationId,
+        ]);
         $cancel = $pdo->prepare('UPDATE watering_tasks SET status = :cancelled WHERE user_id = :user_id AND plant_id = :plant_id AND status = :pending');
+        $dismissOldNotices = $pdo->prepare(
+            'UPDATE notifications n
+             JOIN watering_tasks t ON t.user_id = n.user_id AND t.id = n.related_record_id
+             SET n.dismissed_at = :dismissed_at
+             WHERE t.user_id = :user_id AND t.plant_id = :plant_id AND t.status = :pending
+               AND n.related_module = :module AND n.dismissed_at IS NULL'
+        );
+        $dismissOldNotices->execute([
+            'dismissed_at' => $now->format('Y-m-d H:i:s'), 'user_id' => $userId,
+            'plant_id' => $plantId, 'pending' => 'pending', 'module' => 'watering',
+        ]);
         $cancel->execute(['cancelled' => 'cancelled', 'user_id' => $userId, 'plant_id' => $plantId, 'pending' => 'pending']);
         $updatePlan = $pdo->prepare(
             'UPDATE watering_plans SET current_recommendation_id = :recommendation, needs_reassessment = :needs
@@ -613,9 +658,54 @@ function watering_action(PDO $pdo, int $userId, array $data, DateTimeImmutable $
     if ($action === 'complete') {
         $taskId = is_string($data['task_id'] ?? null) ? trim($data['task_id']) : '';
         if (!watering_uuid($taskId)) json_response(['success' => false, 'message' => 'Select a valid watering task.'], 422);
-        $statement = $pdo->prepare('UPDATE watering_tasks SET status = :completed, completed_at = :at WHERE id = :id AND user_id = :user_id AND status = :pending');
-        $statement->execute(['completed' => 'completed', 'at' => $now->format('Y-m-d H:i:s'), 'id' => $taskId, 'user_id' => $userId, 'pending' => 'pending']);
-        if ($statement->rowCount() !== 1) json_response(['success' => false, 'message' => 'Task not found or already updated. Refresh the schedule.'], 409);
+        $pdo->beginTransaction();
+        try {
+            $lookup = $pdo->prepare(
+                'SELECT t.plant_id, t.scheduled_on, t.amount_ml, p.name
+                 FROM watering_tasks t JOIN plants p ON p.user_id = t.user_id AND p.id = t.plant_id
+                 WHERE t.id = :id AND t.user_id = :user_id AND t.status = :pending FOR UPDATE'
+            );
+            $lookup->execute(['id' => $taskId, 'user_id' => $userId, 'pending' => 'pending']);
+            $task = $lookup->fetch();
+            if ($task === false) {
+                $pdo->rollBack();
+                json_response(['success' => false, 'message' => 'Task not found or already updated. Refresh the schedule.'], 409);
+            }
+            $statement = $pdo->prepare(
+                'UPDATE watering_tasks SET status = :completed, completed_at = :at
+                 WHERE id = :id AND user_id = :user_id AND status = :pending'
+            );
+            $statement->execute([
+                'completed' => 'completed', 'at' => $now->format('Y-m-d H:i:s'),
+                'id' => $taskId, 'user_id' => $userId, 'pending' => 'pending',
+            ]);
+            $reassess = $pdo->prepare(
+                'UPDATE watering_plans SET needs_reassessment = 1
+                 WHERE user_id = :user_id AND plant_id = :plant_id'
+            );
+            $reassess->execute(['user_id' => $userId, 'plant_id' => $task['plant_id']]);
+            $activity = $pdo->prepare(
+                'INSERT INTO farm_activities
+                 (id, user_id, plant_id, care_task_id, activity_type, activity_date, title, details, related_plant)
+                 VALUES (:id, :user_id, :plant_id, :task_id, :type, :activity_date, :title, :details, :related_plant)'
+            );
+            $activity->execute([
+                'id' => app_uuid_v4(), 'user_id' => $userId, 'plant_id' => $task['plant_id'],
+                'task_id' => $taskId, 'type' => 'Watering', 'activity_date' => $task['scheduled_on'],
+                'title' => 'Watering task completed',
+                'details' => $task['amount_ml'] !== null ? 'Recorded amount: ' . $task['amount_ml'] . ' mL.' : 'Watering marked complete.',
+                'related_plant' => $task['name'],
+            ]);
+            $notice = $pdo->prepare(
+                'UPDATE notifications SET is_completed = 1, is_read = 1
+                 WHERE user_id = :user_id AND related_module = :module AND related_record_id = :task_id'
+            );
+            $notice->execute(['user_id' => $userId, 'module' => 'watering', 'task_id' => $taskId]);
+            $pdo->commit();
+        } catch (Throwable $error) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $error;
+        }
         return ['success' => true, 'message' => 'Watering marked complete.', 'today_count' => watering_count($pdo, $userId, $now->format('Y-m-d'))];
     }
     if ($action === 'create-task') {
@@ -663,6 +753,14 @@ function watering_action(PDO $pdo, int $userId, array $data, DateTimeImmutable $
             }
             $cancel = $pdo->prepare('UPDATE watering_tasks SET status = :cancelled WHERE id = :id AND user_id = :user_id AND status = :pending');
             $cancel->execute(['cancelled' => 'cancelled', 'id' => $taskId, 'user_id' => $userId, 'pending' => 'pending']);
+            $dismiss = $pdo->prepare(
+                'UPDATE notifications SET dismissed_at = :dismissed_at
+                 WHERE user_id = :user_id AND related_module = :module AND related_record_id = :task_id'
+            );
+            $dismiss->execute([
+                'dismissed_at' => $now->format('Y-m-d H:i:s'), 'user_id' => $userId,
+                'module' => 'watering', 'task_id' => $taskId,
+            ]);
             $insert = $pdo->prepare(
                 'INSERT INTO watering_tasks
                  (id, user_id, plant_id, recommendation_id, rescheduled_from_task_id, scheduled_on, scheduled_time,

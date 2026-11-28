@@ -16,7 +16,7 @@ if ($sessionUser === null) {
 }
 
 $pdo = pdo_connection();
-$allowedTypes = ['Plant Growth', 'Garden Log', 'Climate Risk', 'Harvest'];
+$allowedTypes = ['Plant Growth', 'Garden Log', 'Climate Risk', 'Harvest', 'Watering', 'Fertilizer'];
 
 function farm_activity_uuid(): string
 {
@@ -163,7 +163,7 @@ if ($requestMethod === 'GET') {
              FROM farm_activities AS a
              INNER JOIN users AS u ON u.id = a.user_id
              WHERE a.user_id = :user_id
-               AND a.activity_type IN ('Plant Growth', 'Garden Log', 'Climate Risk', 'Harvest')
+               AND a.activity_type IN ('Plant Growth', 'Garden Log', 'Climate Risk', 'Harvest', 'Watering', 'Fertilizer')
                AND a.id NOT IN (
                    'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a01',
                    'd6b2fa22-299c-4ae9-8ee5-b2b4e9f91a02',
